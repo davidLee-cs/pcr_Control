@@ -30,7 +30,7 @@ struct motorMovingStatus{
     uint16_t motor4_End_bit     :1;    //25 -1
 
 };
-//struct motorMovingStatus motorMovingStatus;
+//struct motorMovingStatus lastmotorMovingStatus;
 
 
 struct tempSensor{

@@ -6,22 +6,13 @@
  */
 
 
-//
-// Included Files
-//
-#include "driverlib.h"
-#include "device.h"
-#include "timer.h"
-#include "drv8452.h"
-#include "board.h"
+#include "config.h"
 
 uint16_t cpuTimer0IntCount;
 uint16_t cpuTimer1IntCount;
 uint16_t cpuTimer2IntCount;
 
-volatile uint32_t pulseCount = 0;     // 현재까지 발생한 펄스 수
-volatile uint32_t targetPulseCount = 100000; // 목표 펄스 수 (예: 1000펄스)
-volatile uint32_t stepDelay = 1000;   // STEP 펄스 간격 (속도 제어용)
+bool cputimer0Flag;
 
 void timerSet(void)
 {
@@ -30,25 +21,25 @@ void timerSet(void)
     // ISRs for each CPU Timer interrupt
     //
     Interrupt_register(INT_TIMER0, &cpuTimer0ISR);
-//    Interrupt_register(INT_TIMER1, &cpuTimer1ISR);
+    Interrupt_register(INT_TIMER1, &cpuTimer1ISR);
 //    Interrupt_register(INT_TIMER2, &cpuTimer2ISR);
 
     initCPUTimers();
 
-    configCPUTimer(CPUTIMER0_BASE, DEVICE_SYSCLK_FREQ, 20);
-//    configCPUTimer(CPUTIMER1_BASE, DEVICE_SYSCLK_FREQ, 1000000);
+    configCPUTimer(CPUTIMER0_BASE, DEVICE_SYSCLK_FREQ, 1000000);
+    configCPUTimer(CPUTIMER1_BASE, DEVICE_SYSCLK_FREQ, 100000);           // 100ms
 //    configCPUTimer(CPUTIMER2_BASE, DEVICE_SYSCLK_FREQ, 1000000);
 
     CPUTimer_enableInterrupt(CPUTIMER0_BASE);
-//    CPUTimer_enableInterrupt(CPUTIMER1_BASE);
+    CPUTimer_enableInterrupt(CPUTIMER1_BASE);
 //    CPUTimer_enableInterrupt(CPUTIMER2_BASE);
 
     Interrupt_enable(INT_TIMER0);
-//    Interrupt_enable(INT_TIMER1);
+    Interrupt_enable(INT_TIMER1);
 //    Interrupt_enable(INT_TIMER2);
 
-//    CPUTimer_startTimer(CPUTIMER0_BASE);
-//    CPUTimer_startTimer(CPUTIMER1_BASE);
+    CPUTimer_startTimer(CPUTIMER0_BASE);
+    CPUTimer_startTimer(CPUTIMER1_BASE);
 //    CPUTimer_startTimer(CPUTIMER2_BASE);
 
 }
@@ -155,7 +146,7 @@ cpuTimer0ISR(void)
 {
     cpuTimer0IntCount++;
 
-    static int stepState = 0;
+    cputimer0Flag = TRUE;
 
 //    // 펄스 갯수가 목표 값에 도달했으면 모터를 멈추고 인터럽트를 더 이상 발생시키지 않음
 //    if (pulseCount >= targetPulseCount) {
@@ -165,14 +156,14 @@ cpuTimer0ISR(void)
 //        return; // 펄스 갯수가 다 찼으면 인터럽트를 종료
 //    }
 
-    if (stepState == 0) {
-        GPIO_writePin(STEP_0, 1);  // STEP = 1
-        stepState = 1;
-    } else {
-        GPIO_writePin(STEP_0, 0); // STEP = 0
-        stepState = 0;
-        pulseCount++;  // 펄스 카운트 증가
-    }
+//    if (stepState == 0) {
+////        GPIO_writePin(STEP_0, 1);  // STEP = 1
+//        stepState = 1;
+//    } else {
+////        GPIO_writePin(STEP_0, 0); // STEP = 0
+//        stepState = 0;
+//        pulseCount++;  // 펄스 카운트 증가
+//    }
 
     //
     // Acknowledge this interrupt to receive more interrupts from group 1

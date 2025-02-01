@@ -5,15 +5,9 @@
  *      Author: alllite
  */
 
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
+#include "config.h"
 #include "math.h"
-#include "board.h"
 #include "ads1248_reg.h"
-#include "ads1248_pt100.h"
 #include "ads1248_LUT.h"
 
 #define ONE_REGISTER_READ_WRITE     0

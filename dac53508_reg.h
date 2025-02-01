@@ -53,8 +53,8 @@ dac_reg  dac53508_regs[] =  // dac53508 INIT 20161102
 
      // 레지스테 파리미터 설정은 24 bit로 설정해야 됨.
      {0x00, 0x0000, 3}, // RESERVED = 0x00,
-     {0x01, 0x0000, 3}, //DEVICE_CONFIG,
-     {0x02, 0x4040, 3}, // STATUS_TRIGGER,
+     {0x01, 0x0000, 3}, //DEVICE_CONFIG, fe
+     {0x02, 0x0000, 3}, // STATUS_TRIGGER,
      {0x03, 0x0000, 3}, //BRDCAST,
 
      {0x04, 0x0000, 3}, //RESERVED,
@@ -62,14 +62,14 @@ dac_reg  dac53508_regs[] =  // dac53508 INIT 20161102
      {0x06, 0x0000, 3}, //RESERVED,
      {0x07, 0x0000, 3}, // RESERVED,
 
-     {0x08, 0x0000, 3}, //DACA_DATA,
-     {0x09, 0x0000, 3}, //DACB_DATA,
-     {0x0A, 0x0000, 3}, //DACC_DATA,
-     {0x0B, 0x0000, 3}, // DACD_DATA,
-     {0x0C, 0x0000, 3}, //DACE_DATA,
-     {0x0D, 0x0000, 3}, //DACF_DATA,
-     {0x0E, 0x0000, 3},//DACG_DATA,
-     {0x0F, 0x0000, 3}, //DACH_DATA,
+     {0x08, 0x0400, 3}, //DACA_DATA,
+     {0x09, 0x0400, 3}, //DACB_DATA,
+     {0x0A, 0x0400, 3}, //DACC_DATA,
+     {0x0B, 0x0400, 3}, // DACD_DATA,
+     {0x0C, 0x0400, 3}, //DACE_DATA,
+     {0x0D, 0x0400, 3}, //DACF_DATA,
+     {0x0E, 0x0400, 3},//DACG_DATA,
+     {0x0F, 0x0400, 3}, //DACH_DATA,
 
      {0xFF, 0x0000, 32} // dac53508_REG_NO
  //-------------------------------------------------------------------------------

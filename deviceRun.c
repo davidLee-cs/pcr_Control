@@ -6,13 +6,7 @@
  */
 
 #include "config.h"
-#include "deviceRun.h"
-//#include "dac53508.h"
-//#include "ads1248_pt100.h"
-//#include "drv8452.h"
-#include "operationlib.h"
-//#include "cmdMsg.h"
-#include "timer.h"
+
 
 
 

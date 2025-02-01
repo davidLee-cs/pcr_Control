@@ -9,11 +9,39 @@
 #define CONFIG_H_
 
 
-
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "ads1248_pt100.h"
-#include "drv8452_reg.h"
+#include "dac53508.h"
 #include "drv8452.h"
+#include "driverlib.h"
+#include "device.h"
+#include "board.h"
+#include "myepwm.h"
+#include "cmdMsg.h"
+#include "operationlib.h"
+#include "lib_mhsUart.h"
+#include "timer.h"
+#include "deviceRun.h"
 
+#define PT100_CH0       0
+#define PT100_CH1       1
+#define PT100_CH2       2
+#define PT100_CH3       3
+
+#define TEMP_RUN    1
+#define MOTOR_RUN   2
+#define SET_MODE    3
+
+void hostCmd(void);
+extern void (*Can_State_Ptr)(void);        // 다음 수행될 모드를 가르키는 함수 포인터
+//extern struct HostCmdMsg HostCmdMsg;
+
+extern uint16_t jump;
+extern uint16_t gSendTemp_en;
 
 
 #endif /* CONFIG_H_ */

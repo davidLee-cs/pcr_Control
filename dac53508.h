@@ -15,7 +15,8 @@
 #include <string.h>
 #include <stdbool.h>
 
-uint16_t  dac53508_write(void);
+uint16_t  dac53508_write(uint16_t data);
+void dac53508_init(void);
 
 
 #endif /* DAC53508_H_ */

@@ -5,14 +5,8 @@
  *      Author: alllite
  */
 
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-#include "board.h"
+#include "config.h"
 #include "dac53508_reg.h"
-#include "dac53508.h"
 
 
 int32_t dac53508_WriteRegister(dac_reg* reg);
@@ -20,20 +14,30 @@ int32_t dac53508_WriteRegister(dac_reg* reg);
 
 void dac53508_init(void)
 {
-
-
-
-
+    uint16_t data;
+    data = dac53508_WriteRegister(&dac53508_regs[DEVICE_CONFIG]);
 
 }
 
-uint16_t  dac53508_write(void)
+uint16_t  dac53508_write(uint16_t data)
 {
-    uint16_t data;
+    uint16_t done;
 
-    data = dac53508_WriteRegister(&dac53508_regs[STATUS_TRIGGER]);
+    dac53508_regs[DACA_DATA].value = data;
+    dac53508_regs[DACB_DATA].value = data;
+    dac53508_regs[DACC_DATA].value = data;
+    dac53508_regs[DACD_DATA].value = data;
+//    dac53508_regs[DACE_DATA].value = data;
+//    dac53508_regs[DACF_DATA].value = data;
 
-    return data;
+    done = dac53508_WriteRegister(&dac53508_regs[DACA_DATA]);
+    done = dac53508_WriteRegister(&dac53508_regs[DACB_DATA]);
+    done = dac53508_WriteRegister(&dac53508_regs[DACC_DATA]);
+    done = dac53508_WriteRegister(&dac53508_regs[DACD_DATA]);
+//    done = dac53508_WriteRegister(&dac53508_regs[DACE_DATA]);
+//    done = dac53508_WriteRegister(&dac53508_regs[DACF_DATA]);
+
+    return done;
 }
 
 

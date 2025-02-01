@@ -4,15 +4,9 @@
  *  Created on: 2025. 1. 14.
  *      Author: alllite
  */
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-#include "board.h"
-#include "drv8452_reg.h"
-#include "drv8452.h"
 
+#include "config.h"
+#include "drv8452_reg.h"
 
 int32_t drv8452_ReadRegister(drv_reg* pReg);
 int32_t drv8452_WriteRegister(drv_reg* reg);

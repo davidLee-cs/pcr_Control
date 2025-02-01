@@ -67,13 +67,13 @@ struct dacSet {
 
 /***** Type declarations *****/
 struct HostCmdMsg {
-    struct motorProfile     motorProfile;
-    struct TempProfile      TempProfile;
-    struct oprationSetBit   oprationSetBit;
-    struct dacSet           dacSet;
+    struct motorProfile motorProfile;
+    struct TempProfile TempProfile;
+    struct oprationSetBit oprationSetBit;
+    struct dacSet  dacSet;
 
-    uint16_t                all_Reset;                   // Reserved 0x00
-    uint16_t                msg2;                   // Reserved 0x00
+    uint16_t all_Reset;                   // Reserved 0x00
+    uint16_t msg2;                   // Reserved 0x00
 };
 extern struct HostCmdMsg HostCmdMsg;
 //struct HostCmdMsg latestActiveHostCmdMsg;

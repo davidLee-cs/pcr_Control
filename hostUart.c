@@ -1,7 +1,6 @@
 
 #include "config.h"
 #include "hostUart.h"
-#include "cmdMsg.h"
 #include "operationlib.h"
 #include "deviceRun.h"
 
@@ -102,7 +101,7 @@ static void tempStartSet(void)
     memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
 
 
-    // 1. 수신된 문자열로 부터 comma 단위 분자열로 분리
+    // 1. ¼o½AμE ¹®AU¿­·I ºIAI comma ´UA§ ºÐAU¿­·I ºÐ¸®
     char* tempset = strtok(&rBootData_Rx[6],comma);
 
     if( tempset != NULL)
@@ -129,7 +128,7 @@ static void motorStartSet(void)
     memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
 
 
-    // 1. 수신된 문자열로 부터 comma 단위 분자열로 분리
+    // 1. ¼o½AμE ¹®AU¿­·I ºIAI comma ´UA§ ºÐAU¿­·I ºÐ¸®
     char* tempset = strtok(&rBootData_Rx[6],comma);
 
     if( tempset != NULL)
@@ -147,8 +146,6 @@ static void motorStartSet(void)
         epwmEnableSet(STEP_23); // 설정 시 한번만 설정할것.
     }
 
-//    motor_mode();
-
 }
 
 static void motorSet(void)
@@ -161,7 +158,7 @@ static void motorSet(void)
     memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
 
 
-    // 1. 수신된 문자열로 부터 comma 단위 분자열로 분리
+    // 1. ¼o½AμE ¹®AU¿­·I ºIAI comma ´UA§ ºÐAU¿­·I ºÐ¸®
     char* tempset = strtok(&rBootData_Rx[6],comma);
 
     if( tempset != NULL)
@@ -198,7 +195,7 @@ static void tempSet(void)
 
     memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
 
-    // 1. 수신된 문자열로 부터 comma 단위 분자열로 분리
+    // 1. ¼o½AμE ¹®AU¿­·I ºIAI comma ´UA§ ºÐAU¿­·I ºÐ¸®
     char* tempset = strtok(&rBootData_Rx[6],comma);
 
     if( tempset != NULL)
@@ -251,7 +248,7 @@ static void dacSet(void)
 
     memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
 
-    // 1. 수신된 문자열로 부터 comma 단위 분자열로 분리
+    // 1. ¼o½AμE ¹®AU¿­·I ºIAI comma ´UA§ ºÐAU¿­·I ºÐ¸®
     char* tempset = strtok(&rBootData_Rx[6],comma);
 
     if( tempset != NULL)

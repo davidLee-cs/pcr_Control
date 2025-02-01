@@ -1,9 +1,7 @@
 
 
-#include "driverlib.h"
-#include "device.h"
-#include "board.h"
-#include "lib_mhsUart.h"
+#include "config.h"
+
 
 
 char rBootData_Rx[100] = {0};

@@ -42,6 +42,7 @@
 #ifndef DRIVERLIB_H
 #define DRIVERLIB_H
 
+#include <myepwm.h>
 #include "inc/hw_memmap.h"
 
 #include "adc.h"
@@ -58,7 +59,6 @@
 #include "dma.h"
 #include "ecap.h"
 #include "emif.h"
-#include "epwm.h"
 #include "eqep.h"
 #include "flash.h"
 #include "gpio.h"
