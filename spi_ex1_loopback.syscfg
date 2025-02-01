@@ -1,0 +1,151 @@
+/**
+ * These arguments were used when this file was generated. They will be automatically applied on subsequent loads
+ * via the GUI or CLI. Run CLI with '--help' for additional information on how to override these arguments.
+ * @cliArgs --device "F2837xS" --part "F2837xS_176PTP" --package "F2837xS_176PTP" --context "system" --product "C2000WARE@5.04.00.00"
+ * @v2CliArgs --device "TMS320F28377S" --package "176PTP" --context "system" --product "C2000WARE@5.04.00.00"
+ * @versions {"tool":"1.22.0+3893"}
+ */
+
+/**
+ * Import the modules used in this configuration.
+ */
+const gpio   = scripting.addModule("/driverlib/gpio.js", {}, false);
+const gpio1  = gpio.addInstance();
+const gpio2  = gpio.addInstance();
+const gpio3  = gpio.addInstance();
+const gpio4  = gpio.addInstance();
+const gpio5  = gpio.addInstance();
+const gpio6  = gpio.addInstance();
+const gpio7  = gpio.addInstance();
+const gpio8  = gpio.addInstance();
+const gpio9  = gpio.addInstance();
+const gpio10 = gpio.addInstance();
+const gpio11 = gpio.addInstance();
+const gpio12 = gpio.addInstance();
+const gpio13 = gpio.addInstance();
+const gpio14 = gpio.addInstance();
+const spi    = scripting.addModule("/driverlib/spi.js", {}, false);
+const spi1   = spi.addInstance();
+const spi2   = spi.addInstance();
+const spi3   = spi.addInstance();
+
+/**
+ * Write custom configuration values to the imported modules.
+ */
+gpio1.$name             = "ADC_CS_1";
+gpio1.direction         = "GPIO_DIR_MODE_OUT";
+gpio1.writeInitialValue = true;
+gpio1.initialValue      = 1;
+gpio1.gpioPin.$assign   = "GPIO55";
+
+gpio2.$name           = "ADC_Start_1";
+gpio2.direction       = "GPIO_DIR_MODE_OUT";
+gpio2.gpioPin.$assign = "GPIO56";
+
+gpio3.$name           = "ADC_Reset";
+gpio3.gpioPin.$assign = "GPIO9";
+
+gpio4.$name           = "RTD_Sel0";
+gpio4.direction       = "GPIO_DIR_MODE_OUT";
+gpio4.gpioPin.$assign = "GPIO64";
+
+gpio5.$name           = "RTD_Sel1";
+gpio5.direction       = "GPIO_DIR_MODE_OUT";
+gpio5.gpioPin.$assign = "GPIO65";
+
+gpio6.$name           = "ADC_DRDY_1";
+gpio6.gpioPin.$assign = "GPIO49";
+
+gpio7.$name           = "LED_RED";
+gpio7.direction       = "GPIO_DIR_MODE_OUT";
+gpio7.gpioPin.$assign = "GPIO53";
+
+gpio8.$name             = "STEP_0";
+gpio8.direction         = "GPIO_DIR_MODE_OUT";
+gpio8.writeInitialValue = true;
+gpio8.gpioPin.$assign   = "GPIO7";
+
+gpio9.$name           = "DIR_0";
+gpio9.direction       = "GPIO_DIR_MODE_OUT";
+gpio9.gpioPin.$assign = "GPIO30";
+
+gpio10.$name             = "ENABLE_0";
+gpio10.direction         = "GPIO_DIR_MODE_OUT";
+gpio10.writeInitialValue = true;
+gpio10.gpioPin.$assign   = "GPIO92";
+
+gpio11.$name             = "SPI_SS_0";
+gpio11.direction         = "GPIO_DIR_MODE_OUT";
+gpio11.writeInitialValue = true;
+gpio11.initialValue      = 1;
+gpio11.gpioPin.$assign   = "GPIO19";
+
+gpio12.$name           = "DAC_CLR";
+gpio12.direction       = "GPIO_DIR_MODE_OUT";
+gpio12.gpioPin.$assign = "GPIO62";
+
+gpio13.$name           = "DAC_LOAD";
+gpio13.direction       = "GPIO_DIR_MODE_OUT";
+gpio13.gpioPin.$assign = "GPIO63";
+
+gpio14.$name             = "DAC_SPI_SS";
+gpio14.direction         = "GPIO_DIR_MODE_OUT";
+gpio14.writeInitialValue = true;
+gpio14.initialValue      = 1;
+gpio14.gpioPin.$assign   = "GPIO59";
+
+spi1.$name                   = "mySPI0";
+spi1.useInterrupts           = false;
+spi1.mode                    = "SPI_MODE_CONTROLLER";
+spi1.bitRate                 = 2000000;
+spi1.emulationMode           = "SPI_EMULATION_FREE_RUN";
+spi1.dataWidth               = "8";
+spi1.useFifo                 = false;
+spi1.spi.$assign             = "SPIC";
+spi1.spi.spi_picoPin.$assign = "GPIO50";
+spi1.spi.spi_pociPin.$assign = "GPIO51";
+spi1.spi.spi_clkPin.$assign  = "GPIO52";
+spi1.picoQual.$name          = "myGPIOQUAL0";
+spi1.pociQual.$name          = "myGPIOQUAL1";
+spi1.clkQual.$name           = "myGPIOQUAL2";
+spi1.pteQual.$name           = "myGPIOQUAL3";
+
+spi2.$name                   = "mySPI1";
+spi2.useFifo                 = false;
+spi2.useInterrupts           = false;
+spi2.mode                    = "SPI_MODE_CONTROLLER";
+spi2.emulationMode           = "SPI_EMULATION_FREE_RUN";
+spi2.dataWidth               = "8";
+spi2.spi.$assign             = "SPIA";
+spi2.spi.spi_picoPin.$assign = "GPIO16";
+spi2.spi.spi_pociPin.$assign = "GPIO17";
+spi2.spi.spi_clkPin.$assign  = "GPIO18";
+spi2.picoQual.$name          = "myGPIOQUAL4";
+spi2.pociQual.$name          = "myGPIOQUAL5";
+spi2.clkQual.$name           = "myGPIOQUAL6";
+spi2.pteQual.$name           = "myGPIOQUAL7";
+
+spi3.$name                   = "mySPI2";
+spi3.useFifo                 = false;
+spi3.useInterrupts           = false;
+spi3.dataWidth               = "8";
+spi3.mode                    = "SPI_MODE_CONTROLLER";
+spi3.emulationMode           = "SPI_EMULATION_FREE_RUN";
+spi3.spi.$assign             = "SPIB";
+spi3.spi.spi_picoPin.$assign = "GPIO60";
+spi3.spi.spi_pociPin.$assign = "GPIO61";
+spi3.spi.spi_clkPin.$assign  = "GPIO58";
+spi3.picoQual.$name          = "myGPIOQUAL8";
+spi3.pociQual.$name          = "myGPIOQUAL9";
+spi3.clkQual.$name           = "myGPIOQUAL10";
+spi3.clkQual.padConfig       = "PULLUP";
+spi3.pteQual.$name           = "myGPIOQUAL11";
+
+/**
+ * Pinmux solution for unlocked pins/peripherals. This ensures that minor changes to the automatic solver in a future
+ * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
+ * re-solve from scratch.
+ */
+spi1.spi.spi_ptePin.$suggestSolution = "GPIO72";
+spi2.spi.spi_ptePin.$suggestSolution = "GPIO57";
+spi3.spi.spi_ptePin.$suggestSolution = "GPIO23";
