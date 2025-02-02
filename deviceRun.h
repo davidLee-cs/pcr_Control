@@ -13,7 +13,9 @@
 void temp_mode(void);
 void motor_mode(void);
 void idle_mode(void);
-void motor_set(void);
+void motor_Parameterset(void);
 void stop_mode(void);
+void prameterInit(void);
+
 
 #endif /* DEVICERUN_H_ */

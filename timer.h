@@ -18,7 +18,7 @@ void timerSet(void);
 
 extern bool cputimer0Flag;
 extern uint16_t cpuTimer0IntCount;
-extern uint16_t cpuTimer1IntCount;
+extern uint16_t tempProfileCnt;
 extern uint16_t cpuTimer2IntCount;
 
 #endif /* TIMER_H_ */

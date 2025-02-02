@@ -26,39 +26,22 @@ void main(void)
 {
 
     char *msg = NULL;
-    //
-    // Initialize device clock and peripherals
-    //
+
     Device_init();
 
-    //
-    // Disable pin locks and enable internal pullups.
-    //
     Device_initGPIO();
 
-    //
-    // Initialize PIE and clear PIE registers. Disables CPU interrupts.
-    //
     Interrupt_initModule();
 
-    //
-    // Initialize the PIE vector table with pointers to the shell Interrupt
-    // Service Routines (ISR).
-    //
     Interrupt_initVectorTable();
 
-    //
-    // Board initialization
-    //
     Board_init();
 
     sci_set();
     epwmSet();
     epwmDisableSet(PUMP_01);
     epwmDisableSet(STEP_23);
-    //
-    // Enable Global Interrupt (INTM) and realtime interrupt (DBGM)
-    //
+
     EINT;
     ERTM;
 
@@ -84,19 +67,23 @@ void main(void)
     EnableMotor(0);
     timerSet();
 
+    prameterInit();
+
     Can_State_Ptr = &hostCmd;///normal mode
 
     while(1)
     {
 
-#if 0
+#if 1
 
-        if(jump == TEMP_RUN)            Can_State_Ptr = &temp_mode;
-        else if(jump == MOTOR_RUN)      Can_State_Ptr = &motor_mode;
-        else if(jump == SET_MODE)       Can_State_Ptr = &hostCmd;
-//        else if(jump == 7U)      Can_State_Ptr = &operation_mode;
-        else                            Can_State_Ptr = &idle_mode;
-#endif
+//        if(jump == TEMP_RUN)            Can_State_Ptr = &temp_mode;
+//        else if(jump == MOTOR_RUN)      Can_State_Ptr = &motor_mode;
+//        else if(jump == SET_MODE)       Can_State_Ptr = &hostCmd;
+////        else if(jump == 7U)      Can_State_Ptr = &operation_mode;
+//        else                            Can_State_Ptr = &idle_mode;
+
+
+        hostCmd();
 
         if(cputimer0Flag == TRUE)//50ms Timer flag
         {
@@ -116,7 +103,7 @@ void main(void)
 
             cputimer0Flag = FALSE;
         }
-
+#endif
 
 #if 0   // Pump  motor
 
@@ -147,6 +134,7 @@ void main(void)
             EnableMotor(gEn_motor);
             if(gEn_motor)
             {
+                stepperEpwmSet(HostCmdMsg.motorProfile.motorSpeed);
                 epwmEnableSet(STEP_23);
             }
             else

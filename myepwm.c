@@ -18,8 +18,8 @@ epwmInfo epwm2Info;
 epwmInfo epwm3Info;
 epwmInfo epwm4Info;
 
-volatile uint32_t pulseCount = 0;     // 현재까지 발생한 펄스 수
-volatile uint32_t targetPulseCount = 100000; // 목표 펄스 수 (예: 1000펄스)
+volatile uint64_t pulseCount = 0;     // 현재까지 발생한 펄스 수
+volatile uint64_t targetPulseCount = 100000; // 목표 펄스 수 (예: 1000펄스)
 volatile uint32_t stepDelay = 1000;   // STEP 펄스 간격 (속도 제어용)
 
 volatile uint16_t compAVal, compBVal;
@@ -109,7 +109,7 @@ void epwmSet(void)
     Interrupt_register(INT_EPWM1, &epwm1ISR);
 //    Interrupt_register(INT_EPWM2, &epwm2ISR);
 //    Interrupt_register(INT_EPWM3, &epwm3ISR);
-        Interrupt_register(INT_EPWM4, &epwm4ISR);
+    Interrupt_register(INT_EPWM4, &epwm4ISR);
 
     //
     // Disable sync(Freeze clock to PWM as well)
@@ -180,7 +180,7 @@ __interrupt void epwm2ISR(void)
     //
     // Update the CMPA and CMPB values
     //
-    updateCompare(&epwm2Info);
+//    updateCompare(&epwm2Info);
 
     //
     // Clear INT flag for this timer
@@ -201,7 +201,7 @@ __interrupt void epwm3ISR(void)
     //
     // Update the CMPA and CMPB values
     //
-    updateCompare(&epwm3Info);
+//    updateCompare(&epwm3Info);
 
     //
     // Clear INT flag for this timer
@@ -219,13 +219,14 @@ __interrupt void epwm3ISR(void)
 //
 __interrupt void epwm4ISR(void)
 {
-    //
-    // Update the CMPA and CMPB values
-    //
+
 //    updateCompare(&epwm4Info);
-    if ((pulseCount >= targetPulseCount) ||
-            (OpCmdMsg.motorMovingStatus.motor4_Home_bit == 0) ||
-            (OpCmdMsg.motorMovingStatus.motor4_End_bit == 0))
+//    if ((pulseCount >= targetPulseCount) ||
+//            (OpCmdMsg.motorMovingStatus.motor4_Home_bit == 0) ||
+//            (OpCmdMsg.motorMovingStatus.motor4_End_bit == 0))
+
+    if(pulseCount >= targetPulseCount)
+
     {
         // 모터 멈추기
 //        EPWM_setTimeBaseCounterMode(myStepMotorEPWM4_BASE, EPWM_COUNTER_MODE_STOP_FREEZE);
@@ -643,19 +644,25 @@ void updateCompare(epwmInfo *epwm_info)
 void stepperEpwmSet(uint16_t speed)
 {
 
-    uint16_t targetSpeed = 4000 * speed *0.01;
-    if(targetSpeed < 1500)
+    uint16_t targetSpeed = (float)(speed *0.01) * 2200;
+    if(targetSpeed > 3000)
     {
-        targetSpeed = 1500;
+        targetSpeed = 3000;
     }
+
+    if(targetSpeed < 1100)
+    {
+        targetSpeed = 1100;
+    }
+
 
     uint16_t compare = targetSpeed / 2;
 
-    EPWM_setTimeBasePeriod(myStepMotorEPWM3_BASE, targetSpeed);
+//    EPWM_setTimeBasePeriod(myStepMotorEPWM3_BASE, targetSpeed);
     EPWM_setTimeBasePeriod(myStepMotorEPWM4_BASE, targetSpeed);
 
-    EPWM_setCounterCompareValue(myStepMotorEPWM3_BASE, EPWM_COUNTER_COMPARE_A, compare);
-    EPWM_setCounterCompareValue(myStepMotorEPWM3_BASE, EPWM_COUNTER_COMPARE_B, compare);
+//    EPWM_setCounterCompareValue(myStepMotorEPWM3_BASE, EPWM_COUNTER_COMPARE_A, compare);
+//    EPWM_setCounterCompareValue(myStepMotorEPWM3_BASE, EPWM_COUNTER_COMPARE_B, compare);
     EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_A, compare);
     EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_B, compare);
 
@@ -688,10 +695,10 @@ void pumpEpwmSet(uint16_t duty)
 }
 
 
-void stepperPulseSet(uint16_t pulse)
+void stepperPulseSet(uint64_t pulse)
 {
 
-    targetPulseCount = pulse * 100;
+    targetPulseCount = pulse;
 
 }
 

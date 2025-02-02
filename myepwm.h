@@ -89,6 +89,6 @@ void epwmDisableSet(uint16_t ch);
 void updateCompare(epwmInfo *epwm_info);
 void stepperEpwmSet(uint16_t speed);
 void pumpEpwmSet(uint16_t duty);
-void stepperPulseSet(uint16_t pulse);
+void stepperPulseSet(uint64_t pulse);
 
 #endif /* MYEPWM_H_ */

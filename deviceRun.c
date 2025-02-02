@@ -7,7 +7,7 @@
 
 #include "config.h"
 
-
+void tempProfileReset(void);
 
 
 void temp_mode(void)
@@ -25,7 +25,7 @@ void temp_mode(void)
         ftemperror = ftemp1 / HostCmdMsg.TempProfile.targetTemp1;
         if((1.01 > ftemperror) && (ftemperror > 0.99))
         {
-            if(cpuTimer1IntCount > HostCmdMsg.TempProfile.timeTemp1)
+            if(tempProfileCnt > HostCmdMsg.TempProfile.timeTemp1)
             {
                 sprintf(msg,"$STOP\r\n");
                 SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
@@ -36,7 +36,7 @@ void temp_mode(void)
         }
         else
         {
-            cpuTimer1IntCount = 0;
+            tempProfileCnt = 0;
 
         }
 
@@ -79,12 +79,91 @@ void motor_mode(void)
     Can_State_Ptr = &hostCmd;///normal mode
 }
 
-void motor_set(void)
+void motor_Parameterset(void)
 {
 
 //    epwmEnableSet(STEP_23);
     stepperEpwmSet(HostCmdMsg.motorProfile.motorSpeed);
     stepperPulseSet(HostCmdMsg.motorProfile.set_PulseCnt);
+
+}
+
+
+void tempProfileReset(void)
+{
+
+    HostCmdMsg.TempProfile.targetTemp1 = 0 ;
+    HostCmdMsg.TempProfile.timeTemp1 = 0 ;
+    HostCmdMsg.TempProfile.targetTemp2 = 0 ;
+    HostCmdMsg.TempProfile.timeTemp2 = 0 ;
+    HostCmdMsg.TempProfile.targetTemp3 = 0 ;
+    HostCmdMsg.TempProfile.timeTemp3 = 0 ;
+    HostCmdMsg.TempProfile.targetTemp4 = 0 ;
+    HostCmdMsg.TempProfile.timeTemp4 = 0 ;
+    HostCmdMsg.TempProfile.targetTemp5 = 0 ;
+    HostCmdMsg.TempProfile.timeTemp5 = 0 ;
+
+    HostCmdMsg.TempProfile.tempCycle = 0 ;
+
+    HostCmdMsg.motorProfile.motorSpeed = 0;
+    HostCmdMsg.motorProfile.set_PulseCnt = 0;
+}
+
+void prameterInit(void)
+{
+
+    HostCmdMsg.TempProfile.targetTemp1 = 0 ;
+    HostCmdMsg.TempProfile.timeTemp1 = 0 ;
+    HostCmdMsg.TempProfile.targetTemp2 = 0 ;
+    HostCmdMsg.TempProfile.timeTemp2 = 0 ;
+    HostCmdMsg.TempProfile.targetTemp3 = 0 ;
+    HostCmdMsg.TempProfile.timeTemp3 = 0 ;
+    HostCmdMsg.TempProfile.targetTemp4 = 0 ;
+    HostCmdMsg.TempProfile.timeTemp4 = 0 ;
+    HostCmdMsg.TempProfile.targetTemp5 = 0 ;
+    HostCmdMsg.TempProfile.timeTemp5 = 0 ;
+
+    HostCmdMsg.TempProfile.tempCycle = 0 ;
+
+    HostCmdMsg.motorProfile.motorSpeed = 0;
+    HostCmdMsg.motorProfile.set_PulseCnt = 0;
+
+    HostCmdMsg.dacSet.dac1 = 0;
+    HostCmdMsg.dacSet.dac2 = 0;
+    HostCmdMsg.dacSet.dac3 = 0;
+    HostCmdMsg.dacSet.dac4 = 0;
+    HostCmdMsg.dacSet.dac5 = 0;
+    HostCmdMsg.dacSet.dac6 = 0;
+
+    HostCmdMsg.oprationSetBit.motorDirection = 0;
+    HostCmdMsg.oprationSetBit.motorRun = 0;
+    HostCmdMsg.oprationSetBit.temperatureRun = 0;
+
+    OpCmdMsg.motorMovingStatus.motor1_End_bit = 0;
+    OpCmdMsg.motorMovingStatus.motor1_Home_bit = 0;
+    OpCmdMsg.motorMovingStatus.motor2_End_bit = 0;
+    OpCmdMsg.motorMovingStatus.motor2_Home_bit = 0;
+    OpCmdMsg.motorMovingStatus.motor3_End_bit = 0;
+    OpCmdMsg.motorMovingStatus.motor3_Home_bit = 0;
+    OpCmdMsg.motorMovingStatus.motor4_End_bit = 0;
+    OpCmdMsg.motorMovingStatus.motor4_Home_bit = 0;
+
+    OpCmdMsg.opDacSet.dacSet_1 = 0;
+    OpCmdMsg.opDacSet.dacSet_2 = 0;
+    OpCmdMsg.opDacSet.dacSet_3 = 0;
+    OpCmdMsg.opDacSet.dacSet_4 = 0;
+    OpCmdMsg.opDacSet.dacSet_5 = 0;
+    OpCmdMsg.opDacSet.dacSet_6 = 0;
+
+    OpCmdMsg.tempSensor.tempSensor1_A = 0;
+    OpCmdMsg.tempSensor.tempSensor1_B = 0;
+    OpCmdMsg.tempSensor.tempSensor2_A = 0;
+    OpCmdMsg.tempSensor.tempSensor2_B = 0;
+
+    OpCmdMsg.tempSensor.tempSensor3_A = 0;
+    OpCmdMsg.tempSensor.tempSensor3_B = 0;
+    OpCmdMsg.tempSensor.tempSensor4_A = 0;
+    OpCmdMsg.tempSensor.tempSensor4_B = 0;
 
 }
 
@@ -94,10 +173,13 @@ void stop_mode(void)
     EnableMotor(0);
     epwmDisableSet(STEP_23);
     dac53508_write(0);
+//    tempProfileReset();
+    prameterInit();
 
     Can_State_Ptr = &hostCmd;///normal mode
 
 }
+
 
 void idle_mode(void)
 {

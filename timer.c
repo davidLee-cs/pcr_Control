@@ -9,7 +9,7 @@
 #include "config.h"
 
 uint16_t cpuTimer0IntCount;
-uint16_t cpuTimer1IntCount;
+uint16_t tempProfileCnt;
 uint16_t cpuTimer2IntCount;
 
 bool cputimer0Flag;
@@ -83,7 +83,7 @@ initCPUTimers(void)
     // Reset interrupt counter
     //
     cpuTimer0IntCount = 0;
-    cpuTimer1IntCount = 0;
+    tempProfileCnt = 0;
     cpuTimer2IntCount = 0;
 }
 
@@ -130,7 +130,7 @@ configCPUTimer(uint32_t cpuTimer, float freq, float period)
     }
     else if(cpuTimer == CPUTIMER1_BASE)
     {
-        cpuTimer1IntCount = 0;
+        tempProfileCnt = 0;
     }
     else if(cpuTimer == CPUTIMER2_BASE)
     {
@@ -180,7 +180,7 @@ cpuTimer1ISR(void)
     //
     // The CPU acknowledges the interrupt.
     //
-    cpuTimer1IntCount++;
+    tempProfileCnt++;
 }
 
 //

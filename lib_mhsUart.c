@@ -30,6 +30,14 @@ void sci_set(void)
     Interrupt_register(INT_SCIC_RX, &Barcode_Rx_ISR);
     Interrupt_register(INT_SCID_RX, &uartTTL_Rx_ISR);
 
+    Interrupt_enable(INT_SCIA_RX);
+    Interrupt_enable(INT_SCIB_RX);
+    Interrupt_enable(INT_SCIC_RX);
+    Interrupt_enable(INT_SCID_RX);
+//    Interrupt_enable(INT_SCIA_TX);
+
+    Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP9);
+
 }
 
 //  uart 수신 인터럽트 서비스 루틴 함수
@@ -64,6 +72,11 @@ __interrupt void Boot_Rx_ISR(void)
     Interrupt_clearACKGroup(INTERRUPT_ACK_GROUP9);
 
 	// 6. 카운터 gRx_cnt를 1 증가시켜 다음 수신된 문자가 있을 때 rDataPointA 배열의 다음 위치에 저장
+    if(rDataA[0] == '\n')
+    {
+        gBoot_Rx_cnt = -1;
+    }
+
     gBoot_Rx_cnt++;
 }
 

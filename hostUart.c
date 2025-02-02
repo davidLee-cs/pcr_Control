@@ -4,6 +4,8 @@
 #include "operationlib.h"
 #include "deviceRun.h"
 
+void Example_Done(void);
+
 void hostCmd(void)
 {
 
@@ -37,6 +39,7 @@ void hostCmd(void)
     if(gBoot_Rx_done == TRUE)
     {
 
+        //command :  $START\r\n
         if(strncmp(rBootData_Rx, startCmd, 6) == 0)
         {
 
@@ -47,6 +50,7 @@ void hostCmd(void)
             SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
         }
 
+        //command : $STOP\r
         if(strncmp(rBootData_Rx, stopCmd, 5) == 0)
         {
 
@@ -59,37 +63,52 @@ void hostCmd(void)
             SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
         }
 
+        //command : $TEMP,100,10,101,11,102,12,103,13,104,14,5\r\n
         if(strncmp(rBootData_Rx, tempSetCmd, 5) == 0)
         {
             tempSet();
+//            Example_Done();
         }
 
+        //command : $MOTOR,70, 6000000\r\n
         if(strncmp(rBootData_Rx, motorSetCmd, 6) == 0)
         {
             motorSet();
+//            Example_Done();
         }
 
+        //command : $MSTART,1,1\r\n
         if(strncmp(rBootData_Rx, motorStartCmd, 6) == 0)
         {
             motorStartSet();
+//            Example_Done();
         }
 
+        //command : $TSTART,1\r\n
         if(strncmp(rBootData_Rx, tempStartCmd, 6) == 0)
         {
             tempStartSet();
+//            Example_Done();
         }
 
-        if(strncmp(rBootData_Rx, dacSetCmd, 6) == 0)
+        //command : $DAC,1000,2000,3000,4000,0,0\r\n
+        if(strncmp(rBootData_Rx, dacSetCmd, 4) == 0)
         {
             dacSet();
+//            Example_Done();
         }
 
         gBoot_Rx_done = 0;
-        memset(rBootData_Rx, 0, 10);
+        gBoot_Rx_cnt = 0;
+        memset(rBootData_Rx, 0, 100);
     }
 
 }
 
+void Example_Done(void)
+{
+    __asm("    ESTOP0");
+}
 
 static void tempStartSet(void)
 {
@@ -102,7 +121,7 @@ static void tempStartSet(void)
 
 
     // 1. ¨ùo¨öA¥ìE ©ö¢çAU¢¯¡©¡¤I ¨¬IAI comma ¢¥UA¡× ¨¬¨¢AU¢¯¡©¡¤I ¨¬¨¢¢¬¢ç
-    char* tempset = strtok(&rBootData_Rx[6],comma);
+    char* tempset = strtok(&rBootData_Rx[8],comma);
 
     if( tempset != NULL)
     {
@@ -129,7 +148,7 @@ static void motorStartSet(void)
 
 
     // 1. ¨ùo¨öA¥ìE ©ö¢çAU¢¯¡©¡¤I ¨¬IAI comma ¢¥UA¡× ¨¬¨¢AU¢¯¡©¡¤I ¨¬¨¢¢¬¢ç
-    char* tempset = strtok(&rBootData_Rx[6],comma);
+    char* tempset = strtok(&rBootData_Rx[8],comma);
 
     if( tempset != NULL)
     {
@@ -166,10 +185,10 @@ static void motorSet(void)
         HostCmdMsg.motorProfile.motorSpeed = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.motorProfile.set_PulseCnt = atoi(tempset) ;
+        HostCmdMsg.motorProfile.set_PulseCnt = atoll(tempset) ;
         tempset = strtok(NULL, comma);
 
-        motor_set();
+        motor_Parameterset();
 
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
@@ -227,6 +246,9 @@ static void tempSet(void)
         HostCmdMsg.TempProfile.targetTemp5 = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
+        HostCmdMsg.TempProfile.timeTemp5 = atoi(tempset) ;
+        tempset = strtok(NULL, comma);
+
         HostCmdMsg.TempProfile.tempCycle = atoi(tempset) ;
 
 
@@ -249,7 +271,7 @@ static void dacSet(void)
     memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
 
     // 1. ¨ùo¨öA¥ìE ©ö¢çAU¢¯¡©¡¤I ¨¬IAI comma ¢¥UA¡× ¨¬¨¢AU¢¯¡©¡¤I ¨¬¨¢¢¬¢ç
-    char* tempset = strtok(&rBootData_Rx[6],comma);
+    char* tempset = strtok(&rBootData_Rx[5],comma);
 
     if( tempset != NULL)
     {
@@ -282,5 +304,7 @@ static void dacSet(void)
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
     }
+
+    Can_State_Ptr = &hostCmd;///normal mode
 
 }

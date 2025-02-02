@@ -152,6 +152,9 @@ gpio18.gpioPin.$assign   = "GPIO85";
 
 sci1.baudRates             = 9600;
 sci1.$name                 = "BOOT_SCI";
+sci1.enabledInterrupts     = ["SCI_INT_RXRDY_BRKDT"];
+sci1.rxFifo                = "SCI_FIFO_RX1";
+sci1.enabledFIFOInterrupts = ["SCI_INT_RXFF"];
 sci1.sci.$assign           = "SCIA";
 sci1.sci.scirxdPin.$assign = "GPIO28";
 sci1.sci.scitxdPin.$assign = "GPIO29";
