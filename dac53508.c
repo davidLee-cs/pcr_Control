@@ -19,23 +19,43 @@ void dac53508_init(void)
 
 }
 
-uint16_t  dac53508_write(uint16_t data)
+uint16_t  dac53508_write(uint16_t data, int16_t ch)
 {
     uint16_t done;
 
-    dac53508_regs[DACA_DATA].value = data;
-    dac53508_regs[DACB_DATA].value = data;
-    dac53508_regs[DACC_DATA].value = data;
-    dac53508_regs[DACD_DATA].value = data;
-//    dac53508_regs[DACE_DATA].value = data;
-//    dac53508_regs[DACF_DATA].value = data;
+    if(ch == 0)
+    {
+        dac53508_regs[DACA_DATA].value = data;
+        done = dac53508_WriteRegister(&dac53508_regs[DACA_DATA]);
 
-    done = dac53508_WriteRegister(&dac53508_regs[DACA_DATA]);
-    done = dac53508_WriteRegister(&dac53508_regs[DACB_DATA]);
-    done = dac53508_WriteRegister(&dac53508_regs[DACC_DATA]);
-    done = dac53508_WriteRegister(&dac53508_regs[DACD_DATA]);
-//    done = dac53508_WriteRegister(&dac53508_regs[DACE_DATA]);
-//    done = dac53508_WriteRegister(&dac53508_regs[DACF_DATA]);
+    }
+    else if( ch == 1)
+    {
+        dac53508_regs[DACB_DATA].value = data;
+        done = dac53508_WriteRegister(&dac53508_regs[DACB_DATA]);
+    }
+    else if(ch == 2)
+    {
+        dac53508_regs[DACC_DATA].value = data;
+        done = dac53508_WriteRegister(&dac53508_regs[DACC_DATA]);
+    }
+    else if( ch == 3)
+    {
+        dac53508_regs[DACD_DATA].value = data;
+        done = dac53508_WriteRegister(&dac53508_regs[DACD_DATA]);
+    }
+    else if( ch == 4)
+    {
+        dac53508_regs[DACE_DATA].value = data;
+        done = dac53508_WriteRegister(&dac53508_regs[DACE_DATA]);
+    }
+    else if( ch == 5)
+    {
+        dac53508_regs[DACF_DATA].value = data;
+        done = dac53508_WriteRegister(&dac53508_regs[DACF_DATA]);
+    }
+    else ;
+
 
     return done;
 }

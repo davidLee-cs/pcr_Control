@@ -18,21 +18,8 @@
 /***** Type declarations *****/
 struct TempProfile {
 
-    uint16_t targetTemp1;
-    uint16_t timeTemp1;
-
-    uint16_t targetTemp2;
-    uint16_t timeTemp2;
-
-    uint16_t targetTemp3;
-    uint16_t timeTemp3;
-
-    uint16_t targetTemp4;
-    uint16_t timeTemp4;
-
-    uint16_t targetTemp5;
-    uint16_t timeTemp5;
-
+    int16_t targetTemp[6];
+    uint16_t timeTemp[6];
     uint16_t tempCycle;
 };
 //struct TempProfile TempProfile;

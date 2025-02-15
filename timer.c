@@ -35,11 +35,11 @@ void timerSet(void)
 //    CPUTimer_enableInterrupt(CPUTIMER2_BASE);
 
     Interrupt_enable(INT_TIMER0);
-    Interrupt_enable(INT_TIMER1);
+//    Interrupt_enable(INT_TIMER1);
 //    Interrupt_enable(INT_TIMER2);
 
     CPUTimer_startTimer(CPUTIMER0_BASE);
-    CPUTimer_startTimer(CPUTIMER1_BASE);
+//    CPUTimer_startTimer(CPUTIMER1_BASE);
 //    CPUTimer_startTimer(CPUTIMER2_BASE);
 
 }

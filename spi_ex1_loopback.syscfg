@@ -33,6 +33,26 @@ const gpio15 = gpio.addInstance();
 const gpio16 = gpio.addInstance();
 const gpio17 = gpio.addInstance();
 const gpio18 = gpio.addInstance();
+const gpio19 = gpio.addInstance();
+const gpio20 = gpio.addInstance();
+const gpio21 = gpio.addInstance();
+const gpio22 = gpio.addInstance();
+const gpio23 = gpio.addInstance();
+const gpio24 = gpio.addInstance();
+const gpio25 = gpio.addInstance();
+const gpio26 = gpio.addInstance();
+const gpio27 = gpio.addInstance();
+const gpio28 = gpio.addInstance();
+const gpio29 = gpio.addInstance();
+const gpio30 = gpio.addInstance();
+const gpio31 = gpio.addInstance();
+const gpio32 = gpio.addInstance();
+const gpio33 = gpio.addInstance();
+const gpio34 = gpio.addInstance();
+const gpio35 = gpio.addInstance();
+const gpio36 = gpio.addInstance();
+const gpio37 = gpio.addInstance();
+const gpio38 = gpio.addInstance();
 const sci    = scripting.addModule("/driverlib/sci.js", {}, false);
 const sci1   = sci.addInstance();
 const sci2   = sci.addInstance();
@@ -150,6 +170,77 @@ gpio18.direction         = "GPIO_DIR_MODE_OUT";
 gpio18.writeInitialValue = true;
 gpio18.gpioPin.$assign   = "GPIO85";
 
+gpio19.$name             = "LASER0";
+gpio19.direction         = "GPIO_DIR_MODE_OUT";
+gpio19.writeInitialValue = true;
+gpio19.gpioPin.$assign   = "GPIO12";
+
+gpio20.$name             = "LASER1";
+gpio20.direction         = "GPIO_DIR_MODE_OUT";
+gpio20.writeInitialValue = true;
+
+gpio21.$name             = "LASER2";
+gpio21.direction         = "GPIO_DIR_MODE_OUT";
+gpio21.writeInitialValue = true;
+
+gpio22.$name             = "LASER3";
+gpio22.direction         = "GPIO_DIR_MODE_OUT";
+gpio22.writeInitialValue = true;
+
+gpio23.$name             = "LED0";
+gpio23.direction         = "GPIO_DIR_MODE_OUT";
+gpio23.writeInitialValue = true;
+gpio23.gpioPin.$assign   = "GPIO27";
+
+gpio24.$name             = "LED1";
+gpio24.direction         = "GPIO_DIR_MODE_OUT";
+gpio24.writeInitialValue = true;
+gpio24.gpioPin.$assign   = "GPIO26";
+
+gpio25.$name             = "LED2";
+gpio25.direction         = "GPIO_DIR_MODE_OUT";
+gpio25.writeInitialValue = true;
+gpio25.gpioPin.$assign   = "GPIO87";
+
+gpio26.$name           = "LIMIT0";
+gpio26.gpioPin.$assign = "GPIO69";
+
+gpio27.$name           = "HOME0";
+gpio27.gpioPin.$assign = "GPIO68";
+
+gpio28.$name           = "LIMIT1";
+gpio28.gpioPin.$assign = "GPIO71";
+
+gpio29.$name           = "HOME1";
+gpio29.gpioPin.$assign = "GPIO43";
+
+gpio30.$name           = "LIMIT2";
+gpio30.gpioPin.$assign = "GPIO74";
+
+gpio31.$name           = "HOME2";
+gpio31.gpioPin.$assign = "GPIO47";
+
+gpio32.$name           = "LIMIT3";
+gpio32.gpioPin.$assign = "GPIO78";
+
+gpio33.$name           = "HOME3";
+gpio33.gpioPin.$assign = "GPIO133";
+
+gpio34.$name           = "BUTTON0";
+gpio34.gpioPin.$assign = "GPIO91";
+
+gpio35.$name           = "BUTTON1";
+gpio35.gpioPin.$assign = "GPIO90";
+
+gpio36.$name           = "BUTTON2";
+gpio36.gpioPin.$assign = "GPIO89";
+
+gpio37.$name           = "BUTTON3";
+gpio37.gpioPin.$assign = "GPIO88";
+
+gpio38.$name           = "BUZZER";
+gpio38.gpioPin.$assign = "GPIO8";
+
 sci1.baudRates             = 9600;
 sci1.$name                 = "BOOT_SCI";
 sci1.enabledInterrupts     = ["SCI_INT_RXRDY_BRKDT"];
@@ -235,6 +326,9 @@ spi3.pteQual.$name           = "myGPIOQUAL11";
  * version of the tool will not impact the pinmux you originally saw.  These lines can be completely deleted in order to
  * re-solve from scratch.
  */
+gpio20.gpioPin.$suggestSolution      = "GPIO13";
+gpio21.gpioPin.$suggestSolution      = "GPIO14";
+gpio22.gpioPin.$suggestSolution      = "GPIO15";
 sci3.sci.scirxdPin.$suggestSolution  = "GPIO11";
 sci3.sci.scitxdPin.$suggestSolution  = "GPIO10";
 spi1.spi.spi_ptePin.$suggestSolution = "GPIO72";

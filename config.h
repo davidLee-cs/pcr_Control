@@ -26,6 +26,10 @@
 #include "lib_mhsUart.h"
 #include "timer.h"
 #include "deviceRun.h"
+#include "DCLF32.h"
+#include "tempPID.h"
+
+
 
 #define PT100_CH0       0
 #define PT100_CH1       1

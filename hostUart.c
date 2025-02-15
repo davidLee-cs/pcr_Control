@@ -219,34 +219,34 @@ static void tempSet(void)
 
     if( tempset != NULL)
     {
-        HostCmdMsg.TempProfile.targetTemp1 = atoi(tempset) ;
+        HostCmdMsg.TempProfile.targetTemp[0] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.TempProfile.timeTemp1 = atoi(tempset) ;
+        HostCmdMsg.TempProfile.timeTemp[0] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.TempProfile.targetTemp2 = atoi(tempset) ;
+        HostCmdMsg.TempProfile.targetTemp[1] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.TempProfile.timeTemp2 = atoi(tempset) ;
+        HostCmdMsg.TempProfile.timeTemp[1] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.TempProfile.targetTemp3 = atoi(tempset) ;
+        HostCmdMsg.TempProfile.targetTemp[2] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.TempProfile.timeTemp3 = atoi(tempset) ;
+        HostCmdMsg.TempProfile.timeTemp[2] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.TempProfile.targetTemp4 = atoi(tempset) ;
+        HostCmdMsg.TempProfile.targetTemp[3] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.TempProfile.timeTemp4 = atoi(tempset) ;
+        HostCmdMsg.TempProfile.timeTemp[3] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.TempProfile.targetTemp5 = atoi(tempset) ;
+        HostCmdMsg.TempProfile.targetTemp[4] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.TempProfile.timeTemp5 = atoi(tempset) ;
+        HostCmdMsg.TempProfile.timeTemp[4] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
         HostCmdMsg.TempProfile.tempCycle = atoi(tempset) ;

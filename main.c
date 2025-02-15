@@ -41,6 +41,7 @@ void main(void)
     epwmSet();
     epwmDisableSet(PUMP_01);
     epwmDisableSet(STEP_23);
+    DEVICE_DELAY_US(200000);
 
     EINT;
     ERTM;
@@ -48,40 +49,43 @@ void main(void)
     GPIO_writePin(DAC_CLR, 1);
     GPIO_writePin(DAC_LOAD, 0);
     GPIO_writePin(DAC_SPI_SS, 1);
-
-//    GPIO_writePin(SPI_SS_0, 1);
-//    GPIO_writePin(ENABLE_0, 1);
-
     GPIO_writePin(ADC_Reset, 1);
     GPIO_writePin(ADC_CS_1, 1);
     GPIO_writePin(ADC_Start_1, 1);
     DEVICE_DELAY_US(100);
+    DEVICE_DELAY_US(200000);
 
+    // device init
     dac53508_init();
-
+    DEVICE_DELAY_US(200000);
     ADS1248_Init();
+    DEVICE_DELAY_US(200000);
     select_Channel(0);
-
+    DEVICE_DELAY_US(200000);
     SetMotorDirection(1);
     drv8452_init();
     EnableMotor(0);
     timerSet();
+    fan_control(0); // fan Off
 
     prameterInit();
 
-    Can_State_Ptr = &hostCmd;///normal mode
+    DEVICE_DELAY_US(200000);
+
+    Can_State_Ptr = &hostCmd;
 
     while(1)
     {
 
-#if 1
+#if 0
 
+#if 0
 //        if(jump == TEMP_RUN)            Can_State_Ptr = &temp_mode;
 //        else if(jump == MOTOR_RUN)      Can_State_Ptr = &motor_mode;
 //        else if(jump == SET_MODE)       Can_State_Ptr = &hostCmd;
 ////        else if(jump == 7U)      Can_State_Ptr = &operation_mode;
 //        else                            Can_State_Ptr = &idle_mode;
-
+#endif
 
         hostCmd();
 
@@ -96,10 +100,10 @@ void main(void)
                 float ch2 = read_pr100(PT100_CH2) * 10;
                 float ch3 = read_pr100(PT100_CH3) * 10;
 
+//                sprintf(msg,"$TEMP,%d\r\n", (int16_t)ch0);
                 sprintf(msg,"$TEMP,%d,%d,%d,%d\r\n", (int16_t)ch0, (int16_t)ch1, (int16_t)ch2, (int16_t)ch3);
                 SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
             }
-
 
             cputimer0Flag = FALSE;
         }
@@ -146,19 +150,31 @@ void main(void)
 //        drv8452_write(&DRV8452_regs[CTRL1])
 #endif
 
-#if 0   // dac
-        dac53508_write(dacData);
+#if 1
+
+        tempPidControl();
+        DEVICE_DELAY_US(20000);
 #endif
 
 
-#if 0   // pt100
-//        pt100Temp = readRTDtemp(PT100_CH0);
-        pt100Temp = read_pr100(PT100_CH1);
+#if 0   // dac
+        dac53508_write(dacData,0);
+//        DEVICE_DELAY_US(10000);
+
+#endif
+
+
+#if 0  // pt100
+        pt100Temp = read_pr100(PT100_CH0);
+//        pt100Temp = read_pr100(PT100_CH1);
+
+//        sprintf(msg,"$TEMP,%d\r\n", (int16_t)pt100Temp);
+//        SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
 //            rData = spi_read_data();
 //            rData = spi_read_id();
 //            rData = ADS1248_readRegister();
 //            rData = readAdc();
-//            DEVICE_DELAY_US(100000);
+            DEVICE_DELAY_US(20000);
 
 #endif
 
@@ -173,6 +189,15 @@ void main(void)
             GPIO_writePin(FAN_3, 1);
             GPIO_writePin(FAN_4, 1);
 
+            GPIO_writePin(LASER0, 1);
+            GPIO_writePin(LASER1, 1);
+            GPIO_writePin(LASER2, 1);
+            GPIO_writePin(LASER3, 1);
+
+            GPIO_writePin(LED0, 1);
+            GPIO_writePin(LED1, 1);
+            GPIO_writePin(LED2, 1);
+
         }
         else
         {
@@ -181,7 +206,36 @@ void main(void)
             GPIO_writePin(FAN_2, 0);
             GPIO_writePin(FAN_3, 0);
             GPIO_writePin(FAN_4, 0);
+
+            GPIO_writePin(LASER0, 0);
+            GPIO_writePin(LASER1, 0);
+            GPIO_writePin(LASER2, 0);
+            GPIO_writePin(LASER3, 0);
+
+            GPIO_writePin(LED0, 0);
+            GPIO_writePin(LED1, 0);
+            GPIO_writePin(LED2, 0);
+
+
         }
+#endif
+
+#if 0
+
+        uint16_t limie0 = GPIO_readPin(LIMIT0);
+        uint16_t limie1 = GPIO_readPin(LIMIT1);
+        uint16_t limie2 = GPIO_readPin(LIMIT2);
+        uint16_t limie3 = GPIO_readPin(LIMIT3);
+
+        uint16_t home0 = GPIO_readPin(HOME0);
+        uint16_t home1 = GPIO_readPin(HOME1);
+        uint16_t home2 = GPIO_readPin(HOME2);
+        uint16_t home3 = GPIO_readPin(HOME3);
+
+        uint16_t button0 = GPIO_readPin(BUTTON0);
+        uint16_t button1 = GPIO_readPin(BUTTON1);
+        uint16_t button2 = GPIO_readPin(BUTTON2);
+        uint16_t button3 = GPIO_readPin(BUTTON3);
 
 
 #endif
@@ -193,7 +247,6 @@ void main(void)
 #endif
 
 //        DEVICE_DELAY_US(10000);
-
     }
 }
 
