@@ -22,6 +22,7 @@ void (*Can_State_Ptr)(void);        // 다음 수행될 모드를 가르키는 �
 struct HostCmdMsg HostCmdMsg[6];
 struct OpCmdMsg OpCmdMsg[6];
 
+uint16_t gloopCnt=0;
 //
 // Main
 //
@@ -97,16 +98,22 @@ void main(void)
         {
             (*Can_State_Ptr)();
 
-            if(gSendTemp_en == 1)
+            if(gloopCnt > 20) // 1 초
             {
-                float ch0 = read_pr100(PT100_CH0) * 10;
-                float ch1 = read_pr100(PT100_CH1) * 10;
-                float ch2 = read_pr100(PT100_CH2) * 10;
-                float ch3 = read_pr100(PT100_CH3) * 10;
+                if(gSendTemp_en == 1)
+                {
 
-//                sprintf(msg,"$TEMP,%d\r\n", (int16_t)ch0);
-                sprintf(msg,"$TEMP,%d,%d,%d,%d\r\n", (int16_t)ch0, (int16_t)ch1, (int16_t)ch2, (int16_t)ch3);
-                SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+                    float ch0 = read_pr100(PT100_CH0) * 10;
+                    float ch1 = read_pr100(PT100_CH1) * 10;
+                    float ch2 = read_pr100(PT100_CH2) * 10;
+                    float ch3 = read_pr100(PT100_CH3) * 10;
+
+    //                sprintf(msg,"$TEMP,%d\r\n", (int16_t)ch0);
+                    sprintf(msg,"$TEMP,%d,%d,%d,%d\r\n", (int16_t)ch0, (int16_t)ch1, (int16_t)ch2, (int16_t)ch3);
+                    SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+                }
+
+                fan_control(gSendTemp_en);
             }
 
             cputimer0Flag = FALSE;

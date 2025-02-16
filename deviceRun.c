@@ -7,51 +7,57 @@
 
 #include "config.h"
 
+
+#define PELTIER_4EA     4
+
+
 void tempProfileReset(void);
 
 
 void temp_mode(void)
 {
-    float ftemp1;
-    float ftemperror;
     char *msg = NULL;
-    int16_t runCh;
+    int16_t ch;
 
-
-    for(runCh=0; runCh<6; runCh++)
+    for(ch=0; ch< PELTIER_4EA; ch++)
     {
-        // 임시 1 채널만...
-        if(HostCmdMsg[runCh].oprationSetBit.temperatureRun == 1)
+        // 채널별 run 실쟁과 동작 시간(단위 100ms)이 0 이상 설정 되었을 때만 동작 함.
+        if((HostCmdMsg[ch].oprationSetBit.temperatureRun == 1) && (HostCmdMsg[ch].TempProfile.singleTimeTemp > 0))
         {
 
-    //        ftemp1 = read_pr100(PT100_CH1);
-            tempPidControl(runCh);
-     //       dac53508_write(OpCmdMsg.opDacSet.dacSet_1);
+            tempPidControl(ch);
 
-    //        ftemperror = ftemp1 / HostCmdMsg.TempProfile.targetTemp1;
-    //        if((1.01 > ftemperror) && (ftemperror > 0.99))
-    //        {
-    //            if(tempProfileCnt > HostCmdMsg.TempProfile.timeTemp1)
-    //            {
-    //                sprintf(msg,"$STOP\r\n");
-    //                SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
-    //
-    //                stop_mode();
-    //
-    //            }
-    //        }
-    //        else
-    //        {
-    //            tempProfileCnt = 0;
-    //
-    //        }
+            // 첫번째 목표 온도에 도달하면 카운터 시작
+            // 시간만큼 도달 전에는 nowTempStatus 상태 그대로 1로 유지
+            if(OpCmdMsg[ch].nowTempStatus == 1)     // 목표 온도에 도달했다. 온도 유지 모드
+            {
+                if(tempProfileCnt[ch] > HostCmdMsg[ch].TempProfile.singleTimeTemp)
+                {
+                    sprintf(msg,"$ATEMP,%d\r\n", tempCycleCnt[ch] );
+                    SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
 
-            fan_control(1); // fan ON
+                    if(++tempCycleCnt[ch] >= HostCmdMsg[ch].TempProfile.tempCycle)
+                    {
+                        sprintf(msg,"$CYCLE,%d\r\n", tempCycleCnt[ch] );
+                        SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
 
+                        tempCycleCnt[ch] = 0;
+                        HostCmdMsg[ch].oprationSetBit.temperatureRun = 0;
+                        stop_mode();
+                    }
+
+                    tempProfileCnt[ch] = 0;
+                }
+            }
+            else
+            {
+                tempProfileCnt[ch] = 0;
+
+            }
         }
         else
         {
-            dac53508_write(0, runCh);
+            dac53508_write(0, ch);
 
         }
 
@@ -164,6 +170,8 @@ void prameterInit(void)
         OpCmdMsg[channel].tempSensor.tempSensor_Peltier = 0;
         OpCmdMsg[channel].tempSensor.tempSensor_Metal = 0;
 
+        OpCmdMsg[channel].nowTempStatus = 0;
+        OpCmdMsg[channel].stepperPulseCnt = 0;
     }
 }
 
@@ -173,34 +181,82 @@ void stop_mode(void)
     EnableMotor(0);
     epwmDisableSet(STEP_23);
 //    dac53508_write(0);
-//    tempProfileReset();
+
     prameterInit();
-    fan_control(0);
+    fan_AllOff();
 
     Can_State_Ptr = &hostCmd;///normal mode
 
 }
 
-void fan_control(uint16_t enable)
+void fan_AllOff(void)
+{
+    GPIO_writePin(FAN_0, 0);
+    GPIO_writePin(FAN_1, 0);
+    GPIO_writePin(FAN_2, 0);
+    GPIO_writePin(FAN_3, 0);
+    GPIO_writePin(FAN_4, 0);
+}
+
+void fan_AllOn(void)
+{
+    GPIO_writePin(FAN_0, 1);
+    GPIO_writePin(FAN_1, 1);
+    GPIO_writePin(FAN_2, 1);
+    GPIO_writePin(FAN_3, 1);
+    GPIO_writePin(FAN_4, 1);
+}
+
+void fan_control(int16_t heatFan)
 {
 
-    if(enable == 1)
+    if(heatFan == 1)
+    {
+        GPIO_writePin(FAN_4, 1);
+    }
+    else
+    {
+        GPIO_writePin(FAN_4, 0);
+    }
+
+
+    if(HostCmdMsg[0].fanSet.fanEnable == 1)
     {
         GPIO_writePin(FAN_0, 1);
-        GPIO_writePin(FAN_1, 1);
-        GPIO_writePin(FAN_2, 1);
-        GPIO_writePin(FAN_3, 1);
-        GPIO_writePin(FAN_4, 1);
-
     }
     else
     {
         GPIO_writePin(FAN_0, 0);
-        GPIO_writePin(FAN_1, 0);
-        GPIO_writePin(FAN_2, 0);
-        GPIO_writePin(FAN_3, 0);
-        GPIO_writePin(FAN_4, 0);
     }
+
+    if(HostCmdMsg[1].fanSet.fanEnable == 1)
+    {
+        GPIO_writePin(FAN_1, 1);
+    }
+    else
+    {
+        GPIO_writePin(FAN_1, 0);
+    }
+
+    if(HostCmdMsg[2].fanSet.fanEnable == 1)
+    {
+        GPIO_writePin(FAN_2, 1);
+    }
+    else
+    {
+        GPIO_writePin(FAN_2, 0);
+    }
+
+    if(HostCmdMsg[3].fanSet.fanEnable == 1)
+    {
+        GPIO_writePin(FAN_3, 1);
+    }
+    else
+    {
+        GPIO_writePin(FAN_3, 0);
+    }
+
+
 }
 
 void idle_mode(void)

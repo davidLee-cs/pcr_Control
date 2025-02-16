@@ -65,28 +65,35 @@ void hostCmd(void)
             SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
         }
 
-        //command : $TEMP,100,10,101,11,102,12,103,13,104,14,5\r\n
+        //command : $TEMP,ch,100,10,101,11,102,12,103,13,104,14,5\r\n
         if(strncmp(rBootData_Rx, tempSetCmd, 5) == 0)
         {
             tempSet();
 //            Example_Done();
         }
 
-        //command : $MOTOR,70, 6000000\r\n
+        //command : $STEMP,ch,100,10,5\r\n
+        if(strncmp(rBootData_Rx, tempSingleSetCmd, 6) == 0)
+        {
+            tempSingleSet();
+//            Example_Done();
+        }
+
+        //command : $MOTOR,ch,70, 6000000\r\n
         if(strncmp(rBootData_Rx, motorSetCmd, 6) == 0)
         {
             motorSet();
 //            Example_Done();
         }
 
-        //command : $MSTART,1,1\r\n
+        //command : $MSTART,1,0,1,1\r\n
         if(strncmp(rBootData_Rx, motorStartCmd, 6) == 0)
         {
             motorStartSet();
 //            Example_Done();
         }
 
-        //command : $TSTART,1\r\n
+        //command : $TSTART,1,1,0,1\r\n
         if(strncmp(rBootData_Rx, tempStartCmd, 6) == 0)
         {
             tempStartSet();
@@ -97,6 +104,12 @@ void hostCmd(void)
         if(strncmp(rBootData_Rx, dacSetCmd, 4) == 0)
         {
             dacSet();
+//            Example_Done();
+        }
+
+        if(strncmp(rBootData_Rx, fanSetCmd, 4) == 0)
+        {
+            fanSet();
 //            Example_Done();
         }
 
@@ -286,6 +299,40 @@ static void tempSet(void)
 
 }
 
+static void tempSingleSet(void)
+{
+    const char* comma = ",";
+    const char end[] = {'\r', '\n'};
+
+    char buffer[100] = {0,};
+
+    memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
+
+    // 1. ¨ùo¨öA¥ìE ©ö¢çAU¢¯¡©¡¤I ¨¬IAI comma ¢¥UA¡× ¨¬¨¢AU¢¯¡©¡¤I ¨¬¨¢¢¬¢ç
+    char* tempset = strtok(&rBootData_Rx[6],comma);
+
+    if( tempset != NULL)
+    {
+        int16_t channel = atoi(tempset);
+        tempset = strtok(NULL, comma);
+
+        HostCmdMsg[channel].TempProfile.singleTargetTemp = atoi(tempset) ;
+        tempset = strtok(NULL, comma);
+
+        HostCmdMsg[channel].TempProfile.singleTimeTemp = atoi(tempset) ;
+        tempset = strtok(NULL, comma);
+
+        HostCmdMsg[channel].TempProfile.tempCycle = atoi(tempset) ;
+
+        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
+        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
+    }
+
+    Can_State_Ptr = &hostCmd;///normal mode
+
+}
+
+
 
 static void dacSet(void)
 {
@@ -322,6 +369,34 @@ static void dacSet(void)
         HostCmdMsg[channel].dacSet.dacValue = atoi(tempset) ;
 
         OpCmdMsg[channel].opDacSet.dacSet = HostCmdMsg[channel].dacSet.dacValue;
+
+        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
+        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
+    }
+
+    Can_State_Ptr = &hostCmd;///normal mode
+
+}
+
+static void fanSet(void)
+{
+    const char* comma = ",";
+    const char end[] = {'\r', '\n'};
+
+    char buffer[100] = {0,};
+
+    memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
+
+    // 1. ¨ùo¨öA¥ìE ©ö¢çAU¢¯¡©¡¤I ¨¬IAI comma ¢¥UA¡× ¨¬¨¢AU¢¯¡©¡¤I ¨¬¨¢¢¬¢ç
+    char* tempset = strtok(&rBootData_Rx[5],comma);
+
+    if( tempset != NULL)
+    {
+        int16_t channel = atoi(tempset);
+        tempset = strtok(NULL, comma);
+
+        HostCmdMsg[channel].fanSet.fanEnable= atoi(tempset) ;
+        OpCmdMsg[channel].opFanSet.fanEnable = HostCmdMsg[channel].fanSet.fanEnable;
 
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);

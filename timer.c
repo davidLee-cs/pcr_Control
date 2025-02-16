@@ -9,7 +9,8 @@
 #include "config.h"
 
 uint16_t cpuTimer0IntCount;
-uint16_t tempProfileCnt;
+uint16_t tempProfileCnt[4] = {0,};
+uint16_t tempCycleCnt[4] = {0,};
 uint16_t cpuTimer2IntCount;
 
 bool cputimer0Flag;
@@ -26,7 +27,7 @@ void timerSet(void)
 
     initCPUTimers();
 
-    configCPUTimer(CPUTIMER0_BASE, DEVICE_SYSCLK_FREQ, 1000000);
+    configCPUTimer(CPUTIMER0_BASE, DEVICE_SYSCLK_FREQ, 50000);  // 50mS
     configCPUTimer(CPUTIMER1_BASE, DEVICE_SYSCLK_FREQ, 100000);           // 100ms
 //    configCPUTimer(CPUTIMER2_BASE, DEVICE_SYSCLK_FREQ, 1000000);
 
@@ -83,7 +84,6 @@ initCPUTimers(void)
     // Reset interrupt counter
     //
     cpuTimer0IntCount = 0;
-    tempProfileCnt = 0;
     cpuTimer2IntCount = 0;
 }
 
@@ -130,7 +130,10 @@ configCPUTimer(uint32_t cpuTimer, float freq, float period)
     }
     else if(cpuTimer == CPUTIMER1_BASE)
     {
-        tempProfileCnt = 0;
+        tempProfileCnt[0] = 0;
+        tempProfileCnt[1] = 0;
+        tempProfileCnt[2] = 0;
+        tempProfileCnt[3] = 0;
     }
     else if(cpuTimer == CPUTIMER2_BASE)
     {
@@ -180,7 +183,11 @@ cpuTimer1ISR(void)
     //
     // The CPU acknowledges the interrupt.
     //
-    tempProfileCnt++;
+    tempProfileCnt[0]++;
+    tempProfileCnt[1]++;
+    tempProfileCnt[2]++;
+    tempProfileCnt[3]++;
+
 }
 
 //

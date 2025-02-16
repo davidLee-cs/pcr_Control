@@ -21,7 +21,7 @@ struct TempProfile {
     int16_t targetTemp[6];
     uint16_t timeTemp[6];
     int16_t singleTargetTemp;
-    uint16_t singleTimeTemp;
+    uint16_t singleTimeTemp;        // ¥‹¿ß: 100 mS
 
     uint16_t tempCycle;
 
@@ -55,6 +55,12 @@ struct dacSet {
 
 };
 
+struct fanSet {
+
+    uint16_t fanEnable;
+
+};
+
 
 /***** Type declarations *****/
 struct HostCmdMsg {
@@ -62,6 +68,7 @@ struct HostCmdMsg {
     struct TempProfile TempProfile;
     struct oprationSetBit oprationSetBit;
     struct dacSet  dacSet;
+    struct fanSet  fanSet;
 
     uint16_t all_Reset;                   // Reserved 0x00
     uint16_t msg2;                   // Reserved 0x00

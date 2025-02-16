@@ -12,8 +12,9 @@
 #include "config.h"
 
 // 온도 차이 임계값 (예: 0.5°C 이내로 도달하면 온/오프 방식으로 변경)
-#define TEMPERATURE_THRESHOLD   0.5f //0.5f
-#define ONE_SHOT_DAC_VOLT       0.2f // V
+#define TEMPERATURE_THRESHOLD   (0.5f) // V
+#define ONE_SHOT_DAC_VOLT       (0.2f) // V
+#define DAC_MAX_VOLTAGE         (1.5f) // V
 
 // global  variables
 long IdleLoopCount = 0;
@@ -63,15 +64,15 @@ void init_pid(void)
     lowerlim = 0.00f;
 }
 
-uint16_t dac_value;
+
 void SetDACOutput(float32_t pid_output, int16_t ch) {
 
     // (0.0 ~ 1.0) PID 출력을 (0V ~ 3.3V)로 매핑
     float32_t dac_voltage = pid_output * DAC_VREF;  // 0.0 ~ 3.3V
 
-    if(dac_voltage > 2.0f)
+    if(dac_voltage > DAC_MAX_VOLTAGE)
     {
-        dac_voltage = 2.0f;
+        dac_voltage = DAC_MAX_VOLTAGE;
     }
 
     // DAC 값을 12비트 정수(0 ~ 4095)로 변환
@@ -82,7 +83,6 @@ void SetDACOutput(float32_t pid_output, int16_t ch) {
     dac53508_write(OpCmdMsg[ch].opDacSet.dacSet, ch);
 
 }
-
 
 void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch) {
 
@@ -98,20 +98,19 @@ void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch) {
         error = temperature_error;
     }
 
-    // 정수로 계산
-    if (error > TEMPERATURE_THRESHOLD) {
-        // 목표 온도와 차이가 큰 경우 가열/냉각을 PID로 제어
 
+    if (error > TEMPERATURE_THRESHOLD) {
+
+        // 목표 온도와 차이가 큰 경우 가열/냉각을 PID로 제어
         pid_output[ch] = DCL_runPID_C4(&pidTemp[ch], targetTemp, readNowTemp, clamp_flag[ch]);  // PID 연산
         int16_t clampactive = DCL_runClamp_C1(&pid_output[ch], upperlim, lowerlim);
         clamp_flag[ch] = (clampactive == 0U) ? 1.0f : 0.0f;
 
-        OpCmdMsg[ch].nowTempStatus = 1;     // 온도 제어 모드
         SetDACOutput(pid_output[ch], ch);  // DAC 출력 (PID로 제어)
 
     } else {
 
-        OpCmdMsg[ch].nowTempStatus = 0;     // 온도 유지 모드
+        OpCmdMsg[ch].nowTempStatus = 1;     // 온도 유지 모드 set
 
         // 목표 온도와 차이가 작은 경우 온/오프 방식으로 제어
         if (temperature_error < 0.0f) {

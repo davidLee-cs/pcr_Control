@@ -16,7 +16,10 @@ void idle_mode(void);
 void motor_Parameterset(int16_t channel);
 void stop_mode(void);
 void prameterInit(void);
-void fan_control(uint16_t enable);
+void fan_control(int16_t heatFan);
+void fan_AllOff(void);
+void fan_AllOn(void);
+
 
 
 #endif /* DEVICERUN_H_ */

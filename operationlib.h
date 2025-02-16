@@ -60,14 +60,22 @@ struct opDacSet{
 };
 
 
+struct opFanSet{
+
+    uint16_t fanEnable;        // target DAC
+
+};
+
+
 /***** Type declarations *****/
 struct OpCmdMsg {
 
     struct motorMovingStatus    motorMovingStatus;
     struct tempSensor           tempSensor;
     struct opDacSet             opDacSet;
+    struct opFanSet             opFanSet;
 
-    uint16_t nowTempStatus;     // 1: 온도 제어 모드  0: 온도 유지 모드
+    uint16_t nowTempStatus;     // 1 : 온도 제어 모드
     uint64_t stepperPulseCnt;
 };
 extern struct OpCmdMsg OpCmdMsg[6];

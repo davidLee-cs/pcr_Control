@@ -225,7 +225,7 @@ __interrupt void epwm4ISR(void)
 //            (OpCmdMsg.motorMovingStatus.motor4_Home_bit == 0) ||
 //            (OpCmdMsg.motorMovingStatus.motor4_End_bit == 0))
 
-    if(pulseCount >= targetPulseCount)
+    if(pulseCount > targetPulseCount)
 
     {
         // 모터 멈추기
