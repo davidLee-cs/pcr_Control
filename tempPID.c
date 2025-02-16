@@ -12,8 +12,8 @@
 #include "config.h"
 
 // 온도 차이 임계값 (예: 0.5°C 이내로 도달하면 온/오프 방식으로 변경)
-#define TEMPERATURE_THRESHOLD 50.0f //0.5f  0.5 x 100
-
+#define TEMPERATURE_THRESHOLD   0.5f //0.5f
+#define ONE_SHOT_DAC_VOLT       0.2f // V
 
 // global  variables
 long IdleLoopCount = 0;
@@ -22,37 +22,45 @@ float rk = 0.25f;
 float yk;
 float lk;
 float uk;
-DCL_PID pid1 = PID_DEFAULTS;
+DCL_PID pidTemp[6] = PID_DEFAULTS;
 float Duty;
 float upperlim = 0.95f;
-float lowerlim = 0.05f;
+float lowerlim = 0.00f;
 unsigned int clampactive;
-float32_t clamp_flag;
-float32_t pid_output;
+float32_t clamp_flag[6];
+float32_t pid_output[6];
 
 
 
 void init_pid(void)
 {
 
-    /* initialise controller variables */
-    pid1.Kp = 9.0f;
-    pid1.Ki = 0.015f;
-    pid1.Kd = 0.35f;
-    pid1.Kr = 1.0f;
-    pid1.c1 = 188.0296600613396f;
-    pid1.c2 = 0.880296600613396f;
-    pid1.d2 = 0.0f;
-    pid1.d3 = 0.0f;
-    pid1.i10 = 0.0f;
-    pid1.i14 = 1.0f;
-    pid1.Umax = 1.0f;
-    pid1.Umin = 0.0f;
-//    pid1.Umin = -1.0f;
+    int16_t ch;
+
+    for(ch = 0; ch<6; ch++)
+    {
+        /* initialise controller variables */
+        pidTemp[ch].Kp = 2.0f;
+        pidTemp[ch].Ki = 0.015f;
+        pidTemp[ch].Kd = 0.35f;
+        pidTemp[ch].Kr = 1.0f;
+        pidTemp[ch].c1 = 188.0296600613396f;
+        pidTemp[ch].c2 = 0.880296600613396f;
+        pidTemp[ch].d2 = 0.0f;
+        pidTemp[ch].d3 = 0.0f;
+        pidTemp[ch].i10 = 0.0f;
+        pidTemp[ch].i14 = 1.0f;
+        pidTemp[ch].Umax = 1.0f;
+        pidTemp[ch].Umin = 0.0f;
+    //    pid1.Umin = -1.0f;
+
+    }
 
     rk = 0.25f;                             // initial value for control reference
     lk = 1.0f;                              // control loop not saturated
 
+    upperlim = 0.95f;
+    lowerlim = 0.00f;
 }
 
 uint16_t dac_value;
@@ -68,51 +76,67 @@ void SetDACOutput(float32_t pid_output, int16_t ch) {
 
     // DAC 값을 12비트 정수(0 ~ 4095)로 변환
     //    Duty = (uk / 2.0f + 0.5f) * 1000;
-    dac_value = (uint16_t)((dac_voltage / DAC_VREF) * DAC_MAX_VAL);
+    OpCmdMsg[ch].opDacSet.dacSet = (uint16_t)((dac_voltage / DAC_VREF) * DAC_MAX_VAL);
 
     // DAC 채널 출력
-    dac53508_write(dac_value, ch);
+    dac53508_write(OpCmdMsg[ch].opDacSet.dacSet, ch);
 
 }
 
 
 void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch) {
 
-    float32_t temperature_error = (float32_t)HostCmdMsg.TempProfile.targetTemp[ch] - readNowTemp;  // 목표 온도와 현재 온도의 차이
+    float32_t error;
+    float32_t temperature_error = targetTemp - readNowTemp;  // 목표 온도와 현재 온도의 차이
 
-    if (abs(temperature_error*100) > TEMPERATURE_THRESHOLD) {
+    if(temperature_error < 0.0f)
+    {
+        error = temperature_error * -1.0f;
+    }
+    else
+    {
+        error = temperature_error;
+    }
+
+    // 정수로 계산
+    if (error > TEMPERATURE_THRESHOLD) {
         // 목표 온도와 차이가 큰 경우 가열/냉각을 PID로 제어
-        pid_output = DCL_runPID_C4(&pid1, targetTemp, readNowTemp, clamp_flag);  // PID 연산
-        int16_t clampactive = DCL_runClamp_C1(&pid_output, upperlim, lowerlim);
-        clamp_flag = (clampactive == 0U) ? 1.0f : 0.0f;
 
-        SetDACOutput(pid_output, ch);  // DAC 출력 (PID로 제어)
+        pid_output[ch] = DCL_runPID_C4(&pidTemp[ch], targetTemp, readNowTemp, clamp_flag[ch]);  // PID 연산
+        int16_t clampactive = DCL_runClamp_C1(&pid_output[ch], upperlim, lowerlim);
+        clamp_flag[ch] = (clampactive == 0U) ? 1.0f : 0.0f;
+
+        OpCmdMsg[ch].nowTempStatus = 1;     // 온도 제어 모드
+        SetDACOutput(pid_output[ch], ch);  // DAC 출력 (PID로 제어)
+
     } else {
+
+        OpCmdMsg[ch].nowTempStatus = 0;     // 온도 유지 모드
+
         // 목표 온도와 차이가 작은 경우 온/오프 방식으로 제어
         if (temperature_error < 0.0f) {
             // 목표 온도보다 온도가 더 높으면 냉각
             SetDACOutput(0.0f, ch);  // DAC 0V (Peltier 냉각)
         } else {
             // 목표 온도보다 온도가 더 낮으면 가열
-            SetDACOutput(1.0f, ch);  // DAC 3.3V (Peltier 가열)
+            SetDACOutput(ONE_SHOT_DAC_VOLT, ch);  // DAC 3.3V (Peltier 가열)
         }
     }
 }
 
 
-void tempPidControl()
+void tempPidControl(int16_t runCh)
 {
 
-    int16_t ch;
-    float32_t readNowTemp;
-    float32_t temperature_error;
+    OpCmdMsg[runCh].tempSensor.tempSensor_Peltier = read_pr100(runCh);
+//        OpCmdMsg[runCh].tempSensor.tempSensor_Metal = read_pr100(runCh);
 
-    for(ch=0; ch<6; ch++)
-    {
-        readNowTemp = read_pr100(ch);
-               // 온도 차이가 임계값 이하이면 온/오프 제어, 그렇지 않으면 PID 제어
-        SetOnOffControl(readNowTemp, (float32_t)HostCmdMsg.TempProfile.targetTemp[ch], ch);
-        DEVICE_DELAY_US(20000);
-    }
+           // 온도 차이가 임계값 이하이면 온/오프 제어, 그렇지 않으면 PID 제어
+    SetOnOffControl(OpCmdMsg[runCh].tempSensor.tempSensor_Peltier,
+                    (float32_t)HostCmdMsg[runCh].TempProfile.singleTargetTemp,
+                    runCh);
+
+//    DEVICE_DELAY_US(20000);
+
 
 }

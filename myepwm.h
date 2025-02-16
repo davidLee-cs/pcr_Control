@@ -87,8 +87,7 @@ __interrupt void epwm4ISR(void);
 void epwmEnableSet(uint16_t ch);
 void epwmDisableSet(uint16_t ch);
 void updateCompare(epwmInfo *epwm_info);
-void stepperEpwmSet(uint16_t speed);
+void stepperEpwmSet(int16_t channel, uint16_t speed);
 void pumpEpwmSet(uint16_t duty);
-void stepperPulseSet(uint64_t pulse);
-
+void stepperPulseSet(int16_t channel, uint64_t pulse);
 #endif /* MYEPWM_H_ */

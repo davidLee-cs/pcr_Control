@@ -13,7 +13,7 @@
 void temp_mode(void);
 void motor_mode(void);
 void idle_mode(void);
-void motor_Parameterset(void);
+void motor_Parameterset(int16_t channel);
 void stop_mode(void);
 void prameterInit(void);
 void fan_control(uint16_t enable);

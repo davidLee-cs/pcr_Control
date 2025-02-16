@@ -46,6 +46,6 @@ extern void (*Can_State_Ptr)(void);        // 다음 수행될 모드를 가르키는 함수 �
 
 extern uint16_t jump;
 extern uint16_t gSendTemp_en;
-
+extern int16_t nowChannel;
 
 #endif /* CONFIG_H_ */

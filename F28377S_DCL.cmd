@@ -23,7 +23,7 @@ SECTIONS
    .sysmem          : > RAMLS4
 #else
    .pinit           : > RAMM0
-   .ebss            : >> RAMLS5
+   .ebss            : >> RAMLS4 | RAMLS5
    .econst          : > RAMLS5
    .esysmem         : > RAMLS5
 #endif
@@ -40,11 +40,11 @@ SECTIONS
    #if __TI_COMPILER_VERSION__ >= 15009000
     .TI.ramfunc : {} > RAMM0
    #else
-    ramfuncs    : > RAMM0
+    ramfuncs    : >> RAMLS1 | RAMLS2
    #endif
 #endif
 
-	dclfuncs  		 : > RAMGS2, 		align(2)
+	dclfuncs  		 : >> RAMGS2 |RAMGS3, 		align(2)
 //   PDataLogSection	: > RAMGS12,	align(4)
 //     				LOAD_START(pData_start),
 //					LOAD_SIZE(pData_size)

@@ -20,7 +20,11 @@ struct TempProfile {
 
     int16_t targetTemp[6];
     uint16_t timeTemp[6];
+    int16_t singleTargetTemp;
+    uint16_t singleTimeTemp;
+
     uint16_t tempCycle;
+
 };
 //struct TempProfile TempProfile;
 
@@ -34,20 +38,20 @@ struct motorProfile {
 
 struct oprationSetBit {
 
-    uint16_t temperatureRun     :1;
-    uint16_t motorRun           :1;
-    uint16_t motorDirection     :1;
+    uint16_t temperatureRun;
+    uint16_t motorRun;
+    uint16_t motorDirection;
 
 };
 
 struct dacSet {
 
-    uint16_t dac1;
-    uint16_t dac2;
-    uint16_t dac3;
-    uint16_t dac4;
-    uint16_t dac5;
-    uint16_t dac6;
+    uint16_t dacValue;
+//    uint16_t dac2;
+//    uint16_t dac3;
+//    uint16_t dac4;
+//    uint16_t dac5;
+//    uint16_t dac6;
 
 };
 
@@ -62,7 +66,7 @@ struct HostCmdMsg {
     uint16_t all_Reset;                   // Reserved 0x00
     uint16_t msg2;                   // Reserved 0x00
 };
-extern struct HostCmdMsg HostCmdMsg;
+extern struct HostCmdMsg HostCmdMsg[6];
 //struct HostCmdMsg latestActiveHostCmdMsg;
 
 

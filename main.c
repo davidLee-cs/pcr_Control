@@ -4,6 +4,9 @@
 #include "timer.h"
 
 
+#pragma CODE_SECTION(SetOnOffControl, ".TI.ramfunc");
+//#pragma CODE_SECTION(DCL_runClamp_C1, ".TI.ramfunc");
+
 uint32_t sData = 0;                  // Send data
 uint32_t rData = 0;                  // Receive data
 
@@ -16,8 +19,8 @@ uint16_t jump=0;
 uint16_t gSendTemp_en=0;
 
 void (*Can_State_Ptr)(void);        // 다음 수행될 모드를 가르키는 함수 포인터
-struct HostCmdMsg HostCmdMsg;
-struct OpCmdMsg OpCmdMsg;
+struct HostCmdMsg HostCmdMsg[6];
+struct OpCmdMsg OpCmdMsg[6];
 
 //
 // Main
@@ -69,6 +72,7 @@ void main(void)
     fan_control(0); // fan Off
 
     prameterInit();
+    init_pid();
 
     DEVICE_DELAY_US(200000);
 
@@ -77,7 +81,7 @@ void main(void)
     while(1)
     {
 
-#if 0
+#if 1
 
 #if 0
 //        if(jump == TEMP_RUN)            Can_State_Ptr = &temp_mode;
@@ -150,9 +154,9 @@ void main(void)
 //        drv8452_write(&DRV8452_regs[CTRL1])
 #endif
 
-#if 1
+#if 0
 
-        tempPidControl();
+        tempPidControl(0);
         DEVICE_DELAY_US(20000);
 #endif
 

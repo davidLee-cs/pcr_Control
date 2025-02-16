@@ -641,7 +641,7 @@ void updateCompare(epwmInfo *epwm_info)
 }
 
 
-void stepperEpwmSet(uint16_t speed)
+void stepperEpwmSet(int16_t channel, uint16_t speed)
 {
 
     uint16_t targetSpeed = (float)(speed *0.01) * 2200;
@@ -658,13 +658,33 @@ void stepperEpwmSet(uint16_t speed)
 
     uint16_t compare = targetSpeed / 2;
 
-//    EPWM_setTimeBasePeriod(myStepMotorEPWM3_BASE, targetSpeed);
-    EPWM_setTimeBasePeriod(myStepMotorEPWM4_BASE, targetSpeed);
+    if(channel == 0)
+    {
+        EPWM_setTimeBasePeriod(myStepMotorEPWM3_BASE, targetSpeed);
+        EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_A, compare);
+//        EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_B, compare);
 
-//    EPWM_setCounterCompareValue(myStepMotorEPWM3_BASE, EPWM_COUNTER_COMPARE_A, compare);
-//    EPWM_setCounterCompareValue(myStepMotorEPWM3_BASE, EPWM_COUNTER_COMPARE_B, compare);
-    EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_A, compare);
-    EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_B, compare);
+    }
+    else if(channel == 1)
+    {
+        EPWM_setTimeBasePeriod(myStepMotorEPWM3_BASE, targetSpeed);
+//        EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_A, compare);
+        EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_B, compare);
+
+    }
+    else if(channel == 2)
+    {
+        EPWM_setTimeBasePeriod(myStepMotorEPWM4_BASE, targetSpeed);
+        EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_A, compare);
+//        EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_B, compare);
+
+    }
+    else if(channel == 3)
+    {
+        EPWM_setTimeBasePeriod(myStepMotorEPWM4_BASE, targetSpeed);
+//        EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_A, compare);
+        EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_B, compare);
+    }
 
 }
 
@@ -695,10 +715,10 @@ void pumpEpwmSet(uint16_t duty)
 }
 
 
-void stepperPulseSet(uint64_t pulse)
+void stepperPulseSet(int16_t channel, uint64_t pulse)
 {
 
-    targetPulseCount = pulse;
+    OpCmdMsg[channel].stepperPulseCnt = pulse;
 
 }
 

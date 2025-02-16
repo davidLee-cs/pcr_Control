@@ -6,6 +6,8 @@
 
 void Example_Done(void);
 
+int16_t nowChannel;
+
 void hostCmd(void)
 {
 
@@ -119,13 +121,21 @@ static void tempStartSet(void)
 
     memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
 
-
-    // 1. ¨ùo¨öA¥ìE ©ö¢çAU¢¯¡©¡¤I ¨¬IAI comma ¢¥UA¡× ¨¬¨¢AU¢¯¡©¡¤I ¨¬¨¢¢¬¢ç
     char* tempset = strtok(&rBootData_Rx[8],comma);
 
     if( tempset != NULL)
     {
-        HostCmdMsg.oprationSetBit.temperatureRun = atoi(tempset) ;
+
+        HostCmdMsg[0].oprationSetBit.temperatureRun = atoi(tempset) ;
+        tempset = strtok(NULL, comma);
+
+        HostCmdMsg[1].oprationSetBit.temperatureRun = atoi(tempset) ;
+        tempset = strtok(NULL, comma);
+
+        HostCmdMsg[2].oprationSetBit.temperatureRun = atoi(tempset) ;
+        tempset = strtok(NULL, comma);
+
+        HostCmdMsg[3].oprationSetBit.temperatureRun = atoi(tempset) ;
 
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
@@ -148,14 +158,21 @@ static void motorStartSet(void)
 
 
     // 1. ¨ùo¨öA¥ìE ©ö¢çAU¢¯¡©¡¤I ¨¬IAI comma ¢¥UA¡× ¨¬¨¢AU¢¯¡©¡¤I ¨¬¨¢¢¬¢ç
-    char* tempset = strtok(&rBootData_Rx[8],comma);
+    char* motorset = strtok(&rBootData_Rx[8],comma);
 
-    if( tempset != NULL)
+    if( motorset != NULL)
     {
-        HostCmdMsg.oprationSetBit.motorRun = atoi(tempset) ;
-        tempset = strtok(NULL, comma);
+        nowChannel = atoi(motorset);
+        motorset = strtok(NULL, comma);
 
-        HostCmdMsg.oprationSetBit.motorDirection = atoi(tempset) ;
+        int16_t run = atoi(motorset);
+        HostCmdMsg[nowChannel].oprationSetBit.temperatureRun = run;
+
+        motorset = strtok(NULL, comma);
+
+        int16_t dir = atoi(motorset);
+        HostCmdMsg[nowChannel].oprationSetBit.motorDirection = dir;
+
 
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
@@ -178,17 +195,24 @@ static void motorSet(void)
 
 
     // 1. ¨ùo¨öA¥ìE ©ö¢çAU¢¯¡©¡¤I ¨¬IAI comma ¢¥UA¡× ¨¬¨¢AU¢¯¡©¡¤I ¨¬¨¢¢¬¢ç
-    char* tempset = strtok(&rBootData_Rx[6],comma);
+    char* motorset = strtok(&rBootData_Rx[6],comma);
 
-    if( tempset != NULL)
+    if( motorset != NULL)
     {
-        HostCmdMsg.motorProfile.motorSpeed = atoi(tempset) ;
-        tempset = strtok(NULL, comma);
+        int16_t channel = atoi(motorset);
+        motorset = strtok(NULL, comma);
 
-        HostCmdMsg.motorProfile.set_PulseCnt = atoll(tempset) ;
-        tempset = strtok(NULL, comma);
+        int16_t speed = atoi(motorset);
+        HostCmdMsg[channel].motorProfile.motorSpeed = speed;
 
-        motor_Parameterset();
+        motorset = strtok(NULL, comma);
+
+        int16_t pulse = atoll(motorset);
+        HostCmdMsg[channel].motorProfile.set_PulseCnt = pulse;
+
+//        motorset = strtok(NULL, comma);
+
+        motor_Parameterset(channel);
 
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
@@ -219,38 +243,40 @@ static void tempSet(void)
 
     if( tempset != NULL)
     {
-        HostCmdMsg.TempProfile.targetTemp[0] = atoi(tempset) ;
+        int16_t channel = atoi(tempset);
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.TempProfile.timeTemp[0] = atoi(tempset) ;
+        HostCmdMsg[channel].TempProfile.targetTemp[0] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.TempProfile.targetTemp[1] = atoi(tempset) ;
+        HostCmdMsg[channel].TempProfile.timeTemp[0] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.TempProfile.timeTemp[1] = atoi(tempset) ;
+        HostCmdMsg[channel].TempProfile.targetTemp[1] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.TempProfile.targetTemp[2] = atoi(tempset) ;
+        HostCmdMsg[channel].TempProfile.timeTemp[1] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.TempProfile.timeTemp[2] = atoi(tempset) ;
+        HostCmdMsg[channel].TempProfile.targetTemp[2] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.TempProfile.targetTemp[3] = atoi(tempset) ;
+        HostCmdMsg[channel].TempProfile.timeTemp[2] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.TempProfile.timeTemp[3] = atoi(tempset) ;
+        HostCmdMsg[channel].TempProfile.targetTemp[3] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.TempProfile.targetTemp[4] = atoi(tempset) ;
+        HostCmdMsg[channel].TempProfile.timeTemp[3] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.TempProfile.timeTemp[4] = atoi(tempset) ;
+        HostCmdMsg[channel].TempProfile.targetTemp[4] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.TempProfile.tempCycle = atoi(tempset) ;
+        HostCmdMsg[channel].TempProfile.timeTemp[4] = atoi(tempset) ;
+        tempset = strtok(NULL, comma);
 
+        HostCmdMsg[channel].TempProfile.tempCycle = atoi(tempset) ;
 
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
@@ -275,31 +301,27 @@ static void dacSet(void)
 
     if( tempset != NULL)
     {
-        HostCmdMsg.dacSet.dac1 = atoi(tempset) ;
+        int16_t channel = atoi(tempset);
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.dacSet.dac2 = atoi(tempset) ;
+        HostCmdMsg[channel].dacSet.dacValue = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.dacSet.dac3 = atoi(tempset) ;
+        HostCmdMsg[channel].dacSet.dacValue = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.dacSet.dac4 = atoi(tempset) ;
+        HostCmdMsg[channel].dacSet.dacValue = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.dacSet.dac5 = atoi(tempset) ;
+        HostCmdMsg[channel].dacSet.dacValue = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg.dacSet.dac6 = atoi(tempset) ;
+        HostCmdMsg[channel].dacSet.dacValue = atoi(tempset) ;
+        tempset = strtok(NULL, comma);
 
+        HostCmdMsg[channel].dacSet.dacValue = atoi(tempset) ;
 
-        OpCmdMsg.opDacSet.dacSet_1 = HostCmdMsg.dacSet.dac1;
-        OpCmdMsg.opDacSet.dacSet_2 = HostCmdMsg.dacSet.dac2;
-        OpCmdMsg.opDacSet.dacSet_3 = HostCmdMsg.dacSet.dac3;
-        OpCmdMsg.opDacSet.dacSet_4 = HostCmdMsg.dacSet.dac4;
-        OpCmdMsg.opDacSet.dacSet_5 = HostCmdMsg.dacSet.dac5;
-        OpCmdMsg.opDacSet.dacSet_6 = HostCmdMsg.dacSet.dac6;
-
+        OpCmdMsg[channel].opDacSet.dacSet = HostCmdMsg[channel].dacSet.dacValue;
 
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);

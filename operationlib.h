@@ -17,17 +17,17 @@
 
 struct motorMovingStatus{
 
-    uint16_t motor1_Home_bit      :1;    //25 -1
-    uint16_t motor1_End_bit     :1;    //25 -1
+    uint16_t motor_Home;    //25 -1
+    uint16_t motor_End;    //25 -1
 
-    uint16_t motor2_Home_bit      :1;    //25 -1
-    uint16_t motor2_End_bit     :1;    //25 -1
-
-    uint16_t motor3_Home_bit      :1;    //25 -1
-    uint16_t motor3_End_bit     :1;    //25 -1
-
-    uint16_t motor4_Home_bit      :1;    //25 -1
-    uint16_t motor4_End_bit     :1;    //25 -1
+//    uint16_t motor2_Home_bit      :1;    //25 -1
+//    uint16_t motor2_End_bit     :1;    //25 -1
+//
+//    uint16_t motor3_Home_bit      :1;    //25 -1
+//    uint16_t motor3_End_bit     :1;    //25 -1
+//
+//    uint16_t motor4_Home_bit      :1;    //25 -1
+//    uint16_t motor4_End_bit     :1;    //25 -1
 
 };
 //struct motorMovingStatus lastmotorMovingStatus;
@@ -35,27 +35,27 @@ struct motorMovingStatus{
 
 struct tempSensor{
 
-    uint16_t tempSensor1_A;
-    uint16_t tempSensor1_B;
-    uint16_t tempSensor2_A;
-    uint16_t tempSensor2_B;
-
-    uint16_t tempSensor3_A;
-    uint16_t tempSensor3_B;
-    uint16_t tempSensor4_A;
-    uint16_t tempSensor4_B;
+    float32_t tempSensor_Peltier;      //paltier
+    float32_t tempSensor_Metal;      //case
+//    uint16_t tempSensor2_A;
+//    uint16_t tempSensor2_B;
+//
+//    uint16_t tempSensor3_A;
+//    uint16_t tempSensor3_B;
+//    uint16_t tempSensor4_A;
+//    uint16_t tempSensor4_B;
 
 };
 
 
 struct opDacSet{
 
-    uint16_t dacSet_1;
-    uint16_t dacSet_2;
-    uint16_t dacSet_3;
-    uint16_t dacSet_4;
-    uint16_t dacSet_5;
-    uint16_t dacSet_6;
+    uint16_t dacSet;        // target DAC
+//    uint16_t dacSet_2;
+//    uint16_t dacSet_3;
+//    uint16_t dacSet_4;
+//    uint16_t dacSet_5;
+//    uint16_t dacSet_6;
 
 };
 
@@ -67,8 +67,10 @@ struct OpCmdMsg {
     struct tempSensor           tempSensor;
     struct opDacSet             opDacSet;
 
+    uint16_t nowTempStatus;     // 1: 온도 제어 모드  0: 온도 유지 모드
+    uint64_t stepperPulseCnt;
 };
-extern struct OpCmdMsg OpCmdMsg;
+extern struct OpCmdMsg OpCmdMsg[6];
 //struct OpCmdMsg OpCmdMsgServoMax[4];
 //struct OpCmdMsg* lastAddedMaxOpCmdMsg = OpCmdMsgServoMax;
 
