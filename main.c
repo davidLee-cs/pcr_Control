@@ -5,7 +5,8 @@
 
 
 #pragma CODE_SECTION(SetOnOffControl, ".TI.ramfunc");
-//#pragma CODE_SECTION(DCL_runClamp_C1, ".TI.ramfunc");
+//#pragma CODE_SECTION(DCL_runPID_C4, ".TI.ramfunc");
+
 
 uint32_t sData = 0;                  // Send data
 uint32_t rData = 0;                  // Receive data
@@ -70,7 +71,8 @@ void main(void)
     drv8452_init();
     EnableMotor(0);
     timerSet();
-    fan_control(0); // fan Off
+//    fan_AllOff(); // fan Off
+    fan_AllOn();
 
     prameterInit();
     init_pid();
@@ -93,12 +95,12 @@ void main(void)
 #endif
 
         hostCmd();
-
+        fan_AllOn();
         if(cputimer0Flag == TRUE)//50ms Timer flag
         {
             (*Can_State_Ptr)();
 
-            if(gloopCnt > 20) // 1 초
+            if(gloopCnt++ > 20) // 1 초
             {
                 if(gSendTemp_en == 1)
                 {
@@ -113,6 +115,7 @@ void main(void)
                     SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
                 }
 
+                gloopCnt = 0;
                 fan_control(gSendTemp_en);
             }
 

@@ -148,11 +148,13 @@ SECTIONS
    ramgs1           : > RAMGS1,    PAGE = 1
 
    /* The following section definitions are for SDFM examples */
-   Filter1_RegsFile : > RAMGS1,	PAGE = 1, fill=0x1111
-   Filter2_RegsFile : > RAMGS2,	PAGE = 1, fill=0x2222
-   Filter3_RegsFile : > RAMGS3,	PAGE = 1, fill=0x3333
-   Filter4_RegsFile : > RAMGS4,	PAGE = 1, fill=0x4444
-   Difference_RegsFile : >RAMGS5, 	PAGE = 1, fill=0x3333
+//   Filter1_RegsFile : > RAMGS1,	PAGE = 1, fill=0x1111
+//   Filter2_RegsFile : > RAMGS2,	PAGE = 1, fill=0x2222
+//   Filter3_RegsFile : > RAMGS3,	PAGE = 1, fill=0x3333
+//   Filter4_RegsFile : > RAMGS4,	PAGE = 1, fill=0x4444
+ //  Difference_RegsFile : >RAMGS5, 	PAGE = 1, fill=0x3333
+
+   	dclfuncs  		 : >> FLASHI |FLASHJ , 		align(2)
 }
 
 /*

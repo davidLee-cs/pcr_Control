@@ -241,7 +241,6 @@ gpio37.gpioPin.$assign = "GPIO88";
 gpio38.$name           = "BUZZER";
 gpio38.gpioPin.$assign = "GPIO8";
 
-sci1.baudRates             = 9600;
 sci1.$name                 = "BOOT_SCI";
 sci1.enabledInterrupts     = ["SCI_INT_RXRDY_BRKDT"];
 sci1.rxFifo                = "SCI_FIFO_RX1";

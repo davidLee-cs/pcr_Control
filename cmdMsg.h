@@ -47,12 +47,6 @@ struct oprationSetBit {
 struct dacSet {
 
     uint16_t dacValue;
-//    uint16_t dac2;
-//    uint16_t dac3;
-//    uint16_t dac4;
-//    uint16_t dac5;
-//    uint16_t dac6;
-
 };
 
 struct fanSet {

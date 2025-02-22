@@ -33,12 +33,12 @@ void temp_mode(void)
             {
                 if(tempProfileCnt[ch] > HostCmdMsg[ch].TempProfile.singleTimeTemp)
                 {
-                    sprintf(msg,"$ATEMP,%d\r\n", tempCycleCnt[ch] );
+                    sprintf(msg,"$ATEMP,%d,%d\r\n", ch, tempCycleCnt[ch] );
                     SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
 
                     if(++tempCycleCnt[ch] >= HostCmdMsg[ch].TempProfile.tempCycle)
                     {
-                        sprintf(msg,"$CYCLE,%d\r\n", tempCycleCnt[ch] );
+                        sprintf(msg,"$CYCLE,%d, %d\r\n", ch, tempCycleCnt[ch] );
                         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
 
                         tempCycleCnt[ch] = 0;
@@ -46,6 +46,7 @@ void temp_mode(void)
                         stop_mode();
                     }
 
+                    DEVICE_DELAY_US(20000);
                     tempProfileCnt[ch] = 0;
                 }
             }
@@ -61,7 +62,7 @@ void temp_mode(void)
 
         }
 
-        DEVICE_DELAY_US(20000);
+        DEVICE_DELAY_US(2000);
     }
 
 }
@@ -158,8 +159,8 @@ void prameterInit(void)
 
         HostCmdMsg[channel].oprationSetBit.motorDirection = 0;
         HostCmdMsg[channel].oprationSetBit.motorRun = 0;
-
         HostCmdMsg[channel].oprationSetBit.temperatureRun = 0;
+
         HostCmdMsg[channel].dacSet.dacValue = 0;
 
         OpCmdMsg[channel].motorMovingStatus.motor_End = 0;

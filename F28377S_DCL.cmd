@@ -40,11 +40,11 @@ SECTIONS
    #if __TI_COMPILER_VERSION__ >= 15009000
     .TI.ramfunc : {} > RAMM0
    #else
-    ramfuncs    : >> RAMLS1 | RAMLS2
+    ramfuncs    : RAMM0
    #endif
 #endif
 
-	dclfuncs  		 : >> RAMGS2 |RAMGS3, 		align(2)
+	dclfuncs  		 : >> RAMGS2 |RAMGS3, 		align(4)
 //   PDataLogSection	: > RAMGS12,	align(4)
 //     				LOAD_START(pData_start),
 //					LOAD_SIZE(pData_size)

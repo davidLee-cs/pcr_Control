@@ -86,6 +86,7 @@ void SetDACOutput(float32_t pid_output, int16_t ch) {
 
 void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch) {
 
+    char *msg = NULL;
     float32_t error;
     float32_t temperature_error = targetTemp - readNowTemp;  // 목표 온도와 현재 온도의 차이
 
@@ -101,8 +102,8 @@ void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch) {
 
     if (error > TEMPERATURE_THRESHOLD) {
 
-        // 목표 온도와 차이가 큰 경우 가열/냉각을 PID로 제어
         pid_output[ch] = DCL_runPID_C4(&pidTemp[ch], targetTemp, readNowTemp, clamp_flag[ch]);  // PID 연산
+
         int16_t clampactive = DCL_runClamp_C1(&pid_output[ch], upperlim, lowerlim);
         clamp_flag[ch] = (clampactive == 0U) ? 1.0f : 0.0f;
 

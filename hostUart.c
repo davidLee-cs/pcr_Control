@@ -96,6 +96,7 @@ void hostCmd(void)
         //command : $TSTART,1,1,0,1\r\n
         if(strncmp(rBootData_Rx, tempStartCmd, 6) == 0)
         {
+            fan_AllOn();
             tempStartSet();
 //            Example_Done();
         }

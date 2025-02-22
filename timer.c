@@ -27,8 +27,8 @@ void timerSet(void)
 
     initCPUTimers();
 
-    configCPUTimer(CPUTIMER0_BASE, DEVICE_SYSCLK_FREQ, 50000);  // 50mS
-    configCPUTimer(CPUTIMER1_BASE, DEVICE_SYSCLK_FREQ, 100000);           // 100ms
+    configCPUTimer(CPUTIMER0_BASE, DEVICE_SYSCLK_FREQ, 20000);  // 20mS
+    configCPUTimer(CPUTIMER1_BASE, DEVICE_SYSCLK_FREQ, 1000000);           // 1000ms
 //    configCPUTimer(CPUTIMER2_BASE, DEVICE_SYSCLK_FREQ, 1000000);
 
     CPUTimer_enableInterrupt(CPUTIMER0_BASE);
@@ -36,11 +36,11 @@ void timerSet(void)
 //    CPUTimer_enableInterrupt(CPUTIMER2_BASE);
 
     Interrupt_enable(INT_TIMER0);
-//    Interrupt_enable(INT_TIMER1);
+    Interrupt_enable(INT_TIMER1);
 //    Interrupt_enable(INT_TIMER2);
 
     CPUTimer_startTimer(CPUTIMER0_BASE);
-//    CPUTimer_startTimer(CPUTIMER1_BASE);
+    CPUTimer_startTimer(CPUTIMER1_BASE);
 //    CPUTimer_startTimer(CPUTIMER2_BASE);
 
 }
