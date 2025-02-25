@@ -43,6 +43,7 @@ void temp_mode(void)
 
                         tempCycleCnt[ch] = 0;
                         HostCmdMsg[ch].oprationSetBit.temperatureRun = 0;
+                        OpCmdMsg[ch].control_mode = STOP_MODE;
                         stop_mode();
                     }
 
@@ -83,12 +84,20 @@ void motor_mode(void)
             SetMotorDirection(0);
         }
 
-        EnableMotor(1);
+        drv8452_outEnable();
+        DEVICE_DELAY_US(2000);
+        drv8452_outEnable();
+        DEVICE_DELAY_US(2000);
+        drv8452_outEnable();
+        DEVICE_DELAY_US(2000);
+        drv8452_outEnable();
+//        EnableMotor(1);
 
     }
     else
     {
-        EnableMotor(0);
+        drv8452_outDisable();
+//        EnableMotor(0);
         epwmDisableSet(STEP_23);
     }
 
@@ -179,7 +188,8 @@ void prameterInit(void)
 void stop_mode(void)
 {
 
-    EnableMotor(0);
+
+//    EnableMotor(0);
     epwmDisableSet(STEP_23);
 //    dac53508_write(0);
 

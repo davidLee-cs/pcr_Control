@@ -69,7 +69,18 @@ void main(void)
     DEVICE_DELAY_US(200000);
     SetMotorDirection(1);
     drv8452_init();
-    EnableMotor(0);
+
+//    EnableMotor(0);
+    EnableMotor(1);  // 250225
+//    drv8452_outEnable();
+//    drv8452_outEnable();
+//    drv8452_outEnable();
+//    drv8452_outEnable();
+//    drv8452_outEnable();
+
+    drv8452_outDisable();
+
+
     timerSet();
 //    fan_AllOff(); // fan Off
     fan_AllOn();

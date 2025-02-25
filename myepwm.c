@@ -126,7 +126,7 @@ void epwmSet(void)
     SysCtl_enablePeripheral(SYSCTL_PERIPH_CLK_TBCLKSYNC);
 
 
-    EPWM_disableInterrupt(myStepMotorEPWM4_BASE);
+    EPWM_disableInterrupt(myStepMotorEPWM4_BASE);     // 0225 수정
     //
     // Enable interrupts required for this example
     //
@@ -225,12 +225,16 @@ __interrupt void epwm4ISR(void)
 //            (OpCmdMsg.motorMovingStatus.motor4_Home_bit == 0) ||
 //            (OpCmdMsg.motorMovingStatus.motor4_End_bit == 0))
 
-    if(pulseCount > targetPulseCount)
+    if(pulseCount > OpCmdMsg[3].stepperPulseCnt)
 
     {
         // 모터 멈추기
 //        EPWM_setTimeBaseCounterMode(myStepMotorEPWM4_BASE, EPWM_COUNTER_MODE_STOP_FREEZE);
-        EnableMotor(0);  // 모터 비활성화
+
+//        EPWM_disableCounterCompareShadowLoadMode(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_A);
+        drv8452_outDisable();
+        EPWM_disableCounterCompareShadowLoadMode(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_B);
+        EnableMotor(1);  // 모터 활성화
         epwmDisableSet(STEP_23);
         pulseCount = 0;
 
@@ -244,7 +248,7 @@ __interrupt void epwm4ISR(void)
     //
     // Clear INT flag for this timer
     //
-    EPWM_clearEventTriggerInterruptFlag(myStepMotorEPWM4_BASE);
+    EPWM_clearEventTriggerInterruptFlag(myStepMotorEPWM4_BASE); // 0225 수정
 
     //
     // Acknowledge this interrupt to receive more interrupts from group 3
@@ -338,7 +342,7 @@ void initEPWM1()
     epwm1Info.epwmTimerIntCount = 0;
 
     // Set base as ePWM1
-    epwm1Info.epwmModule = myStepMotorEPWM4_BASE;
+//    epwm1Info.epwmModule = myStepMotorEPWM4_BASE;
 
     // Setup min/max CMPA/CMP values
     epwm1Info.epwmMaxCompA = EPWM1_MAX_CMPA;
@@ -531,7 +535,7 @@ void initEPWM3(void)
     epwm3Info.epwmMinCompB = EPWM3_MIN_CMPB;
 }
 
-
+#if 1
 void initEPWM4(void)
 {
     //
@@ -618,6 +622,8 @@ void initEPWM4(void)
     epwm4Info.epwmMinCompB = EPWM4_MIN_CMPB;
 
 }
+
+#endif
 //
 // updateCompare - Update the compare values for the specified EPWM
 //
@@ -658,6 +664,7 @@ void stepperEpwmSet(int16_t channel, uint16_t speed)
 
     uint16_t compare = targetSpeed / 2;
 
+#if 1
     if(channel == 0)
     {
         EPWM_setTimeBasePeriod(myStepMotorEPWM3_BASE, targetSpeed);
@@ -685,7 +692,7 @@ void stepperEpwmSet(int16_t channel, uint16_t speed)
 //        EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_A, compare);
         EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_B, compare);
     }
-
+#endif
 }
 
 void pumpEpwmSet(uint16_t duty)

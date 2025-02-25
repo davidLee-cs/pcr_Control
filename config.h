@@ -40,6 +40,16 @@
 #define MOTOR_RUN   2
 #define SET_MODE    3
 
+
+enum {
+    STOP_MODE = 0,
+    HEAT_MODE,
+    ONE_SHOT_MODE,
+    COOLING_MODE,
+    HEAT_INDEX_MAX
+};
+
+
 void hostCmd(void);
 extern void (*Can_State_Ptr)(void);        // 다음 수행될 모드를 가르키는 함수 포인터
 //extern struct HostCmdMsg HostCmdMsg;

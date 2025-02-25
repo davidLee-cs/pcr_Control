@@ -14,6 +14,9 @@ uint16_t tempCycleCnt[4] = {0,};
 uint16_t cpuTimer2IntCount;
 
 bool cputimer0Flag;
+uint16_t stepState;
+uint32_t timrepulseCount;
+bool timerStart = 0;
 
 void timerSet(void)
 {
@@ -29,7 +32,7 @@ void timerSet(void)
 
     configCPUTimer(CPUTIMER0_BASE, DEVICE_SYSCLK_FREQ, 20000);  // 20mS
     configCPUTimer(CPUTIMER1_BASE, DEVICE_SYSCLK_FREQ, 1000000);           // 1000ms
-//    configCPUTimer(CPUTIMER2_BASE, DEVICE_SYSCLK_FREQ, 1000000);
+//    configCPUTimer(CPUTIMER2_BASE, DEVICE_SYSCLK_FREQ, 20);
 
     CPUTimer_enableInterrupt(CPUTIMER0_BASE);
     CPUTimer_enableInterrupt(CPUTIMER1_BASE);
@@ -200,5 +203,30 @@ cpuTimer2ISR(void)
     // The CPU acknowledges the interrupt.
     //
     cpuTimer2IntCount++;
+
+    // 펄스 갯수가 목표 값에 도달했으면 모터를 멈추고 인터럽트를 더 이상 발생시키지 않음
+//    if (pulseCount >= targetPulseCount) {
+//        // 모터 멈추기
+//        GPIO_writePin(STEP_0, 0);;  // STEP = 0
+//        EnableMotor(0);  // 모터 비활성화
+//        return; // 펄스 갯수가 다 찼으면 인터럽트를 종료
+//    }
+//    if(timerStart)
+//    {
+//        EnableMotor(1);  // 모터 비활성화
+//        if (stepState ^= 1) {
+//            GPIO_writePin(STEP_0, 1);  // STEP = 1
+//    //        stepState = 1;
+//        } else {
+//            GPIO_writePin(STEP_0, 0); // STEP = 0
+//    //        stepState = 0;
+//            timrepulseCount++;  // 펄스 카운트 증가
+//        }
+//    }
+//    else
+//    {
+//        EnableMotor(0);  // 모터 비활성화
+//    }
+
 }
 

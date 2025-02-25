@@ -26,5 +26,7 @@ void EnableMotor(int enable);
 uint16_t  drv8452_read(void);
 uint16_t  drv8452_write(void);
 void drv8452_init(void);
+void drv8452_outDisable(void);
+void drv8452_outEnable(void);
 
 #endif /* DRV8452_H_ */

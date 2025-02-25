@@ -66,27 +66,25 @@ const spi3   = spi.addInstance();
 /**
  * Write custom configuration values to the imported modules.
  */
-epwm1.$name                            = "myStepMotorEPWM4";
-epwm1.epwmEventTrigger_enableInterrupt = true;
-epwm1.epwmEventTrigger_interruptSource = "EPWM_INT_TBCTR_ZERO";
-epwm1.epwm.$assign                     = "EPWM4";
-epwm1.epwm.epwm_aPin.$assign           = "GPIO6";
-epwm1.epwm.epwm_bPin.$assign           = "GPIO7";
+epwm1.$name                  = "myStepMotorEPWM3";
+epwm1.epwm.$assign           = "EPWM3";
+epwm1.epwm.epwm_aPin.$assign = "GPIO4";
+epwm1.epwm.epwm_bPin.$assign = "GPIO5";
 
-epwm2.$name                  = "myStepMotorEPWM3";
-epwm2.epwm.$assign           = "EPWM3";
-epwm2.epwm.epwm_aPin.$assign = "GPIO4";
-epwm2.epwm.epwm_bPin.$assign = "GPIO5";
+epwm2.$name                  = "myStepMotorEPWM2";
+epwm2.epwm.$assign           = "EPWM2";
+epwm2.epwm.epwm_aPin.$assign = "GPIO2";
+epwm2.epwm.epwm_bPin.$assign = "GPIO3";
 
-epwm3.$name                  = "myStepMotorEPWM2";
-epwm3.epwm.$assign           = "EPWM2";
-epwm3.epwm.epwm_aPin.$assign = "GPIO2";
-epwm3.epwm.epwm_bPin.$assign = "GPIO3";
+epwm3.$name                  = "myStepMotorEPWM1";
+epwm3.epwm.$assign           = "EPWM1";
+epwm3.epwm.epwm_aPin.$assign = "GPIO0";
+epwm3.epwm.epwm_bPin.$assign = "GPIO1";
 
-epwm4.$name                  = "myStepMotorEPWM1";
-epwm4.epwm.$assign           = "EPWM1";
-epwm4.epwm.epwm_aPin.$assign = "GPIO0";
-epwm4.epwm.epwm_bPin.$assign = "GPIO1";
+epwm4.$name                  = "myStepMotorEPWM4";
+epwm4.epwm.$assign           = "EPWM4";
+epwm4.epwm.epwm_aPin.$assign = "GPIO6";
+epwm4.epwm.epwm_bPin.$assign = "GPIO7";
 
 gpio1.$name             = "ADC_CS_1";
 gpio1.direction         = "GPIO_DIR_MODE_OUT";

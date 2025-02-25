@@ -77,6 +77,8 @@ struct OpCmdMsg {
 
     uint16_t nowTempStatus;     // 1 : 온도 제어 모드
     uint64_t stepperPulseCnt;
+    int16_t  lastTargetTemp;   // 이전 설정 온도
+    uint16_t control_mode;
 };
 extern struct OpCmdMsg OpCmdMsg[6];
 //struct OpCmdMsg OpCmdMsgServoMax[4];

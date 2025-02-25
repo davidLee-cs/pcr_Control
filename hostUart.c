@@ -86,7 +86,7 @@ void hostCmd(void)
 //            Example_Done();
         }
 
-        //command : $MSTART,1,0,1,1\r\n
+        //command : $MSTART,3,1,0\r\n
         if(strncmp(rBootData_Rx, motorStartCmd, 6) == 0)
         {
             motorStartSet();
@@ -108,6 +108,7 @@ void hostCmd(void)
 //            Example_Done();
         }
 
+        //command : $FAN,1,1,1,1,1\r\n  (-> fan 1,2,3,4, heatFan)
         if(strncmp(rBootData_Rx, fanSetCmd, 4) == 0)
         {
             fanSet();
@@ -180,7 +181,7 @@ static void motorStartSet(void)
         motorset = strtok(NULL, comma);
 
         int16_t run = atoi(motorset);
-        HostCmdMsg[nowChannel].oprationSetBit.temperatureRun = run;
+        HostCmdMsg[nowChannel].oprationSetBit.motorRun = run;
 
         motorset = strtok(NULL, comma);
 
@@ -221,7 +222,7 @@ static void motorSet(void)
 
         motorset = strtok(NULL, comma);
 
-        int16_t pulse = atoll(motorset);
+        int64_t pulse = atoll(motorset);
         HostCmdMsg[channel].motorProfile.set_PulseCnt = pulse;
 
 //        motorset = strtok(NULL, comma);
@@ -325,6 +326,19 @@ static void tempSingleSet(void)
 
         HostCmdMsg[channel].TempProfile.tempCycle = atoi(tempset) ;
 
+
+        if(HostCmdMsg[channel].TempProfile.singleTimeTemp >= OpCmdMsg[channel].lastTargetTemp){
+
+            OpCmdMsg[channel].control_mode = HEAT_MODE;
+        }
+        else
+        {
+            OpCmdMsg[channel].control_mode = COOLING_MODE;
+        }
+
+        OpCmdMsg[channel].lastTargetTemp = HostCmdMsg[channel].TempProfile.singleTimeTemp;
+
+
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
     }
@@ -385,6 +399,7 @@ static void fanSet(void)
     const char end[] = {'\r', '\n'};
 
     char buffer[100] = {0,};
+    int16_t heatFan;        // 방열판 팬 구동
 
     memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
 
@@ -393,11 +408,29 @@ static void fanSet(void)
 
     if( tempset != NULL)
     {
-        int16_t channel = atoi(tempset);
+
+        HostCmdMsg[0].fanSet.fanEnable = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg[channel].fanSet.fanEnable= atoi(tempset) ;
-        OpCmdMsg[channel].opFanSet.fanEnable = HostCmdMsg[channel].fanSet.fanEnable;
+        HostCmdMsg[1].fanSet.fanEnable = atoi(tempset) ;
+        tempset = strtok(NULL, comma);
+
+        HostCmdMsg[2].fanSet.fanEnable = atoi(tempset) ;
+        tempset = strtok(NULL, comma);
+
+        HostCmdMsg[3].fanSet.fanEnable = atoi(tempset) ;
+        tempset = strtok(NULL, comma);
+
+        heatFan = atoi(tempset) ;
+
+        fan_control(heatFan);
+
+
+//        int16_t channel = atoi(tempset);
+//        tempset = strtok(NULL, comma);
+
+//        HostCmdMsg[channel].fanSet.fanEnable= atoi(tempset) ;
+//        OpCmdMsg[channel].opFanSet.fanEnable = HostCmdMsg[channel].fanSet.fanEnable;
 
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
