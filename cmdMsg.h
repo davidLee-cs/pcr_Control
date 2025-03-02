@@ -33,6 +33,8 @@ struct motorProfile {
 
     uint64_t set_PulseCnt;               // set pulse count
     uint16_t motorSpeed;                // ¼Óµµ 55 % ~ 150%
+
+    uint16_t pumpDuty;
 };
 //struct TempProfile TempProfile;
 
@@ -42,6 +44,7 @@ struct oprationSetBit {
     uint16_t temperatureRun;
     uint16_t motorRun;
     uint16_t motorDirection;
+    uint16_t pumpRun;
 
 };
 
@@ -64,6 +67,7 @@ struct HostCmdMsg {
     struct oprationSetBit oprationSetBit;
     struct dacSet  dacSet;
     struct fanSet  fanSet;
+
 
     uint16_t all_Reset;                   // Reserved 0x00
     uint16_t msg2;                   // Reserved 0x00

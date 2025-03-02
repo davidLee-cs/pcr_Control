@@ -12,6 +12,7 @@
 static void tempSet(void);
 static void tempSingleSet(void);
 static void motorSet(void);
+static void pumpSet(void);
 void hostCmd(void);
 static void tempStartSet(void);
 static void motorStartSet(void);
@@ -25,6 +26,8 @@ const char *tempSingleSetCmd =      "$STEMP";  // 싱글 온도 설정, 시간 설정
 const char *stopCmd =               "$STOP";
 const char *startCmd =              "$START";
 const char *motorSetCmd =           "$MOTOR";
+const char *pumpSetCmd =            "$PUMP";
+
 
 const char *motorStartCmd =         "$MSTAR";
 const char *tempStartCmd =          "$TSTAR";

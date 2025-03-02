@@ -13,18 +13,19 @@
 
 
 void Spi_Read_write_8bit(uint16_t * Pbuff,uint16_t Length,uint16_t uiBase);
-void ADS1248_Init(void);
-void select_Channel(uint16_t ChnNum);
-uint32_t spi_read_data(void);
+void ADS1248_Init_1(void);
+void ADS1248_Init_2(void);
+void select_Channel(int16_t adcModuleCh, uint16_t ChnNum);
+uint32_t spi_read_data(int16_t adcModuleCh);
 void Spi_Read_write_8bit(uint16_t * Pbuff,uint16_t Length,uint16_t uiBase);
-uint32_t spi_read_id(void);
+uint32_t spi_read_id(int16_t adcModuleCh);
 int32_t ADS1248_readRegister();
 int32_t ADS1248_writeRegister();
 uint16_t readAdc (void) ;
-uint32_t Get_data_ADS1248(uint16_t slot);
-uint32_t Read_RTD_data (uint16_t slot);
-float read_temperature(uint16_t slot);
-float read_pr100(uint16_t ChnNum);
+uint32_t Get_data_ADS1248(int16_t tmepCh, uint16_t slot);
+uint32_t Read_RTD_data (int16_t tmepCh, uint16_t slot);
+float read_temperature(int16_t tmepCh, uint16_t slot);
+float read_pr100(int16_t tmepCh, uint16_t ChnNum);
 float calc_Temp_rtd(float resistance);
 uint16_t search_rtd_array(float search_element);
 float readRTDtemp(uint16_t ChnNum );

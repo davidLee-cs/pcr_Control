@@ -21,12 +21,12 @@
 
 
 uint16_t dac53508_read(void);
-void SetMotorDirection(int direction) ;
+void SetMotorDirection(int16_t channel, int direction);
 void EnableMotor(int enable);
-uint16_t  drv8452_read(void);
-uint16_t  drv8452_write(void);
+uint16_t  drv8452_read(int16_t channel);
+uint16_t  drv8452_write(int16_t channel);
 void drv8452_init(void);
-void drv8452_outDisable(void);
-void drv8452_outEnable(void);
+void drv8452_outDisable(int16_t channel);
+void drv8452_outEnable(int16_t channel);
 
 #endif /* DRV8452_H_ */

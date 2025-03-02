@@ -211,7 +211,7 @@ void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch) {
 void tempPidControl(int16_t runCh)
 {
 
-    float32_t nowTemp = read_pr100(runCh);
+    float32_t nowTemp = read_pr100(0, runCh);
     //ema filter
     OpCmdMsg[runCh].tempSensor.tempSensor_Peltier  = ((1.0f - EMA_FILTER_ALPHA) * nowTemp) +
                                                      (EMA_FILTER_ALPHA * OpCmdMsg[runCh].tempSensor.tempSensor_Peltier);

@@ -22,8 +22,10 @@ uint16_t gSendTemp_en=0;
 void (*Can_State_Ptr)(void);        // 다음 수행될 모드를 가르키는 함수 포인터
 struct HostCmdMsg HostCmdMsg[6];
 struct OpCmdMsg OpCmdMsg[6];
+struct OpSwitchStatus OpSwitchStatus;
 
 uint16_t gloopCnt=0;
+
 //
 // Main
 //
@@ -45,7 +47,9 @@ void main(void)
     sci_set();
     epwmSet();
     epwmDisableSet(PUMP_01);
+    epwmDisableSet(PUMP_23);
     epwmDisableSet(STEP_23);
+    epwmDisableSet(STEP_01);
     DEVICE_DELAY_US(200000);
 
     EINT;
@@ -56,18 +60,26 @@ void main(void)
     GPIO_writePin(DAC_SPI_SS, 1);
     GPIO_writePin(ADC_Reset, 1);
     GPIO_writePin(ADC_CS_1, 1);
+    GPIO_writePin(ADC_CS_2, 1);
     GPIO_writePin(ADC_Start_1, 1);
     DEVICE_DELAY_US(100);
     DEVICE_DELAY_US(200000);
 
     // device init
     dac53508_init();
+
     DEVICE_DELAY_US(200000);
-    ADS1248_Init();
+    ADS1248_Init_1();
+    ADS1248_Init_2();
     DEVICE_DELAY_US(200000);
-    select_Channel(0);
+    select_Channel(0,0);
+    select_Channel(1,0);
+
     DEVICE_DELAY_US(200000);
-    SetMotorDirection(1);
+    SetMotorDirection(1,1);
+    SetMotorDirection(2,1);
+    SetMotorDirection(3,1);
+    SetMotorDirection(4,1);
     drv8452_init();
 
 //    EnableMotor(0);
@@ -77,9 +89,6 @@ void main(void)
 //    drv8452_outEnable();
 //    drv8452_outEnable();
 //    drv8452_outEnable();
-
-    drv8452_outDisable();
-
 
     timerSet();
 //    fan_AllOff(); // fan Off
@@ -91,6 +100,15 @@ void main(void)
     DEVICE_DELAY_US(200000);
 
     Can_State_Ptr = &hostCmd;
+
+//    DEVICE_DELAY_US(200000);
+//    drv8452_outDisable(1);
+//    DEVICE_DELAY_US(200000);
+//    drv8452_outDisable(2);
+//    DEVICE_DELAY_US(200000);
+//    drv8452_outDisable(3);
+//    DEVICE_DELAY_US(200000);
+//    drv8452_outDisable(4);
 
     while(1)
     {
@@ -116,19 +134,33 @@ void main(void)
                 if(gSendTemp_en == 1)
                 {
 
-                    float ch0 = read_pr100(PT100_CH0) * 10;
-                    float ch1 = read_pr100(PT100_CH1) * 10;
-                    float ch2 = read_pr100(PT100_CH2) * 10;
-                    float ch3 = read_pr100(PT100_CH3) * 10;
+                    float ch0 = read_pr100(0,PT100_CH0) * 10;
+                    float ch1 = read_pr100(0,PT100_CH1) * 10;
+                    float ch2 = read_pr100(0,PT100_CH2) * 10;
+                    float ch3 = read_pr100(0,PT100_CH3) * 10;
 
-    //                sprintf(msg,"$TEMP,%d\r\n", (int16_t)ch0);
-                    sprintf(msg,"$TEMP,%d,%d,%d,%d\r\n", (int16_t)ch0, (int16_t)ch1, (int16_t)ch2, (int16_t)ch3);
+//                    sprintf(msg,"$TEMP,%d\r\n", (int16_t)ch1);
+//                    sprintf(msg,"$TEMP,%d,%d\r\n", (int16_t)ch0, (int16_t)ch1);
+                    sprintf(msg,"$TEMP0,%d,%d,%d,%d\r\n", (int16_t)ch0, (int16_t)ch1, (int16_t)ch2, (int16_t)ch3);
+                    SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+
+
+                    float ch4 = read_pr100(1,PT100_CH0) * 10;
+                    float ch5 = read_pr100(1,PT100_CH1) * 10;
+                    float ch6 = read_pr100(1,PT100_CH2) * 10;
+                    float ch7 = read_pr100(1,PT100_CH3) * 10;
+
+//                    sprintf(msg,"$TEMP,%d\r\n", (int16_t)ch1);
+//                    sprintf(msg,"$TEMP,%d,%d\r\n", (int16_t)ch0, (int16_t)ch1);
+                    sprintf(msg,"$TEMP1,%d,%d,%d,%d\r\n", (int16_t)ch4, (int16_t)ch5, (int16_t)ch6, (int16_t)ch7);
                     SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
                 }
 
                 gloopCnt = 0;
                 fan_control(gSendTemp_en);
             }
+
+            switchRead();
 
             cputimer0Flag = FALSE;
         }
@@ -223,6 +255,11 @@ void main(void)
             GPIO_writePin(LED1, 1);
             GPIO_writePin(LED2, 1);
 
+            GPIO_writePin(DAC_REVERS_0, 1);
+            GPIO_writePin(DAC_REVERS_1, 1);
+            GPIO_writePin(DAC_REVERS_2, 1);
+            GPIO_writePin(DAC_REVERS_3, 1);
+
         }
         else
         {
@@ -241,26 +278,31 @@ void main(void)
             GPIO_writePin(LED1, 0);
             GPIO_writePin(LED2, 0);
 
+            GPIO_writePin(DAC_REVERS_0, 0);
+            GPIO_writePin(DAC_REVERS_1, 0);
+            GPIO_writePin(DAC_REVERS_2, 0);
+            GPIO_writePin(DAC_REVERS_3, 0);
+
 
         }
 #endif
 
 #if 0
 
-        uint16_t limie0 = GPIO_readPin(LIMIT0);
-        uint16_t limie1 = GPIO_readPin(LIMIT1);
-        uint16_t limie2 = GPIO_readPin(LIMIT2);
-        uint16_t limie3 = GPIO_readPin(LIMIT3);
+        limie0 = GPIO_readPin(LIMIT0);
+        limie1 = GPIO_readPin(LIMIT1);
+        limie2 = GPIO_readPin(LIMIT2);
+        limie3 = GPIO_readPin(LIMIT3);
 
-        uint16_t home0 = GPIO_readPin(HOME0);
-        uint16_t home1 = GPIO_readPin(HOME1);
-        uint16_t home2 = GPIO_readPin(HOME2);
-        uint16_t home3 = GPIO_readPin(HOME3);
+        home0 = GPIO_readPin(HOME0);
+        home1 = GPIO_readPin(HOME1);
+        home2 = GPIO_readPin(HOME2);
+        home3 = GPIO_readPin(HOME3);
 
-        uint16_t button0 = GPIO_readPin(BUTTON0);
-        uint16_t button1 = GPIO_readPin(BUTTON1);
-        uint16_t button2 = GPIO_readPin(BUTTON2);
-        uint16_t button3 = GPIO_readPin(BUTTON3);
+        button0 = GPIO_readPin(BUTTON0);
+        button1 = GPIO_readPin(BUTTON1);
+        button2 = GPIO_readPin(BUTTON2);
+        button3 = GPIO_readPin(BUTTON3);
 
 
 #endif

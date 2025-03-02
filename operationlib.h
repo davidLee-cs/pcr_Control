@@ -85,4 +85,24 @@ extern struct OpCmdMsg OpCmdMsg[6];
 //struct OpCmdMsg* lastAddedMaxOpCmdMsg = OpCmdMsgServoMax;
 
 
+struct OpSwitchStatus{
+    uint16_t limie0;
+    uint16_t limie1;
+    uint16_t limie2;
+    uint16_t limie3;
+
+    uint16_t home0;
+    uint16_t home1;
+    uint16_t home2;
+    uint16_t home3;
+
+    uint16_t button0;
+    uint16_t button1;
+    uint16_t button2;
+    uint16_t button3;
+
+};
+extern struct OpSwitchStatus OpSwitchStatus;
+
+
 #endif /* OPERATIONLIB_H_ */

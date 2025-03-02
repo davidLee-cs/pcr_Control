@@ -23,17 +23,17 @@
 #define EPWM1_MAX_CMPB     3000
 #define EPWM1_MIN_CMPB     1000
 
-#define EPWM2_TIMER_TBPRD  2000  // pump  Period register
-#define EPWM2_MAX_CMPA     1950
-#define EPWM2_MIN_CMPA       50
-#define EPWM2_MAX_CMPB     1950
-#define EPWM2_MIN_CMPB       50
+#define EPWM2_TIMER_TBPRD  4000  // pump  Period register
+#define EPWM2_MAX_CMPA     2000
+#define EPWM2_MIN_CMPA     2000
+#define EPWM2_MAX_CMPB     2000
+#define EPWM2_MIN_CMPB     2000
 
-#define EPWM3_TIMER_TBPRD  2000  // stepper Period register
-#define EPWM3_MAX_CMPA      950
-#define EPWM3_MIN_CMPA       50
-#define EPWM3_MAX_CMPB     1950
-#define EPWM3_MIN_CMPB     1050
+#define EPWM3_TIMER_TBPRD  4000  // stepper Period register
+#define EPWM3_MAX_CMPA     2000
+#define EPWM3_MIN_CMPA     2000
+#define EPWM3_MAX_CMPB     2000
+#define EPWM3_MIN_CMPB     2000
 
 #define EPWM4_TIMER_TBPRD  4000  // stepper Period register
 #define EPWM4_MAX_CMPA     2000
@@ -88,6 +88,7 @@ void epwmEnableSet(uint16_t ch);
 void epwmDisableSet(uint16_t ch);
 void updateCompare(epwmInfo *epwm_info);
 void stepperEpwmSet(int16_t channel, uint16_t speed);
-void pumpEpwmSet(uint16_t duty);
+//void pumpEpwmSet(uint16_t duty);
+void pumpEpwmSet(int16_t channel, uint16_t duty);
 void stepperPulseSet(int16_t channel, uint64_t pulse);
 #endif /* MYEPWM_H_ */

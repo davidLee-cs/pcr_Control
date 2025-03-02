@@ -77,31 +77,41 @@ void motor_mode(void)
 
         if(HostCmdMsg[nowChannel].oprationSetBit.motorDirection == 1)
         {
-            SetMotorDirection(1);
+            SetMotorDirection(nowChannel, 1);
         }
         else
         {
-            SetMotorDirection(0);
+            SetMotorDirection(nowChannel, 0);
         }
 
-        drv8452_outEnable();
+        drv8452_outEnable(nowChannel);
         DEVICE_DELAY_US(2000);
-        drv8452_outEnable();
+        drv8452_outEnable(nowChannel);
         DEVICE_DELAY_US(2000);
-        drv8452_outEnable();
+        drv8452_outEnable(nowChannel);
         DEVICE_DELAY_US(2000);
-        drv8452_outEnable();
+        drv8452_outEnable(nowChannel);
 //        EnableMotor(1);
 
     }
     else
     {
-        drv8452_outDisable();
+        drv8452_outDisable(nowChannel);
 //        EnableMotor(0);
-        epwmDisableSet(STEP_23);
+
+        if((nowChannel == 0) || (nowChannel == 1))
+        {
+            epwmDisableSet(STEP_23); // 설정 시 한번만 설정할것.
+        }
+        else if((nowChannel == 2) || (nowChannel == 3))
+        {
+            epwmDisableSet(STEP_01); // 설정 시 한번만 설정할것.
+        }
+
+//        epwmDisableSet(STEP_23);
     }
 
-    uint16_t data = drv8452_read();  //
+    uint16_t data = drv8452_read(nowChannel);  //
 
     Can_State_Ptr = &hostCmd;///normal mode
 }
@@ -115,12 +125,20 @@ void motor_Parameterset(int16_t channel)
 
 }
 
+void pump_Parameterset(int16_t channel)
+{
+
+//    epwmEnableSet(STEP_23);
+    pumpEpwmSet(channel, HostCmdMsg[channel].motorProfile.pumpDuty);
+
+}
+
 
 void tempProfileReset(void)
 {
     int16_t channel;
 
-    for(channel=0; channel < 6; channel++)
+    for(channel=0; channel < 4; channel++)
     {
         HostCmdMsg[channel].TempProfile.targetTemp[0] = 0 ;
         HostCmdMsg[channel].TempProfile.targetTemp[1] = 0 ;
@@ -147,7 +165,7 @@ void prameterInit(void)
 
     int16_t channel;
 
-    for(channel=0; channel < 6; channel++)
+    for(channel=0; channel < 4; channel++)
     {
         HostCmdMsg[channel].TempProfile.targetTemp[0] = 0 ;
         HostCmdMsg[channel].TempProfile.targetTemp[1] = 0 ;
@@ -190,7 +208,12 @@ void stop_mode(void)
 
 
 //    EnableMotor(0);
-    epwmDisableSet(STEP_23);
+    drv8452_outDisable(0);
+    drv8452_outDisable(1);
+    drv8452_outDisable(2);
+    drv8452_outDisable(3);
+
+//    epwmDisableSet(STEP_23);
 //    dac53508_write(0);
 
     prameterInit();
@@ -267,6 +290,26 @@ void fan_control(int16_t heatFan)
         GPIO_writePin(FAN_3, 0);
     }
 
+
+}
+
+void switchRead(void)
+{
+
+//    OpSwitchStatus.limie0 = GPIO_readPin(LIMIT0);
+//    OpSwitchStatus.limie1 = GPIO_readPin(LIMIT1);
+//    OpSwitchStatus.limie2 = GPIO_readPin(LIMIT2);
+//    OpSwitchStatus.limie3 = GPIO_readPin(LIMIT3);
+//
+//    OpSwitchStatus.home0 = GPIO_readPin(HOME0);
+//    OpSwitchStatus.home1 = GPIO_readPin(HOME1);
+//    OpSwitchStatus.home2 = GPIO_readPin(HOME2);
+//    OpSwitchStatus.home3 = GPIO_readPin(HOME3);
+
+    OpSwitchStatus.button0 = GPIO_readPin(BUTTON0);
+    OpSwitchStatus.button1 = GPIO_readPin(BUTTON1);
+    OpSwitchStatus.button2 = GPIO_readPin(BUTTON2);
+    OpSwitchStatus.button3 = GPIO_readPin(BUTTON3);
 
 }
 

@@ -53,6 +53,20 @@ const gpio35 = gpio.addInstance();
 const gpio36 = gpio.addInstance();
 const gpio37 = gpio.addInstance();
 const gpio38 = gpio.addInstance();
+const gpio39 = gpio.addInstance();
+const gpio40 = gpio.addInstance();
+const gpio41 = gpio.addInstance();
+const gpio42 = gpio.addInstance();
+const gpio43 = gpio.addInstance();
+const gpio44 = gpio.addInstance();
+const gpio45 = gpio.addInstance();
+const gpio46 = gpio.addInstance();
+const gpio47 = gpio.addInstance();
+const gpio48 = gpio.addInstance();
+const gpio49 = gpio.addInstance();
+const gpio50 = gpio.addInstance();
+const gpio51 = gpio.addInstance();
+const gpio52 = gpio.addInstance();
 const sci    = scripting.addModule("/driverlib/sci.js", {}, false);
 const sci1   = sci.addInstance();
 const sci2   = sci.addInstance();
@@ -239,6 +253,68 @@ gpio37.gpioPin.$assign = "GPIO88";
 gpio38.$name           = "BUZZER";
 gpio38.gpioPin.$assign = "GPIO8";
 
+gpio39.$name             = "SPI_SS_1";
+gpio39.direction         = "GPIO_DIR_MODE_OUT";
+gpio39.writeInitialValue = true;
+gpio39.initialValue      = 1;
+
+gpio40.$name             = "SPI_SS_2";
+gpio40.direction         = "GPIO_DIR_MODE_OUT";
+gpio40.writeInitialValue = true;
+gpio40.initialValue      = 1;
+
+gpio41.$name             = "SPI_SS_3";
+gpio41.direction         = "GPIO_DIR_MODE_OUT";
+gpio41.writeInitialValue = true;
+gpio41.initialValue      = 1;
+
+gpio42.$name           = "DIR_1";
+gpio42.direction       = "GPIO_DIR_MODE_OUT";
+gpio42.gpioPin.$assign = "GPIO31";
+
+gpio43.$name           = "DIR_2";
+gpio43.direction       = "GPIO_DIR_MODE_OUT";
+gpio43.gpioPin.$assign = "GPIO32";
+
+gpio44.$name           = "DIR_3";
+gpio44.direction       = "GPIO_DIR_MODE_OUT";
+gpio44.gpioPin.$assign = "GPIO33";
+
+gpio45.$name           = "ADC_CS_2";
+gpio45.direction       = "GPIO_DIR_MODE_OUT";
+gpio45.gpioPin.$assign = "GPIO54";
+
+gpio46.$name           = "ADC_DRDY_2";
+gpio46.gpioPin.$assign = "GPIO48";
+
+gpio47.$name           = "RTD_Sel0_2";
+gpio47.direction       = "GPIO_DIR_MODE_OUT";
+gpio47.gpioPin.$assign = "GPIO66";
+
+gpio48.$name           = "RTD_Sel1_2";
+gpio48.direction       = "GPIO_DIR_MODE_OUT";
+gpio48.gpioPin.$assign = "GPIO44";
+
+gpio49.$name             = "DAC_REVERS_0";
+gpio49.direction         = "GPIO_DIR_MODE_OUT";
+gpio49.writeInitialValue = true;
+gpio49.gpioPin.$assign   = "GPIO40";
+
+gpio50.$name             = "DAC_REVERS_1";
+gpio50.direction         = "GPIO_DIR_MODE_OUT";
+gpio50.writeInitialValue = true;
+gpio50.gpioPin.$assign   = "GPIO41";
+
+gpio51.$name             = "DAC_REVERS_2";
+gpio51.direction         = "GPIO_DIR_MODE_OUT";
+gpio51.writeInitialValue = true;
+gpio51.gpioPin.$assign   = "GPIO70";
+
+gpio52.$name             = "DAC_REVERS_3";
+gpio52.direction         = "GPIO_DIR_MODE_OUT";
+gpio52.writeInitialValue = true;
+gpio52.gpioPin.$assign   = "GPIO67";
+
 sci1.$name                 = "BOOT_SCI";
 sci1.enabledInterrupts     = ["SCI_INT_RXRDY_BRKDT"];
 sci1.rxFifo                = "SCI_FIFO_RX1";
@@ -326,6 +402,9 @@ spi3.pteQual.$name           = "myGPIOQUAL11";
 gpio20.gpioPin.$suggestSolution      = "GPIO13";
 gpio21.gpioPin.$suggestSolution      = "GPIO14";
 gpio22.gpioPin.$suggestSolution      = "GPIO15";
+gpio39.gpioPin.$suggestSolution      = "GPIO20";
+gpio40.gpioPin.$suggestSolution      = "GPIO21";
+gpio41.gpioPin.$suggestSolution      = "GPIO99";
 sci3.sci.scirxdPin.$suggestSolution  = "GPIO11";
 sci3.sci.scitxdPin.$suggestSolution  = "GPIO10";
 spi1.spi.spi_ptePin.$suggestSolution = "GPIO72";

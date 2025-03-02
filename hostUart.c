@@ -65,14 +65,14 @@ void hostCmd(void)
             SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
         }
 
-        //command : $TEMP,ch,100,10,101,11,102,12,103,13,104,14,5\r\n
+        //command : $TEMP,x,100,10,101,11,102,12,103,13,104,14,5\r\n
         if(strncmp(rBootData_Rx, tempSetCmd, 5) == 0)
         {
             tempSet();
 //            Example_Done();
         }
 
-        //command : $STEMP,ch,100,10,5\r\n
+        //command : $STEMP,x,100,10,5\r\n
         if(strncmp(rBootData_Rx, tempSingleSetCmd, 6) == 0)
         {
             tempSingleSet();
@@ -83,6 +83,13 @@ void hostCmd(void)
         if(strncmp(rBootData_Rx, motorSetCmd, 6) == 0)
         {
             motorSet();
+//            Example_Done();
+        }
+
+        //command : $PUMP,50,1,1,1,1\r\n
+        if(strncmp(rBootData_Rx, pumpSetCmd, 5) == 0)
+        {
+            pumpSet();
 //            Example_Done();
         }
 
@@ -114,6 +121,9 @@ void hostCmd(void)
             fanSet();
 //            Example_Done();
         }
+
+
+
 
         gBoot_Rx_done = 0;
         gBoot_Rx_cnt = 0;
@@ -188,13 +198,20 @@ static void motorStartSet(void)
         int16_t dir = atoi(motorset);
         HostCmdMsg[nowChannel].oprationSetBit.motorDirection = dir;
 
-
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
 
+        if((nowChannel == 0) || (nowChannel == 1))
+        {
+            epwmEnableSet(STEP_23); // 설정 시 한번만 설정할것.
+        }
+        else if((nowChannel == 2) || (nowChannel == 3))
+        {
+            epwmEnableSet(STEP_01); // 설정 시 한번만 설정할것.
+        }
 //        jump = MOTOR_RUN;
         Can_State_Ptr = &motor_mode;
-        epwmEnableSet(STEP_23); // 설정 시 한번만 설정할것.
+
     }
 
 }
@@ -228,6 +245,69 @@ static void motorSet(void)
 //        motorset = strtok(NULL, comma);
 
         motor_Parameterset(channel);
+
+        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
+        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
+    }
+
+    Can_State_Ptr = &hostCmd;///normal mode
+
+}
+
+static void pumpSet(void)
+{
+    const char* comma = ",";
+    const char end[] = {'\r', '\n'};
+
+    char buffer[100] = {0,};
+
+    memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
+
+
+    // 1. ¼o½AμE ¹®AU¿­·I ºIAI comma ´UA§ ºÐAU¿­·I ºÐ¸®
+    char* pumpset = strtok(&rBootData_Rx[5],comma);
+
+    if( pumpset != NULL)
+    {
+        int16_t duty = atoi(pumpset);
+        pumpset = strtok(NULL, comma);
+
+        HostCmdMsg[0].motorProfile.pumpDuty = duty;
+        HostCmdMsg[1].motorProfile.pumpDuty = duty;
+        HostCmdMsg[2].motorProfile.pumpDuty = duty;
+        HostCmdMsg[3].motorProfile.pumpDuty = duty;
+
+        int16_t run0 = atoi(pumpset);
+        HostCmdMsg[0].oprationSetBit.pumpRun = run0;
+        pumpset = strtok(NULL, comma);
+
+        int16_t run1 = atoi(pumpset);
+        HostCmdMsg[1].oprationSetBit.pumpRun = run1;
+        pumpset = strtok(NULL, comma);
+
+        int16_t run2 = atoi(pumpset);
+        HostCmdMsg[2].oprationSetBit.pumpRun = run2;
+        pumpset = strtok(NULL, comma);
+
+        int16_t run3 = atoi(pumpset);
+        HostCmdMsg[3].oprationSetBit.pumpRun = run3;
+
+        pump_Parameterset(0);
+        pump_Parameterset(1);
+        pump_Parameterset(2);
+        pump_Parameterset(3);
+
+
+        if((run0 == 1) || (run1 == 1))
+        {
+            epwmEnableSet(PUMP_01); // 설정 시 한번만 설정할것.
+        }
+
+        if((run2 == 1) || (run3 == 1))
+        {
+            epwmEnableSet(PUMP_23); // 설정 시 한번만 설정할것.
+        }
+
 
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
