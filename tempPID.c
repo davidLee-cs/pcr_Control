@@ -15,8 +15,10 @@
 #define TEMPERATURE_THRESHOLD   (0.1f) // V
 #define COOL_TEMPERATURE_THRESHOLD   (0.5f) // V
 #define ONE_SHOT_DAC_VOLT       (0.2f) // V
-#define COOLING_DAC_VOLT       (1.0f) // V
-#define DAC_MAX_VOLTAGE         (1.5f) // V
+//#define COOLING_DAC_VOLT       (1.0f) // V
+#define COOLING_DAC_VOLT       (0.2f) // 테스트용
+//#define DAC_MAX_VOLTAGE        (1.5f) // V
+#define DAC_MAX_VOLTAGE        (1.0f) // 테스트용
 
 #define EMA_FILTER_ALPHA        (0.7f)
 
@@ -74,7 +76,7 @@ void SetDACOutput(float32_t pid_output, int16_t ch) {
     // (0.0 ~ 1.0) PID 출력을 (0V ~ 3.3V)로 매핑
     float32_t dac_voltage = pid_output * DAC_VREF;  // 0.0 ~ 3.3V
 
-    if(dac_voltage > DAC_MAX_VOLTAGE)
+    if(dac_voltage > DAC_MAX_VOLTAGE)       // 테스트로 1V 설정했음.
     {
         dac_voltage = DAC_MAX_VOLTAGE;
     }
@@ -91,12 +93,12 @@ void SetDACOutput(float32_t pid_output, int16_t ch) {
 void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch) {
 
     char *msg = NULL;
-    float32_t error;
+    float32_t error=0.0;
     float32_t temperature_error = targetTemp - readNowTemp;  // 목표 온도와 현재 온도의 차이
 
     if(temperature_error < 0.0f)
     {
-        error = temperature_error * -1.0f;
+        error = (-temperature_error);
     }
     else
     {
@@ -124,6 +126,8 @@ void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch) {
             OpCmdMsg[ch].control_mode = ONE_SHOT_MODE;
         }
 
+        // 테스트용 무조건 가열 모드로.
+        OpCmdMsg[ch].control_mode = HEAT_MODE;
 
         break;
     case ONE_SHOT_MODE :
@@ -158,7 +162,26 @@ void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch) {
         }
         else
         {
+
+            dac53508_write(0, ch);
+            DEVICE_DELAY_US(500000);
+
             OpCmdMsg[ch].control_mode = HEAT_MODE;
+//            OpCmdMsg[ch].control_mode = STOP_MODE;
+
+            if(ch == 0)            GPIO_writePin(DAC_REVERS_0, RELAY_OFF_HEATING);  // 가열
+            else if(ch == 1)       GPIO_writePin(DAC_REVERS_1, RELAY_OFF_HEATING);  // 가열
+            else if(ch == 2)       GPIO_writePin(DAC_REVERS_2, RELAY_OFF_HEATING);  // 가열
+            else if(ch == 3)       GPIO_writePin(DAC_REVERS_3, RELAY_OFF_HEATING);  // 가열
+            else
+            {
+                DEVICE_DELAY_US(500000);
+            }
+
+            DEVICE_DELAY_US(500000);
+            DEVICE_DELAY_US(500000);
+            DEVICE_DELAY_US(500000);
+            DEVICE_DELAY_US(500000);
         }
 
         break;

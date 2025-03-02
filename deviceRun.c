@@ -75,13 +75,13 @@ void motor_mode(void)
     if(HostCmdMsg[nowChannel].oprationSetBit.motorRun == 1)
     {
 
-        if(HostCmdMsg[nowChannel].oprationSetBit.motorDirection == 1)
+        if(HostCmdMsg[nowChannel].oprationSetBit.motorDirection == RUN_OUT)
         {
-            SetMotorDirection(nowChannel, 1);
+            SetMotorDirection(nowChannel, RUN_OUT);
         }
         else
         {
-            SetMotorDirection(nowChannel, 0);
+            SetMotorDirection(nowChannel, RUN_IN);
         }
 
         drv8452_outEnable(nowChannel);
@@ -188,6 +188,11 @@ void prameterInit(void)
         HostCmdMsg[channel].oprationSetBit.motorRun = 0;
         HostCmdMsg[channel].oprationSetBit.temperatureRun = 0;
 
+        HostCmdMsg[channel].TempProfile.lastSingleTargetTemp = 0;
+        HostCmdMsg[channel].TempProfile.singleTargetTemp = 0;
+        HostCmdMsg[channel].TempProfile.singleTimeTemp = 0;
+        HostCmdMsg[channel].TempProfile.tempCycle = 0;
+
         HostCmdMsg[channel].dacSet.dacValue = 0;
 
         OpCmdMsg[channel].motorMovingStatus.motor_End = 0;
@@ -213,8 +218,23 @@ void stop_mode(void)
     drv8452_outDisable(2);
     drv8452_outDisable(3);
 
-//    epwmDisableSet(STEP_23);
-//    dac53508_write(0);
+    epwmDisableSet(PUMP_01);
+    epwmDisableSet(PUMP_23);
+    epwmDisableSet(STEP_23);
+    epwmDisableSet(STEP_01);
+
+    dac53508_write(0, 0);
+    dac53508_write(0, 1);
+    dac53508_write(0, 2);
+    dac53508_write(0, 3);
+
+    GPIO_writePin(DAC_REVERS_0, RELAY_OFF_HEATING);  // 가열
+    DEVICE_DELAY_US(100000);
+    GPIO_writePin(DAC_REVERS_1, RELAY_OFF_HEATING);  // 가열
+    DEVICE_DELAY_US(100000);
+    GPIO_writePin(DAC_REVERS_2, RELAY_OFF_HEATING);  // 가열
+    DEVICE_DELAY_US(100000);
+    GPIO_writePin(DAC_REVERS_3, RELAY_OFF_HEATING);  // 가열
 
     prameterInit();
     fan_AllOff();
@@ -310,6 +330,23 @@ void switchRead(void)
     OpSwitchStatus.button1 = GPIO_readPin(BUTTON1);
     OpSwitchStatus.button2 = GPIO_readPin(BUTTON2);
     OpSwitchStatus.button3 = GPIO_readPin(BUTTON3);
+
+    if((OpSwitchStatus.button0 == 0) || (OpSwitchStatus.button1 == 0))
+    {
+        pump_Parameterset(0);
+        pump_Parameterset(1);
+        epwmEnableSet(PUMP_01); // 설정 시 한번만 설정할것.
+    }
+
+    if((OpSwitchStatus.button2 == 0) || (OpSwitchStatus.button3 == 0))
+    {
+        pump_Parameterset(2);
+        pump_Parameterset(3);
+
+        epwmEnableSet(PUMP_23); // 설정 시 한번만 설정할것.
+    }
+
+
 
 }
 

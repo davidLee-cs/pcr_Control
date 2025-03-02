@@ -157,23 +157,23 @@ void SetMotorDirection(int16_t channel, int16_t direction) {
 
     if(channel == 0)
     {
-        if (direction == 1)     GPIO_writePin(DIR_0, 1);
-        else                    GPIO_writePin(DIR_0, 0);
+        if (direction == RUN_OUT)       GPIO_writePin(DIR_0, RUN_OUT);
+        else                            GPIO_writePin(DIR_0, RUN_IN);
     }
     else if(channel == 1)
     {
-        if (direction == 1)     GPIO_writePin(DIR_1, 1);
-        else                    GPIO_writePin(DIR_1, 0);
+        if (direction == RUN_OUT)       GPIO_writePin(DIR_1, RUN_OUT);
+        else                            GPIO_writePin(DIR_1, RUN_IN);
     }
     else if(channel == 2)
     {
-        if (direction == 1)     GPIO_writePin(DIR_2, 1);
-        else                    GPIO_writePin(DIR_2, 0);
+        if (direction == RUN_OUT)       GPIO_writePin(DIR_2, RUN_OUT);
+        else                            GPIO_writePin(DIR_2, RUN_IN);
     }
     else if(channel == 3)
     {
-        if (direction == 1)     GPIO_writePin(DIR_3, 1);
-        else                    GPIO_writePin(DIR_3, 0);
+        if (direction == RUN_OUT)       GPIO_writePin(DIR_3, RUN_OUT);
+        else                            GPIO_writePin(DIR_3, RUN_IN);
 
     }
 

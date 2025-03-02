@@ -41,6 +41,14 @@
 #define SET_MODE    3
 
 
+#define RUN_OUT     (1)
+#define RUN_IN      (0)
+
+
+#define RELAY_ON_COOLING     (1)
+#define RELAY_OFF_HEATING    (0)
+
+
 enum {
     STOP_MODE = 0,
     HEAT_MODE,

@@ -9,13 +9,13 @@
 #define HOSTUART_H_
 
 
-static void tempSet(void);
-static void tempSingleSet(void);
-static void motorSet(void);
+static int16_t tempSet(void);
+static int16_t tempSingleSet(void);
+static int16_t motorSet(void);
 static void pumpSet(void);
 void hostCmd(void);
 static void tempStartSet(void);
-static void motorStartSet(void);
+static int16_t motorStartSet(void);
 static void dacSet(void);
 static void fanSet(void);
 

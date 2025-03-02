@@ -75,7 +75,7 @@ void hostCmd(void)
         //command : $STEMP,x,100,10,5\r\n
         if(strncmp(rBootData_Rx, tempSingleSetCmd, 6) == 0)
         {
-            tempSingleSet();
+            (void)tempSingleSet();
 //            Example_Done();
         }
 
@@ -172,7 +172,7 @@ static void tempStartSet(void)
 
 }
 
-static void motorStartSet(void)
+static int16_t motorStartSet(void)
 {
     const char* comma = ",";
     const char end[] = {'\r', '\n'};
@@ -189,6 +189,11 @@ static void motorStartSet(void)
     {
         nowChannel = atoi(motorset);
         motorset = strtok(NULL, comma);
+
+        if(nowChannel > 4)
+        {
+            return 1;
+        }
 
         int16_t run = atoi(motorset);
         HostCmdMsg[nowChannel].oprationSetBit.motorRun = run;
@@ -214,9 +219,10 @@ static void motorStartSet(void)
 
     }
 
+    return 0;
 }
 
-static void motorSet(void)
+static int16_t motorSet(void)
 {
     const char* comma = ",";
     const char end[] = {'\r', '\n'};
@@ -233,6 +239,11 @@ static void motorSet(void)
     {
         int16_t channel = atoi(motorset);
         motorset = strtok(NULL, comma);
+
+        if(channel > 4)
+        {
+            return 1;
+        }
 
         int16_t speed = atoi(motorset);
         HostCmdMsg[channel].motorProfile.motorSpeed = speed;
@@ -252,6 +263,7 @@ static void motorSet(void)
 
     Can_State_Ptr = &hostCmd;///normal mode
 
+    return 0;
 }
 
 static void pumpSet(void)
@@ -278,19 +290,19 @@ static void pumpSet(void)
         HostCmdMsg[3].motorProfile.pumpDuty = duty;
 
         int16_t run0 = atoi(pumpset);
-        HostCmdMsg[0].oprationSetBit.pumpRun = run0;
+        HostCmdMsg[1].oprationSetBit.pumpRun = run0;
         pumpset = strtok(NULL, comma);
 
         int16_t run1 = atoi(pumpset);
-        HostCmdMsg[1].oprationSetBit.pumpRun = run1;
+        HostCmdMsg[0].oprationSetBit.pumpRun = run1;
         pumpset = strtok(NULL, comma);
 
         int16_t run2 = atoi(pumpset);
-        HostCmdMsg[2].oprationSetBit.pumpRun = run2;
+        HostCmdMsg[3].oprationSetBit.pumpRun = run2;
         pumpset = strtok(NULL, comma);
 
         int16_t run3 = atoi(pumpset);
-        HostCmdMsg[3].oprationSetBit.pumpRun = run3;
+        HostCmdMsg[2].oprationSetBit.pumpRun = run3;
 
         pump_Parameterset(0);
         pump_Parameterset(1);
@@ -318,7 +330,7 @@ static void pumpSet(void)
 }
 
 
-static void tempSet(void)
+static int16_t tempSet(void)
 {
     const char* comma = ",";
     const char end[] = {'\r', '\n'};
@@ -340,6 +352,11 @@ static void tempSet(void)
     {
         int16_t channel = atoi(tempset);
         tempset = strtok(NULL, comma);
+
+        if(channel > 4)
+        {
+            return 1;
+        }
 
         HostCmdMsg[channel].TempProfile.targetTemp[0] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
@@ -379,9 +396,10 @@ static void tempSet(void)
 
     Can_State_Ptr = &hostCmd;///normal mode
 
+    return 0;
 }
 
-static void tempSingleSet(void)
+static int16_t tempSingleSet(void)
 {
     const char* comma = ",";
     const char end[] = {'\r', '\n'};
@@ -398,6 +416,11 @@ static void tempSingleSet(void)
         int16_t channel = atoi(tempset);
         tempset = strtok(NULL, comma);
 
+        if(channel > 4)
+        {
+            return 1;
+        }
+
         HostCmdMsg[channel].TempProfile.singleTargetTemp = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
@@ -407,16 +430,34 @@ static void tempSingleSet(void)
         HostCmdMsg[channel].TempProfile.tempCycle = atoi(tempset) ;
 
 
-        if(HostCmdMsg[channel].TempProfile.singleTimeTemp >= OpCmdMsg[channel].lastTargetTemp){
+        if(HostCmdMsg[channel].TempProfile.singleTargetTemp >=  HostCmdMsg[channel].TempProfile.lastSingleTargetTemp){
 
             OpCmdMsg[channel].control_mode = HEAT_MODE;
         }
         else
         {
+
+            dac53508_write(0, channel);
+            DEVICE_DELAY_US(500000);
+
             OpCmdMsg[channel].control_mode = COOLING_MODE;
+
+            if(channel == 0)            GPIO_writePin(DAC_REVERS_0, RELAY_ON_COOLING);  // Àü·ù Äð¸µ
+            else if(channel == 1)       GPIO_writePin(DAC_REVERS_1, RELAY_ON_COOLING);  // Àü·ù Äð¸µ
+            else if(channel == 2)       GPIO_writePin(DAC_REVERS_2, RELAY_ON_COOLING);  // Àü·ù Äð¸µ
+            else if(channel == 3)       GPIO_writePin(DAC_REVERS_3, RELAY_ON_COOLING);  // Àü·ù Äð¸µ
+            else
+            {
+                DEVICE_DELAY_US(500000);
+            }
+
+            DEVICE_DELAY_US(500000);
+            DEVICE_DELAY_US(500000);
+            DEVICE_DELAY_US(500000);
+            DEVICE_DELAY_US(500000);
         }
 
-        OpCmdMsg[channel].lastTargetTemp = HostCmdMsg[channel].TempProfile.singleTimeTemp;
+        HostCmdMsg[channel].TempProfile.lastSingleTargetTemp = HostCmdMsg[channel].TempProfile.singleTargetTemp;
 
 
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
@@ -425,6 +466,7 @@ static void tempSingleSet(void)
 
     Can_State_Ptr = &hostCmd;///normal mode
 
+    return 0;
 }
 
 
