@@ -122,9 +122,6 @@ void hostCmd(void)
 //            Example_Done();
         }
 
-
-
-
         gBoot_Rx_done = 0;
         gBoot_Rx_cnt = 0;
         memset(rBootData_Rx, 0, 100);
@@ -181,8 +178,6 @@ static int16_t motorStartSet(void)
 
     memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
 
-
-    // 1. ¨ùo¨öA¥ìE ©ö¢çAU¢¯¡©¡¤I ¨¬IAI comma ¢¥UA¡× ¨¬¨¢AU¢¯¡©¡¤I ¨¬¨¢¢¬¢ç
     char* motorset = strtok(&rBootData_Rx[8],comma);
 
     if( motorset != NULL)
@@ -190,7 +185,7 @@ static int16_t motorStartSet(void)
         nowChannel = atoi(motorset);
         motorset = strtok(NULL, comma);
 
-        if(nowChannel > 4)
+        if(nowChannel > PELTIER_4EA)
         {
             return 1;
         }
@@ -231,8 +226,6 @@ static int16_t motorSet(void)
 
     memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
 
-
-    // 1. ¨ùo¨öA¥ìE ©ö¢çAU¢¯¡©¡¤I ¨¬IAI comma ¢¥UA¡× ¨¬¨¢AU¢¯¡©¡¤I ¨¬¨¢¢¬¢ç
     char* motorset = strtok(&rBootData_Rx[6],comma);
 
     if( motorset != NULL)
@@ -240,7 +233,7 @@ static int16_t motorSet(void)
         int16_t channel = atoi(motorset);
         motorset = strtok(NULL, comma);
 
-        if(channel > 4)
+        if(channel > PELTIER_4EA)
         {
             return 1;
         }
@@ -275,8 +268,6 @@ static void pumpSet(void)
 
     memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
 
-
-    // 1. ¨ùo¨öA¥ìE ©ö¢çAU¢¯¡©¡¤I ¨¬IAI comma ¢¥UA¡× ¨¬¨¢AU¢¯¡©¡¤I ¨¬¨¢¢¬¢ç
     char* pumpset = strtok(&rBootData_Rx[5],comma);
 
     if( pumpset != NULL)
@@ -345,7 +336,6 @@ static int16_t tempSet(void)
 
     memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
 
-    // 1. ¨ùo¨öA¥ìE ©ö¢çAU¢¯¡©¡¤I ¨¬IAI comma ¢¥UA¡× ¨¬¨¢AU¢¯¡©¡¤I ¨¬¨¢¢¬¢ç
     char* tempset = strtok(&rBootData_Rx[6],comma);
 
     if( tempset != NULL)
@@ -353,7 +343,7 @@ static int16_t tempSet(void)
         int16_t channel = atoi(tempset);
         tempset = strtok(NULL, comma);
 
-        if(channel > 4)
+        if(channel > PELTIER_4EA)
         {
             return 1;
         }
@@ -408,7 +398,6 @@ static int16_t tempSingleSet(void)
 
     memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
 
-    // 1. ¨ùo¨öA¥ìE ©ö¢çAU¢¯¡©¡¤I ¨¬IAI comma ¢¥UA¡× ¨¬¨¢AU¢¯¡©¡¤I ¨¬¨¢¢¬¢ç
     char* tempset = strtok(&rBootData_Rx[6],comma);
 
     if( tempset != NULL)
@@ -416,7 +405,7 @@ static int16_t tempSingleSet(void)
         int16_t channel = atoi(tempset);
         tempset = strtok(NULL, comma);
 
-        if(channel > 4)
+        if(channel > PELTIER_4EA)
         {
             return 1;
         }
@@ -480,7 +469,6 @@ static void dacSet(void)
 
     memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
 
-    // 1. ¨ùo¨öA¥ìE ©ö¢çAU¢¯¡©¡¤I ¨¬IAI comma ¢¥UA¡× ¨¬¨¢AU¢¯¡©¡¤I ¨¬¨¢¢¬¢ç
     char* tempset = strtok(&rBootData_Rx[5],comma);
 
     if( tempset != NULL)
@@ -525,7 +513,6 @@ static void fanSet(void)
 
     memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
 
-    // 1. ¨ùo¨öA¥ìE ©ö¢çAU¢¯¡©¡¤I ¨¬IAI comma ¢¥UA¡× ¨¬¨¢AU¢¯¡©¡¤I ¨¬¨¢¢¬¢ç
     char* tempset = strtok(&rBootData_Rx[5],comma);
 
     if( tempset != NULL)

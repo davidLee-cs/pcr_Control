@@ -84,15 +84,10 @@ void main(void)
 
 //    EnableMotor(0);
     EnableMotor(1);  // 250225
-//    drv8452_outEnable();
-//    drv8452_outEnable();
-//    drv8452_outEnable();
-//    drv8452_outEnable();
-//    drv8452_outEnable();
 
     timerSet();
-//    fan_AllOff(); // fan Off
-    fan_AllOn();
+    fan_AllOff(); // fan Off
+//    fan_AllOn();
 
     prameterInit();
     init_pid();
@@ -100,15 +95,6 @@ void main(void)
     DEVICE_DELAY_US(200000);
 
     Can_State_Ptr = &hostCmd;
-
-//    DEVICE_DELAY_US(200000);
-//    drv8452_outDisable(1);
-//    DEVICE_DELAY_US(200000);
-//    drv8452_outDisable(2);
-//    DEVICE_DELAY_US(200000);
-//    drv8452_outDisable(3);
-//    DEVICE_DELAY_US(200000);
-//    drv8452_outDisable(4);
 
     while(1)
     {
@@ -124,7 +110,6 @@ void main(void)
 #endif
 
         hostCmd();
-        fan_AllOn();
         if(cputimer0Flag == TRUE)//50ms Timer flag
         {
             (*Can_State_Ptr)();

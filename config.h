@@ -49,6 +49,9 @@
 #define RELAY_OFF_HEATING    (0)
 
 
+#define PELTIER_4EA     (4)
+
+
 enum {
     STOP_MODE = 0,
     HEAT_MODE,

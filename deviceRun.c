@@ -8,7 +8,6 @@
 #include "config.h"
 
 
-#define PELTIER_4EA     4
 
 
 void tempProfileReset(void);
