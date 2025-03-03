@@ -123,21 +123,15 @@ void main(void)
                     float ch1 = read_pr100(0,PT100_CH1) * 10;
                     float ch2 = read_pr100(0,PT100_CH2) * 10;
                     float ch3 = read_pr100(0,PT100_CH3) * 10;
-
-//                    sprintf(msg,"$TEMP,%d\r\n", (int16_t)ch1);
-//                    sprintf(msg,"$TEMP,%d,%d\r\n", (int16_t)ch0, (int16_t)ch1);
-                    sprintf(msg,"$TEMP0,%d,%d,%d,%d\r\n", (int16_t)ch0, (int16_t)ch1, (int16_t)ch2, (int16_t)ch3);
-                    SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
-
-
                     float ch4 = read_pr100(1,PT100_CH0) * 10;
                     float ch5 = read_pr100(1,PT100_CH1) * 10;
                     float ch6 = read_pr100(1,PT100_CH2) * 10;
                     float ch7 = read_pr100(1,PT100_CH3) * 10;
 
-//                    sprintf(msg,"$TEMP,%d\r\n", (int16_t)ch1);
-//                    sprintf(msg,"$TEMP,%d,%d\r\n", (int16_t)ch0, (int16_t)ch1);
-                    sprintf(msg,"$TEMP1,%d,%d,%d,%d\r\n", (int16_t)ch4, (int16_t)ch5, (int16_t)ch6, (int16_t)ch7);
+                    sprintf(msg,"$TEMP,%d,%d,%d,%d,", (int16_t)ch0, (int16_t)ch1, (int16_t)ch2, (int16_t)ch3);
+                    SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+
+                    sprintf(msg,"%d,%d,%d,%d\r\n", (int16_t)ch4, (int16_t)ch5, (int16_t)ch6, (int16_t)ch7);
                     SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
                 }
 

@@ -123,6 +123,7 @@ void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch) {
         }
         else
         {
+            OpCmdMsg[ch].nowTempStatus = 1;     // 온도 유지 모드 set
             OpCmdMsg[ch].control_mode = ONE_SHOT_MODE;
         }
 

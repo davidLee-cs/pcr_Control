@@ -212,34 +212,34 @@ void select_Channel(int16_t adcModuleCh, uint16_t ChnNum)
         {
             case 0:
                 GPIO_writePin(RTD_Sel0, 0);
-                GPIO_writePin(RTD_Sel1, 0);         // 0
+                GPIO_writePin(RTD_Sel1, 0);         // 0  JP49
                 //first take default readings for AIN0+ and AIN1- channel1
                 Spi_write_data[0] = (WREG | MUX0) << 8;
                 Spi_write_data[1] = ONE_REGISTER_READ_WRITE << 8;
                 Spi_write_data[2] = 0x01U << 8;//AIN0 positive and AIN1 negative
                 Spi_Read_write_8bit(Spi_write_data, 3, SPIC_BASE);
                 break;
-            case 1:
+            case 3:
                 GPIO_writePin(RTD_Sel0, 1);
-                GPIO_writePin(RTD_Sel1, 1);         // 3
+                GPIO_writePin(RTD_Sel1, 1);         // 3 JP52
                 //second channel
                 Spi_write_data[0] = (WREG | MUX0) << 8;
                 Spi_write_data[1] = ONE_REGISTER_READ_WRITE << 8;
                 Spi_write_data[2] = 0x13U << 8;//AIN2 positive and AIN3 negative
                 Spi_Read_write_8bit(Spi_write_data, 3, SPIC_BASE);
                 break;
-            case 2:
+            case 1:
                 GPIO_writePin(RTD_Sel0, 1);
-                GPIO_writePin(RTD_Sel1, 0);         // 1
+                GPIO_writePin(RTD_Sel1, 0);         // 1 JP50
                 //third channel
                 Spi_write_data[0] = (WREG | MUX0) << 8;
                 Spi_write_data[1] = ONE_REGISTER_READ_WRITE << 8;
                 Spi_write_data[2] = 0x25U << 8;//AIN4 positive and AIN5 negative
                 Spi_Read_write_8bit(Spi_write_data, 3, SPIC_BASE);
                 break;
-            case 3:
+            case 2:
                 GPIO_writePin(RTD_Sel0, 0);
-                GPIO_writePin(RTD_Sel1, 1);         // 2
+                GPIO_writePin(RTD_Sel1, 1);         // 2 JP51
                 //fourth channel
                 Spi_write_data[0] = (WREG | MUX0) << 8;
                 Spi_write_data[1] = ONE_REGISTER_READ_WRITE << 8;
@@ -259,34 +259,34 @@ void select_Channel(int16_t adcModuleCh, uint16_t ChnNum)
         {
             case 0:
                 GPIO_writePin(RTD_Sel0_2, 0);
-                GPIO_writePin(RTD_Sel1_2, 0);         // 0
+                GPIO_writePin(RTD_Sel1_2, 0);         // 0 JP43
                 //first take default readings for AIN0+ and AIN1- channel1
                 Spi_write_data[0] = (WREG | MUX0) << 8;
                 Spi_write_data[1] = ONE_REGISTER_READ_WRITE << 8;
                 Spi_write_data[2] = 0x01U << 8;//AIN0 positive and AIN1 negative
                 Spi_Read_write_8bit(Spi_write_data, 3, SPIC_BASE);
                 break;
-            case 1:
+            case 3:
                 GPIO_writePin(RTD_Sel0_2, 1);
-                GPIO_writePin(RTD_Sel1_2, 1);         // 3
+                GPIO_writePin(RTD_Sel1_2, 1);         // 3 JP46
                 //second channel
                 Spi_write_data[0] = (WREG | MUX0) << 8;
                 Spi_write_data[1] = ONE_REGISTER_READ_WRITE << 8;
                 Spi_write_data[2] = 0x13U << 8;//AIN2 positive and AIN3 negative
                 Spi_Read_write_8bit(Spi_write_data, 3, SPIC_BASE);
                 break;
-            case 2:
+            case 1:
                 GPIO_writePin(RTD_Sel0_2, 1);
-                GPIO_writePin(RTD_Sel1_2, 0);         // 1
+                GPIO_writePin(RTD_Sel1_2, 0);         // 1 JP44
                 //third channel
                 Spi_write_data[0] = (WREG | MUX0) << 8;
                 Spi_write_data[1] = ONE_REGISTER_READ_WRITE << 8;
                 Spi_write_data[2] = 0x25U << 8;//AIN4 positive and AIN5 negative
                 Spi_Read_write_8bit(Spi_write_data, 3, SPIC_BASE);
                 break;
-            case 3:
+            case 2:
                 GPIO_writePin(RTD_Sel0_2, 0);
-                GPIO_writePin(RTD_Sel1_2, 1);         // 2
+                GPIO_writePin(RTD_Sel1_2, 1);         // 2  JP45
                 //fourth channel
                 Spi_write_data[0] = (WREG | MUX0) << 8;
                 Spi_write_data[1] = ONE_REGISTER_READ_WRITE << 8;
