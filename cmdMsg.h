@@ -33,6 +33,8 @@ struct motorProfile {
 
     uint64_t set_PulseCnt;               // set pulse count
     uint16_t motorSpeed;                // ¼Óµµ 55 % ~ 150%
+    uint16_t homeSpeed;
+    uint64_t home_PulseCnt;               // set pulse count
 
     uint16_t pumpDuty;
 };
@@ -45,7 +47,7 @@ struct oprationSetBit {
     uint16_t motorRun;
     uint16_t motorDirection;
     uint16_t pumpRun;
-
+    uint16_t stepperHome;
 };
 
 struct dacSet {

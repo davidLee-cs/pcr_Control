@@ -72,7 +72,7 @@ void hostCmd(void)
 //            Example_Done();
         }
 
-        //command : $STEMP,x,100,10,5\r\n
+        //command : $STEMP,x,100,10,5\r\n  $STEMP,0,95,5000,5\r  $STEMP,0,30,5000,5\r
         if(strncmp(rBootData_Rx, tempSingleSetCmd, 6) == 0)
         {
             (void)tempSingleSet();
@@ -100,7 +100,7 @@ void hostCmd(void)
 //            Example_Done();
         }
 
-        //command : $TSTART,1,1,0,1\r\n
+        //command : $TSTART,1,1,0,1\r\n $TSTART,1,0,0,0\r  $TSTART,0,0,0,0\r
         if(strncmp(rBootData_Rx, tempStartCmd, 6) == 0)
         {
             fan_AllOn();
@@ -119,6 +119,13 @@ void hostCmd(void)
         if(strncmp(rBootData_Rx, fanSetCmd, 4) == 0)
         {
             fanSet();
+//            Example_Done();
+        }
+
+        //command : $HOME,1,1,1,1,1\r\n  (-> fan 1,2,3,4, heatFan)
+        if(strncmp(rBootData_Rx, homeCmd, 5) == 0)
+        {
+            home_mode();
 //            Example_Done();
         }
 
@@ -201,14 +208,14 @@ static int16_t motorStartSet(void)
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
 
-        if((nowChannel == 0) || (nowChannel == 1))
-        {
-            epwmEnableSet(STEP_23); // 설정 시 한번만 설정할것.
-        }
-        else if((nowChannel == 2) || (nowChannel == 3))
-        {
-            epwmEnableSet(STEP_01); // 설정 시 한번만 설정할것.
-        }
+//        if((nowChannel == 0) || (nowChannel == 1))
+//        {
+//            epwmEnableSet(STEP_23); // 설정 시 한번만 설정할것.
+//        }
+//        else if((nowChannel == 2) || (nowChannel == 3))
+//        {
+//            epwmEnableSet(STEP_01); // 설정 시 한번만 설정할것.
+//        }
 //        jump = MOTOR_RUN;
         Can_State_Ptr = &motor_mode;
 
@@ -216,6 +223,27 @@ static int16_t motorStartSet(void)
 
     return 0;
 }
+
+
+static void home_mode(void)
+{
+    const char* comma = ",";
+    const char end[] = {'\r', '\n'};
+    char buffer[100] = {0,};
+
+    HostCmdMsg[0].oprationSetBit.stepperHome = 1;
+    HostCmdMsg[1].oprationSetBit.stepperHome = 1;
+    HostCmdMsg[2].oprationSetBit.stepperHome = 1;
+    HostCmdMsg[3].oprationSetBit.stepperHome = 1;
+
+    SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
+    SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
+
+    Can_State_Ptr = &motor_mode;
+
+    return 0;
+}
+
 
 static int16_t motorSet(void)
 {
@@ -246,9 +274,7 @@ static int16_t motorSet(void)
         int64_t pulse = atoll(motorset);
         HostCmdMsg[channel].motorProfile.set_PulseCnt = pulse;
 
-//        motorset = strtok(NULL, comma);
-
-        motor_Parameterset(channel);
+//        motor_Parameterset(channel);
 
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);

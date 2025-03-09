@@ -15,10 +15,10 @@
 #define TEMPERATURE_THRESHOLD   (0.1f) // V
 #define COOL_TEMPERATURE_THRESHOLD   (0.5f) // V
 #define ONE_SHOT_DAC_VOLT       (0.2f) // V
-//#define COOLING_DAC_VOLT       (1.0f) // V
-#define COOLING_DAC_VOLT       (0.2f) // 테스트용
-//#define DAC_MAX_VOLTAGE        (1.5f) // V
-#define DAC_MAX_VOLTAGE        (1.0f) // 테스트용
+#define COOLING_DAC_VOLT       (2.0f) //(2.0f) //(1.0f) // V
+#define DAC_MAX_VOLTAGE        (2.0f) //(2.0f) //(1.5f) // V     -> 2V -> 4A
+//#define COOLING_DAC_VOLT       (0.2f) // 테스트용
+//#define DAC_MAX_VOLTAGE        (1.0f) // 테스트용
 
 #define EMA_FILTER_ALPHA        (0.7f)
 
@@ -236,6 +236,7 @@ void tempPidControl(int16_t runCh)
 {
 
     float32_t nowTemp = read_pr100(0, runCh);
+
     //ema filter
     OpCmdMsg[runCh].tempSensor.tempSensor_Peltier  = ((1.0f - EMA_FILTER_ALPHA) * nowTemp) +
                                                      (EMA_FILTER_ALPHA * OpCmdMsg[runCh].tempSensor.tempSensor_Peltier);
@@ -246,13 +247,6 @@ void tempPidControl(int16_t runCh)
     SetOnOffControl(OpCmdMsg[runCh].tempSensor.tempSensor_Peltier,
                     (float32_t)HostCmdMsg[runCh].TempProfile.singleTargetTemp,
                     runCh);
-
-
-//    OpCmdMsg[runCh].lastTargetTemp = HostCmdMsg[runCh].TempProfile.singleTimeTemp;
-
-//    DEVICE_DELAY_US(20000);
-
-
 }
 
 

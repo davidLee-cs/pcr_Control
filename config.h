@@ -41,8 +41,8 @@
 #define SET_MODE    3
 
 
-#define RUN_OUT     (1)
-#define RUN_IN      (0)
+#define RUN_OUT     (0)
+#define RUN_IN      (1)
 
 
 #define RELAY_ON_COOLING     (1)
@@ -68,5 +68,5 @@ extern void (*Can_State_Ptr)(void);        // 다음 수행될 모드를 가르키는 함수 �
 extern uint16_t jump;
 extern uint16_t gSendTemp_en;
 extern int16_t nowChannel;
-
+extern uint64_t pulseCount[4];     // 현재까지 발생한 펄스 수
 #endif /* CONFIG_H_ */

@@ -30,6 +30,9 @@ void drv8452_init(void)
         data = drv8452_WriteRegister(&DRV8452_regs[CTRL2], ch);
         data = drv8452_WriteRegister(&DRV8452_regs[CTRL1], ch);
         data = drv8452_WriteRegister(&DRV8452_regs[CTRL9], ch);
+        data = drv8452_WriteRegister(&DRV8452_regs[CTRL10], ch);
+        data = drv8452_WriteRegister(&DRV8452_regs[CTRL11], ch);
+        data = drv8452_WriteRegister(&DRV8452_regs[CTRL12], ch);
 
     }
 //    GPIO_writePin(ENABLE_0, 1);

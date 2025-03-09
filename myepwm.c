@@ -18,9 +18,9 @@ epwmInfo epwm2Info;
 epwmInfo epwm3Info;
 epwmInfo epwm4Info;
 
-volatile uint64_t pulseCount[4] = {0,};     // 현재까지 발생한 펄스 수
-volatile uint64_t targetPulseCount = 100000; // 목표 펄스 수 (예: 1000펄스)
-volatile uint32_t stepDelay = 1000;   // STEP 펄스 간격 (속도 제어용)
+uint64_t pulseCount[4] = {0,};     // 현재까지 발생한 펄스 수
+uint64_t targetPulseCount = 100000; // 목표 펄스 수 (예: 1000펄스)
+uint32_t stepDelay = 1000;   // STEP 펄스 간격 (속도 제어용)
 
 volatile uint16_t compAVal, compBVal;
 uint16_t targetSpeed;
@@ -349,11 +349,10 @@ __interrupt void epwm4ISR(void)
     int16_t enablecheck1=0, enablecheck2=0;
     int16_t stopFalg0 = 0, stopFalg1 = 0;
 
-    OpSwitchStatus.limie0 = GPIO_readPin(LIMIT0);
-    OpSwitchStatus.limie1 = GPIO_readPin(LIMIT1);
-    OpSwitchStatus.home0 = GPIO_readPin(HOME0);
-    OpSwitchStatus.home1 = GPIO_readPin(HOME1);
-
+//    OpSwitchStatus.limie0 = GPIO_readPin(LIMIT0);
+//    OpSwitchStatus.limie1 = GPIO_readPin(LIMIT1);
+//    OpSwitchStatus.home0 = GPIO_readPin(HOME0);
+//    OpSwitchStatus.home1 = GPIO_readPin(HOME1);
 
     if(HostCmdMsg[0].oprationSetBit.motorRun == 1)
     {
@@ -377,9 +376,10 @@ __interrupt void epwm4ISR(void)
         if((pulseCount[0] > OpCmdMsg[0].stepperPulseCnt) || (stopFalg0 == 1))
         {
 
+            HostCmdMsg[0].oprationSetBit.motorRun = 0;
             enablecheck1 = 1;
             // 모터 멈추기
-            drv8452_outDisable(0);
+//            drv8452_outDisable(0);
 //            EPWM_disableCounterCompareShadowLoadMode(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_B);
 //            EPWM_setActionQualifierSWAction(myStepMotorEPWM4_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_OUTPUT_LOW);
             EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_B, targetSpeed+1); // 하드웨어 방법
@@ -392,6 +392,26 @@ __interrupt void epwm4ISR(void)
              pulseCount[0]++;  // 펄스 카운트 증가
 
         }
+    }
+    else if(HostCmdMsg[0].oprationSetBit.stepperHome == 1)
+    {
+        if(pulseCount[0] > OpCmdMsg[0].stepperPulseCnt)
+        {
+           HostCmdMsg[0].oprationSetBit.stepperHome = 0;
+           HostCmdMsg[0].oprationSetBit.motorRun = 1;
+           SetMotorDirection(nowChannel, RUN_IN);
+           DEVICE_DELAY_US(10000);
+
+           pulseCount[0] = 0;
+
+        }
+        else
+        {
+            pulseCount[0]++;  // 펄스 카운트 증가
+
+        }
+
+
     }
 
     if(HostCmdMsg[1].oprationSetBit.motorRun == 1)
@@ -414,8 +434,9 @@ __interrupt void epwm4ISR(void)
         if((pulseCount[1] > OpCmdMsg[1].stepperPulseCnt)  || (stopFalg1 == 1))
         {
             enablecheck2 = 1;
+            HostCmdMsg[1].oprationSetBit.motorRun = 0;
             // 모터 멈추기
-            drv8452_outDisable(1);
+//            drv8452_outDisable(1);
 //            EPWM_disableCounterCompareShadowLoadMode(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_A);
 //            EPWM_setActionQualifierSWAction(myStepMotorEPWM4_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_OUTPUT_LOW);
             EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_A, targetSpeed+1); // 하드웨어 방법
@@ -767,29 +788,38 @@ void initEPWM4(void)
     EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_B,
                                 EPWM4_MAX_CMPB);
 
-    //
-    // Set actions for ePWM1A & ePWM1B
-    //
+
+
     // Set PWM3A on event B, up-count & clear on event B, up-count
-//    EPWM_setActionQualifierAction(myStepMotorEPWM4_BASE,
-//                                  EPWM_AQ_OUTPUT_A,
-//                                  EPWM_AQ_OUTPUT_HIGH,
-//                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPA);
-//    EPWM_setActionQualifierAction(myStepMotorEPWM4_BASE,
-//                                  EPWM_AQ_OUTPUT_A,
-//                                  EPWM_AQ_OUTPUT_LOW,
-//                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPB);
     EPWM_setActionQualifierAction(myStepMotorEPWM4_BASE,
                                   EPWM_AQ_OUTPUT_A,
-                                  EPWM_AQ_OUTPUT_TOGGLE,
-                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_ZERO);
+                                  EPWM_AQ_OUTPUT_HIGH,
+                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_PERIOD);
+    EPWM_setActionQualifierAction(myStepMotorEPWM4_BASE,
+                                  EPWM_AQ_OUTPUT_A,
+                                  EPWM_AQ_OUTPUT_LOW,
+                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPA);
 
-
-    // Toggle EPWM3B on counter = zero
     EPWM_setActionQualifierAction(myStepMotorEPWM4_BASE,
                                   EPWM_AQ_OUTPUT_B,
-                                  EPWM_AQ_OUTPUT_TOGGLE,
-                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_ZERO);
+                                  EPWM_AQ_OUTPUT_HIGH,
+                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_PERIOD);
+    EPWM_setActionQualifierAction(myStepMotorEPWM4_BASE,
+                                  EPWM_AQ_OUTPUT_B,
+                                  EPWM_AQ_OUTPUT_LOW,
+                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPB);
+
+//    EPWM_setActionQualifierAction(myStepMotorEPWM4_BASE,
+//                                  EPWM_AQ_OUTPUT_A,
+//                                  EPWM_AQ_OUTPUT_TOGGLE,
+//                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPA);
+//
+//
+////     Toggle EPWM3B on counter = zero
+//    EPWM_setActionQualifierAction(myStepMotorEPWM4_BASE,
+//                                  EPWM_AQ_OUTPUT_B,
+//                                  EPWM_AQ_OUTPUT_TOGGLE,
+//                                  EPWM_AQ_OUTPUT_ON_TIMEBASE_UP_CMPA);
 
     //
     // Interrupt where we will change the Compare Values
@@ -850,19 +880,23 @@ void updateCompare(epwmInfo *epwm_info)
 void stepperEpwmSet(int16_t channel, uint16_t speed)
 {
 
-    targetSpeed = (float)(speed *0.01) * 2200;
 
-    if(targetSpeed > 3000)
+    if(speed > 400)
     {
-        targetSpeed = 3000;
+        speed = 400;
     }
 
-    if(targetSpeed < 1100)
+    if(speed < 5)
     {
-        targetSpeed = 1100;
+        speed = 5;
     }
 
+    double fpwm = (double)speed/60.0L * 51200.0L;
 
+    double timePeriod = (1.0L/fpwm) * 100000000L;
+
+    targetSpeed = (uint16_t)timePeriod - 1;
+//    targetSpeed = (float)(speed *0.01) * 1100;
     uint16_t compare = targetSpeed / 2;
 
 #if 1
@@ -907,9 +941,9 @@ void pumpEpwmSet(int16_t channel, uint16_t duty)
         duty = 99;
     }
 
-    if(duty <= 65)
+    if(duty <= 5)
     {
-        duty = 65;
+        duty = 5;
     }
 
     uint16_t realDuty = 100 - duty;
