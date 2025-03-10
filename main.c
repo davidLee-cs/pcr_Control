@@ -33,6 +33,7 @@ void main(void)
 {
 
     char *msg = NULL;
+    float ch0,ch1,ch2,ch3,ch4,ch5,ch6,ch7;
 
     Device_init();
 
@@ -124,15 +125,27 @@ void main(void)
             {
                 if(gSendTemp_en == 1)
                 {
+                    fan_AllOn();
 
-                    float ch0 = read_pr100(0,PT100_CH0) * 10;
-                    float ch1 = read_pr100(0,PT100_CH1) * 10;
-                    float ch2 = read_pr100(0,PT100_CH2) * 10;
-                    float ch3 = read_pr100(0,PT100_CH3) * 10;
-                    float ch4 = read_pr100(1,PT100_CH0) * 10;
-                    float ch5 = read_pr100(1,PT100_CH1) * 10;
-                    float ch6 = read_pr100(1,PT100_CH2) * 10;
-                    float ch7 = read_pr100(1,PT100_CH3) * 10;
+                    ch0 = read_pr100(0,PT100_CH0) * 10;
+                    ch1 = read_pr100(0,PT100_CH1) * 10;
+                    ch2 = read_pr100(0,PT100_CH2) * 10;
+                    ch3 = read_pr100(0,PT100_CH3) * 10;
+                    ch4 = read_pr100(1,PT100_CH0) * 10;
+                    ch5 = read_pr100(1,PT100_CH1) * 10;
+                    ch6 = read_pr100(1,PT100_CH2) * 10;
+                    ch7 = read_pr100(1,PT100_CH3) * 10;
+
+//                    ch0 = OpCmdMsg[0].tempSensor.nowTemp_S1 * 10;
+//                    ch1 = OpCmdMsg[1].tempSensor.nowTemp_S1 * 10;
+//                    ch2 = OpCmdMsg[2].tempSensor.nowTemp_S1 * 10;
+//                    ch3 = OpCmdMsg[3].tempSensor.nowTemp_S1 * 10;
+//
+//                    ch4 = OpCmdMsg[0].tempSensor.nowTemp_S2 * 10;
+//                    ch5 = OpCmdMsg[1].tempSensor.nowTemp_S2 * 10;
+//                    ch6 = OpCmdMsg[2].tempSensor.nowTemp_S2 * 10;
+//                    ch7 = OpCmdMsg[3].tempSensor.nowTemp_S2 * 10;
+
 
                     sprintf(msg,"$TEMP,%d,%d,%d,%d,", (int16_t)ch0, (int16_t)ch1, (int16_t)ch2, (int16_t)ch3);
                     SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
@@ -142,7 +155,8 @@ void main(void)
                 }
 
                 gloopCnt = 0;
-                fan_control(gSendTemp_en);
+//                fan_control(gSendTemp_en);
+
             }
 
             switchRead();

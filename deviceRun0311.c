@@ -18,9 +18,8 @@
 
 int16_t pumpStop = 0;
 uint16_t profileTargetTemp[4] = {0,};
-uint16_t profileTime[4] = {0,};
 uint16_t lastprofileTargetTemp[4] = {0,};
-uint16_t lastprofileTime[4] = {0,};
+uint16_t profileTime[4] = {0,};
 
 
 void tempProfileReset(void);
@@ -28,69 +27,81 @@ void tempProfileReset(void);
 
 void profie_checkLevel(int16_t ch, int16_t level)
 {
-    switch (level){
+    int16_t go;
 
-        case PROFILE_0 :
+    for(go=level; go< PROFILE_CONTINUE; go++)
+    {
+        switch (go){
 
-            profileTargetTemp[ch] = HostCmdMsg[ch].TempProfile.targetTemp[0] + HostCmdMsg[ch].TempProfile.tempOffset;
-            profileTime[ch] = HostCmdMsg[ch].TempProfile.timeTemp[0];
+            case PROFILE_0 :
 
-            if(profileTargetTemp[ch] != 0)    break;
-
-        case PROFILE_1 :
-
-            profileTargetTemp[ch] = HostCmdMsg[ch].TempProfile.targetTemp[1] + HostCmdMsg[ch].TempProfile.tempOffset;
-            profileTime[ch] = HostCmdMsg[ch].TempProfile.timeTemp[1];
-
-            if(profileTargetTemp[ch] != 0)    break;
-
-        case PROFILE_2 :
-
-            profileTargetTemp[ch] = HostCmdMsg[ch].TempProfile.targetTemp[2] + HostCmdMsg[ch].TempProfile.tempOffset;
-            profileTime[ch] = HostCmdMsg[ch].TempProfile.timeTemp[2];
-
-            if(profileTargetTemp[ch] != 0)    break;
-
-        case PROFILE_3 :
-
-            profileTargetTemp[ch] = HostCmdMsg[ch].TempProfile.targetTemp[3] + HostCmdMsg[ch].TempProfile.tempOffset;
-            profileTime[ch] = HostCmdMsg[ch].TempProfile.timeTemp[3];
-
-            if(profileTargetTemp[ch] != 0)    break;
-
-        case PROFILE_4 :
-
-            profileTargetTemp[ch] = HostCmdMsg[ch].TempProfile.targetTemp[4] + HostCmdMsg[ch].TempProfile.tempOffset;
-            profileTime[ch] = HostCmdMsg[ch].TempProfile.timeTemp[4];
-
-            if(profileTargetTemp[ch] != 0)    break;
-
-        case PROFILE_CYCLE :
-
-            if(++tempCycleCnt[ch] >= HostCmdMsg[ch].TempProfile.tempCycle)
-            {
-                tempCycleCnt[ch] = 0;
-                OpCmdMsg[ch].gCycleDone = 1;
-
-                // 사이클 끝나고 마지막 온도로 계속 유지.. 정지 전까지.
-                profileTargetTemp[ch] =  lastprofileTargetTemp[ch];
-                profileTime[ch] = lastprofileTime[ch];
-            }
-            else
-            {
-                // 처음부터 다시
-                OpCmdMsg[ch].profileLevel = 0;
                 profileTargetTemp[ch] = HostCmdMsg[ch].TempProfile.targetTemp[0] + HostCmdMsg[ch].TempProfile.tempOffset;
                 profileTime[ch] = HostCmdMsg[ch].TempProfile.timeTemp[0];
-            }
 
-            break;
+                break;
 
-        default :
+            case PROFILE_1 :
 
-            break;
+                profileTargetTemp[ch] = HostCmdMsg[ch].TempProfile.targetTemp[1] + HostCmdMsg[ch].TempProfile.tempOffset;
+                profileTime[ch] = HostCmdMsg[ch].TempProfile.timeTemp[1];
+
+                break;
+
+            case PROFILE_2 :
+
+                profileTargetTemp[ch] = HostCmdMsg[ch].TempProfile.targetTemp[2] + HostCmdMsg[ch].TempProfile.tempOffset;
+                profileTime[ch] = HostCmdMsg[ch].TempProfile.timeTemp[2];
+
+                break;
+
+            case PROFILE_3 :
+
+                profileTargetTemp[ch] = HostCmdMsg[ch].TempProfile.targetTemp[3] + HostCmdMsg[ch].TempProfile.tempOffset;
+                profileTime[ch] = HostCmdMsg[ch].TempProfile.timeTemp[3];
+
+                break;
+
+            case PROFILE_4 :
+
+                profileTargetTemp[ch] = HostCmdMsg[ch].TempProfile.targetTemp[4] + HostCmdMsg[ch].TempProfile.tempOffset;
+                profileTime[ch] = HostCmdMsg[ch].TempProfile.timeTemp[4];
+
+                break;
+
+            case PROFILE_CYCLE :
+
+                if(++tempCycleCnt[ch] >= HostCmdMsg[ch].TempProfile.tempCycle)
+                {
+    //                    sprintf(msg,"$TCYCLE,%d,%d,%d\r\n", ch, tempProfileCnt[ch], tempCycleCnt[ch]);
+    //                    SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+
+                    tempCycleCnt[ch] = 0;
+                    gCycleDone[ch] = 1;
+
+    //                HostCmdMsg[ch].oprationSetBit.temperatureRun = 0;
+    //                OpCmdMsg[ch].control_mode = STOP_MODE;
+    //                dac53508_write(0, ch);
+                }
+                else
+                {
+                    OpCmdMsg[ch].profileLevel = 0;
+                }
+
+                break;
+
+            default :
+
+                break;
+
+        }
+
+        if( profileTargetTemp[ch] == 0)
+        {
+
+        }
+
+
     }
-
 
     if(profileTargetTemp[ch] > 0)
     {
@@ -118,7 +129,6 @@ void profie_checkLevel(int16_t ch, int16_t level)
         }
 
         lastprofileTargetTemp[ch] = profileTargetTemp[ch];
-        lastprofileTime[ch] = profileTime[ch];
     }
 
 
@@ -131,10 +141,12 @@ void temp_Profilemode(void)
 
     for(ch=0; ch< PELTIER_4EA; ch++)
     {
-
-        if(OpCmdMsg[ch].gCycleDone == 1)
+        if(profileTargetTemp[ch] == 0)
         {
+            OpCmdMsg[ch].profileLevel = PROFILE_CYCLE - 1; // 타넷이 0 인 레벨에서 정지 전까지 계속 온도 유지 모드 진입
+            profileTargetTemp[ch] = lastprofileTargetTemp[ch];  // 0 설정 이전 마지막 온도 값으로 계속 유지 함.
             tempProfileCnt[ch] = 0;
+            profileTime[ch] = 0xfffe;  // 상수값 무한 구동 -> 정지 전까지
         }
 
         // 채널별 run 실쟁과 동작 시간(단위 100ms)이 0 이상 설정 되었을 때만 동작 함.
@@ -150,6 +162,8 @@ void temp_Profilemode(void)
                 if(tempProfileCnt[ch] >= profileTime[ch]) // 단위 초
                 {
                     OpCmdMsg[ch].nowTempStatus = 0;
+//                    OpCmdMsg[ch].profileLevel++;
+//                    DEVICE_DELAY_US(20000);
                     tempProfileCnt[ch] = 0;
 
                     sprintf(msg,"$TCYCLE,%d,%d,%d\r\n", ch, profileTargetTemp[ch],  profileTime[ch]);
@@ -443,7 +457,7 @@ void prameterInit(void)
 
         OpCmdMsg[channel].nowTempStatus = 0;
         OpCmdMsg[channel].stepperPulseCnt = 0;
-        OpCmdMsg[channel].gCycleDone = 0;
+
 
         pulseCount[channel] = 0;     // 현재까지 발생한 펄스 수
         enablecheck[channel] = 0;

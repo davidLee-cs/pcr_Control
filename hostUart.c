@@ -10,6 +10,7 @@ void Example_Done(void);
 
 int16_t nowChannel;
 int16_t home_enable = 0;
+int16_t gTempProfileModeEnable = 0;
 
 void hostCmd(void)
 {
@@ -135,10 +136,17 @@ void hostCmd(void)
         }
 
 
-        //command : $HOME,1,1,1,1,1\r\n  (-> fan 1,2,3,4, heatFan)
+        //command : $RPARA\r
         if(strncmp(rBootData_Rx, readparaCmd, 6) == 0)
         {
             parameter_read_mode();
+//            Example_Done();
+        }
+
+        //command : $TOSET,100,10,101,11\r\n
+        if(strncmp(rBootData_Rx, tempSetCmd, 6) == 0)
+        {
+            tempOffset();
 //            Example_Done();
         }
 
@@ -154,6 +162,40 @@ void hostCmd(void)
 void Example_Done(void)
 {
     __asm("    ESTOP0");
+}
+
+
+static void tempOffset(void)
+{
+    const char* comma = ",";
+    const char end[] = {'\r', '\n'};
+
+    char buffer[100] = {0,};
+
+    memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
+
+    char* tempset = strtok(&rBootData_Rx[7],comma);
+
+    if( tempset != NULL)
+    {
+
+        HostCmdMsg[0].TempProfile.tempOffset = atoi(tempset) ;
+        tempset = strtok(NULL, comma);
+
+        HostCmdMsg[1].TempProfile.tempOffset = atoi(tempset) ;
+        tempset = strtok(NULL, comma);
+
+        HostCmdMsg[2].TempProfile.tempOffset = atoi(tempset) ;
+        tempset = strtok(NULL, comma);
+
+        HostCmdMsg[3].TempProfile.tempOffset = atoi(tempset) ;
+
+        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
+        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
+
+        Can_State_Ptr = &hostCmd;
+    }
+
 }
 
 static void tempStartSet(void)
@@ -184,9 +226,16 @@ static void tempStartSet(void)
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
 
+        if(gTempProfileModeEnable == 1)
+        {
+            profie_checkLevel(0,0); // 첫번째 시작
 
-//        jump = TEMP_RUN;
-        Can_State_Ptr = &temp_mode;
+            Can_State_Ptr = &temp_Profilemode;
+        }
+        else
+        {
+            Can_State_Ptr = &temp_mode;
+        }
     }
 
 }
@@ -417,7 +466,6 @@ static void parameter_read_mode(void)
 
 static void home_mode(void)
 {
-    const char* comma = ",";
     const char end[] = {'\r', '\n'};
     char buffer[100] = {0,};
 
@@ -433,7 +481,6 @@ static void home_mode(void)
 
     Can_State_Ptr = &motor_mode;
 
-    return 0;
 }
 
 
@@ -621,8 +668,11 @@ static int16_t tempSet(void)
 
         HostCmdMsg[channel].TempProfile.tempCycle = atoi(tempset) ;
 
+
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
+
+        gTempProfileModeEnable = 1;
     }
 
     Can_State_Ptr = &hostCmd;///normal mode
@@ -651,7 +701,7 @@ static int16_t tempSingleSet(void)
             return 1;
         }
 
-        HostCmdMsg[channel].TempProfile.singleTargetTemp = atoi(tempset) ;
+        HostCmdMsg[channel].TempProfile.singleTargetTemp = atoi(tempset) + HostCmdMsg[channel].TempProfile.tempOffset;
         tempset = strtok(NULL, comma);
 
         HostCmdMsg[channel].TempProfile.singleTimeTemp = atoi(tempset) ;
@@ -692,6 +742,8 @@ static int16_t tempSingleSet(void)
 
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
+
+        gTempProfileModeEnable = 0;
     }
 
     Can_State_Ptr = &hostCmd;///normal mode

@@ -23,6 +23,7 @@ struct TempProfile {
     int16_t singleTargetTemp;
     int16_t lastSingleTargetTemp;   // 이전 설정 온도
     uint16_t singleTimeTemp;        // 단위: 100 mS
+    int16_t tempOffset;
 
     uint16_t tempCycle;
 

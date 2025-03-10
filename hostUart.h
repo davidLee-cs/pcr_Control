@@ -15,6 +15,7 @@ static int16_t motorSet(void);
 static void pumpSet(int16_t stop);
 void hostCmd(void);
 static void tempStartSet(void);
+static void tempOffset(void);
 static int16_t motorStartSet(void);
 static void dacSet(void);
 static void fanSet(void);

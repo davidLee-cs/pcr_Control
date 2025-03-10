@@ -8,8 +8,8 @@
 #ifndef DEVICERUN_H_
 #define DEVICERUN_H_
 
-
-
+void profie_checkLevel(int16_t ch, int16_t level);
+void temp_Profilemode(void);
 void temp_mode(void);
 void motor_mode(void);
 void idle_mode(void);

@@ -256,6 +256,14 @@ __interrupt void epwm3ISR(void)
     OpSwitchStatus.home2 = GPIO_readPin(HOME2);
     OpSwitchStatus.home3 = GPIO_readPin(HOME3);
 
+    // 호밍 중에는 계속 작동하도록 함.
+    if(HostCmdMsg[2].oprationSetBit.stepperHome == 1){
+        pulseCount[2] = 0;
+    }
+    if(HostCmdMsg[3].oprationSetBit.stepperHome == 1){
+        pulseCount[3] = 0;
+    }
+
 
     if(HostCmdMsg[2].oprationSetBit.motorRun == 1)
     {
@@ -295,6 +303,7 @@ __interrupt void epwm3ISR(void)
 
         }
     }
+#if 0
     else if(HostCmdMsg[2].oprationSetBit.stepperHome == 1)
     {
         if(pulseCount[2] > HostCmdMsg[2].motorProfile.home_PulseCnt)
@@ -314,6 +323,7 @@ __interrupt void epwm3ISR(void)
 
         }
     }
+#endif
 
     if(HostCmdMsg[3].oprationSetBit.motorRun == 1)
     {
@@ -352,6 +362,7 @@ __interrupt void epwm3ISR(void)
 
         }
     }
+#if 0
     else if(HostCmdMsg[3].oprationSetBit.stepperHome == 1)
     {
         if(pulseCount[3] > HostCmdMsg[3].motorProfile.home_PulseCnt)
@@ -373,7 +384,7 @@ __interrupt void epwm3ISR(void)
 
 
     }
-
+#endif
 
     if((enablecheck[2] == 1) && (enablecheck[3] == 1))
     {
@@ -405,6 +416,13 @@ __interrupt void epwm4ISR(void)
     OpSwitchStatus.limie1 = GPIO_readPin(LIMIT1);
     OpSwitchStatus.home0 = GPIO_readPin(HOME0);
     OpSwitchStatus.home1 = GPIO_readPin(HOME1);
+
+    if(HostCmdMsg[0].oprationSetBit.stepperHome == 1){
+        pulseCount[0] = 0;
+    }
+    if(HostCmdMsg[1].oprationSetBit.stepperHome == 1){
+        pulseCount[1] = 0;
+    }
 
     if(HostCmdMsg[0].oprationSetBit.motorRun == 1)
     {
@@ -445,6 +463,7 @@ __interrupt void epwm4ISR(void)
 
         }
     }
+#if 0
     else if(HostCmdMsg[0].oprationSetBit.stepperHome == 1)
     {
         if(pulseCount[0] > HostCmdMsg[0].motorProfile.home_PulseCnt)
@@ -466,6 +485,7 @@ __interrupt void epwm4ISR(void)
 
 
     }
+#endif
 
     if(HostCmdMsg[1].oprationSetBit.motorRun == 1)
     {
@@ -503,6 +523,7 @@ __interrupt void epwm4ISR(void)
 
         }
     }
+#if 0
     else if(HostCmdMsg[1].oprationSetBit.stepperHome == 1)
     {
         if(pulseCount[1] > HostCmdMsg[1].motorProfile.home_PulseCnt)
@@ -524,7 +545,7 @@ __interrupt void epwm4ISR(void)
 
 
     }
-
+#endif
 
     if((enablecheck[0] == 1) && (enablecheck[1] == 1))
     {

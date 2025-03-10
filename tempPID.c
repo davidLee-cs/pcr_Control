@@ -124,7 +124,7 @@ void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch) {
         else
         {
             OpCmdMsg[ch].nowTempStatus = 1;     // 온도 유지 모드 set
-            OpCmdMsg[ch].control_mode = ONE_SHOT_MODE;
+//            OpCmdMsg[ch].control_mode = ONE_SHOT_MODE;
         }
 
         // 테스트용 무조건 가열 모드로.
@@ -165,7 +165,7 @@ void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch) {
         {
 
             dac53508_write(0, ch);
-            DEVICE_DELAY_US(500000);
+            DEVICE_DELAY_US(100000);
 
             OpCmdMsg[ch].control_mode = HEAT_MODE;
 //            OpCmdMsg[ch].control_mode = STOP_MODE;
@@ -176,13 +176,13 @@ void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch) {
             else if(ch == 3)       GPIO_writePin(DAC_REVERS_3, RELAY_OFF_HEATING);  // 가열
             else
             {
-                DEVICE_DELAY_US(500000);
+                DEVICE_DELAY_US(10000);
             }
 
-            DEVICE_DELAY_US(500000);
-            DEVICE_DELAY_US(500000);
-            DEVICE_DELAY_US(500000);
-            DEVICE_DELAY_US(500000);
+            DEVICE_DELAY_US(10000);
+//            DEVICE_DELAY_US(500000);
+//            DEVICE_DELAY_US(500000);
+//            DEVICE_DELAY_US(500000);
         }
 
         break;
@@ -232,21 +232,26 @@ void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch) {
 }
 
 
-void tempPidControl(int16_t runCh)
+void tempPidControl(int16_t runCh, int16_t targetTemp)
 {
 
-    float32_t nowTemp = read_pr100(0, runCh);
+//    float32_t nowTemp = read_pr100(0, runCh);
+    OpCmdMsg[runCh].tempSensor.nowTemp_S1 = read_pr100(0, runCh);
+    OpCmdMsg[runCh].tempSensor.nowTemp_S2 = read_pr100(1, runCh);
+
 
     //ema filter
-    OpCmdMsg[runCh].tempSensor.tempSensor_Peltier  = ((1.0f - EMA_FILTER_ALPHA) * nowTemp) +
-                                                     (EMA_FILTER_ALPHA * OpCmdMsg[runCh].tempSensor.tempSensor_Peltier);
+    OpCmdMsg[runCh].tempSensor.tempSensorEma_Peltier  = ((1.0f - EMA_FILTER_ALPHA) * OpCmdMsg[runCh].tempSensor.nowTemp_S1) +
+                                                     (EMA_FILTER_ALPHA * OpCmdMsg[runCh].tempSensor.tempSensorEma_Peltier);
+
+
+    OpCmdMsg[runCh].tempSensor.tempSensorEma_Block  = ((1.0f - EMA_FILTER_ALPHA) * OpCmdMsg[runCh].tempSensor.nowTemp_S2) +
+                                                     (EMA_FILTER_ALPHA * OpCmdMsg[runCh].tempSensor.tempSensorEma_Block);
 
 //        OpCmdMsg[runCh].tempSensor.tempSensor_Metal = read_pr100(runCh);
 
            // 온도 차이가 임계값 이하이면 온/오프 제어, 그렇지 않으면 PID 제어
-    SetOnOffControl(OpCmdMsg[runCh].tempSensor.tempSensor_Peltier,
-                    (float32_t)HostCmdMsg[runCh].TempProfile.singleTargetTemp,
-                    runCh);
+    SetOnOffControl(OpCmdMsg[runCh].tempSensor.tempSensorEma_Peltier, (float32_t)targetTemp, runCh);
 }
 
 

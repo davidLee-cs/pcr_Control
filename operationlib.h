@@ -35,8 +35,12 @@ struct motorMovingStatus{
 
 struct tempSensor{
 
-    float32_t tempSensor_Peltier;      //paltier
+    float32_t tempSensorEma_Peltier;      //paltier
+    float32_t tempSensorEma_Block;
     float32_t tempSensor_Metal;      //case
+    float32_t nowTemp_S1;
+    float32_t nowTemp_S2;
+
 //    uint16_t tempSensor2_A;
 //    uint16_t tempSensor2_B;
 //
@@ -79,6 +83,8 @@ struct OpCmdMsg {
     uint64_t stepperPulseCnt;
     int16_t  lastTargetTemp;   // 이전 설정 온도
     uint16_t control_mode;
+    int16_t  profileLevel;
+    uint16_t gCycleDone;
 };
 extern struct OpCmdMsg OpCmdMsg[6];
 //struct OpCmdMsg OpCmdMsgServoMax[4];
