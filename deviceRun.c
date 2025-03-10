@@ -8,7 +8,7 @@
 #include "config.h"
 
 
-
+int16_t pumpStop = 0;
 
 void tempProfileReset(void);
 
@@ -73,87 +73,112 @@ void temp_mode(void)
 
 void motor_mode(void)
 {
-    int16_t ch;
+    int16_t ch=0;
 
-    for(ch = 0; ch<4; ch++)
+    if(home_enable == 1)
     {
-        if(HostCmdMsg[ch].oprationSetBit.stepperHome == 1)
+        home_enable = 0;
+
+        for(ch = 0; ch<4; ch++)
         {
-
-            HostCmdMsg[ch].motorProfile.motorSpeed = HostCmdMsg[ch].motorProfile.homeSpeed;
-            HostCmdMsg[ch].motorProfile.set_PulseCnt = HostCmdMsg[ch].motorProfile.home_PulseCnt;
-
-            SetMotorDirection(ch, RUN_OUT);
-
-            motor_Parameterset(ch);
-
-            if((ch == 0) || (ch == 1))
+            if(HostCmdMsg[ch].oprationSetBit.stepperHome == 1)
             {
-                epwmEnableSet(STEP_23); // 설정 시 한번만 설정할것.
+
+                drv8452_outEnable(ch);
+                DEVICE_DELAY_US(2000);
+                drv8452_outEnable(ch);
+                DEVICE_DELAY_US(2000);
+                drv8452_outEnable(ch);
+                DEVICE_DELAY_US(2000);
+                drv8452_outEnable(ch);
+
+                HostCmdMsg[ch].motorProfile.motorSpeed = HostCmdMsg[ch].motorProfile.homeSpeed;
+                HostCmdMsg[ch].motorProfile.set_PulseCnt = HostCmdMsg[ch].motorProfile.home_PulseCnt;
+
+                SetMotorDirection(ch, RUN_OUT);
+
+                motor_Parameterset(ch);
+
+                if((ch == 0) || (ch == 1))
+                {
+                    epwmEnableSet(STEP_23); // 설정 시 한번만 설정할것.
+                }
+                else if((ch == 2) || (ch == 3))
+                {
+                    epwmEnableSet(STEP_01); // 설정 시 한번만 설정할것.
+                }
+
+                pulseCount[ch] = 0;     // 현재까지 발생한 펄스 수
+                enablecheck[ch] = 0;
             }
-            else if((ch == 2) || (ch == 3))
-            {
-                epwmEnableSet(STEP_01); // 설정 시 한번만 설정할것.
-            }
-
-            pulseCount[ch] = 0;     // 현재까지 발생한 펄스 수
         }
-    }
-
-    if(HostCmdMsg[nowChannel].oprationSetBit.motorRun == 1)
-    {
-
-        if(HostCmdMsg[nowChannel].oprationSetBit.motorDirection == RUN_OUT)
-        {
-            SetMotorDirection(nowChannel, RUN_OUT);
-        }
-        else
-        {
-            SetMotorDirection(nowChannel, RUN_IN);
-        }
-
-//        drv8452_outEnable(nowChannel);
-//        DEVICE_DELAY_US(2000);
-//        drv8452_outEnable(nowChannel);
-//        DEVICE_DELAY_US(2000);
-//        drv8452_outEnable(nowChannel);
-//        DEVICE_DELAY_US(2000);
-//        drv8452_outEnable(nowChannel);
-//        EnableMotor(1);
-        motor_Parameterset(nowChannel);
-
-        if((nowChannel == 0) || (nowChannel == 1))
-        {
-            epwmEnableSet(STEP_23); // 설정 시 한번만 설정할것.
-        }
-        else if((nowChannel == 2) || (nowChannel == 3))
-        {
-            epwmEnableSet(STEP_01); // 설정 시 한번만 설정할것.
-        }
-
-        pulseCount[nowChannel] = 0;     // 현재까지 발생한 펄스 수
-
     }
     else
     {
-//        drv8452_outDisable(nowChannel);
-//        EnableMotor(0);
-
-        pulseCount[nowChannel] = 0;     // 현재까지 발생한 펄스 수
-
-        if((nowChannel == 0) || (nowChannel == 1))
+        for(ch = 0; ch<4; ch++)
         {
-            epwmDisableSet(STEP_23); // 설정 시 한번만 설정할것.
-        }
-        else if((nowChannel == 2) || (nowChannel == 3))
-        {
-            epwmDisableSet(STEP_01); // 설정 시 한번만 설정할것.
-        }
+            if(HostCmdMsg[ch].oprationSetBit.motorRun == 1)
+            {
 
-//        epwmDisableSet(STEP_23);
+                if(HostCmdMsg[ch].oprationSetBit.motorDirection == RUN_OUT)
+                {
+                    SetMotorDirection(ch, RUN_OUT);
+                }
+                else
+                {
+                    SetMotorDirection(ch, RUN_IN);
+                }
+
+                drv8452_outEnable(ch);
+                DEVICE_DELAY_US(2000);
+                drv8452_outEnable(ch);
+                DEVICE_DELAY_US(2000);
+                drv8452_outEnable(ch);
+                DEVICE_DELAY_US(2000);
+                drv8452_outEnable(ch);
+                EnableMotor(1);
+
+                motor_Parameterset(ch);
+
+                if((ch == 0) || (ch == 1))
+                {
+                    epwmEnableSet(STEP_23); // 설정 시 한번만 설정할것.
+                }
+                else if((ch == 2) || (ch == 3))
+                {
+                    epwmEnableSet(STEP_01); // 설정 시 한번만 설정할것.
+                }
+
+                pulseCount[ch] = 0;     // 현재까지 발생한 펄스 수
+                pulseCount[ch] = 0;     // 현재까지 발생한 펄스 수
+                enablecheck[ch] = 0;
+
+            }
+            else
+            {
+                drv8452_outDisable(ch);
+        //        EnableMotor(0);
+
+                pulseCount[ch] = 0;     // 현재까지 발생한 펄스 수
+                pulseCount[ch] = 0;     // 현재까지 발생한 펄스 수
+                enablecheck[ch] = 0;
+
+                if((HostCmdMsg[0].oprationSetBit.motorRun == 0) && (HostCmdMsg[1].oprationSetBit.motorRun == 0))
+                {
+                    epwmDisableSet(STEP_23); // 설정 시 한번만 설정할것.
+                }
+                else if((HostCmdMsg[2].oprationSetBit.motorRun == 0) && (HostCmdMsg[3].oprationSetBit.motorRun == 0))
+                {
+                    epwmDisableSet(STEP_01); // 설정 시 한번만 설정할것.
+                }
+
+        //        epwmDisableSet(STEP_23);
+            }
+
+            uint16_t data = drv8452_read(nowChannel);  //
+        }
     }
 
-    uint16_t data = drv8452_read(nowChannel);  //
 
     Can_State_Ptr = &hostCmd;///normal mode
 }
@@ -225,8 +250,8 @@ void prameterInit(void)
 
         HostCmdMsg[channel].motorProfile.motorSpeed = 0;
         HostCmdMsg[channel].motorProfile.set_PulseCnt = 0;
-        HostCmdMsg[channel].motorProfile.homeSpeed = 50; // rpm
-        HostCmdMsg[channel].motorProfile.home_PulseCnt = 17066 * 20; // 20 회전
+        HostCmdMsg[channel].motorProfile.homeSpeed = 80; // rpm
+        HostCmdMsg[channel].motorProfile.home_PulseCnt = 17066L * 10; // 20 회전
 
         HostCmdMsg[channel].oprationSetBit.motorDirection = 0;
         HostCmdMsg[channel].oprationSetBit.motorRun = 0;
@@ -251,22 +276,24 @@ void prameterInit(void)
         OpCmdMsg[channel].stepperPulseCnt = 0;
 
 
-        pulseCount[nowChannel] = 0;     // 현재까지 발생한 펄스 수
+        pulseCount[channel] = 0;     // 현재까지 발생한 펄스 수
+        enablecheck[channel] = 0;
+
     }
 }
+
 
 void stop_mode(void)
 {
 
-
 //    EnableMotor(0);
-//    drv8452_outDisable(0);
-//    drv8452_outDisable(1);
-//    drv8452_outDisable(2);
-//    drv8452_outDisable(3);
+    drv8452_outDisable(0);
+    drv8452_outDisable(1);
+    drv8452_outDisable(2);
+    drv8452_outDisable(3);
 
-    epwmDisableSet(PUMP_01);
-    epwmDisableSet(PUMP_23);
+//    epwmDisableSet(PUMP_01);
+//    epwmDisableSet(PUMP_23);
     epwmDisableSet(STEP_23);
     epwmDisableSet(STEP_01);
 
@@ -363,15 +390,15 @@ void fan_control(int16_t heatFan)
 void switchRead(void)
 {
 
-//    OpSwitchStatus.limie0 = GPIO_readPin(LIMIT0);
-//    OpSwitchStatus.limie1 = GPIO_readPin(LIMIT1);
-//    OpSwitchStatus.limie2 = GPIO_readPin(LIMIT2);
-//    OpSwitchStatus.limie3 = GPIO_readPin(LIMIT3);
-//
-//    OpSwitchStatus.home0 = GPIO_readPin(HOME0);
-//    OpSwitchStatus.home1 = GPIO_readPin(HOME1);
-//    OpSwitchStatus.home2 = GPIO_readPin(HOME2);
-//    OpSwitchStatus.home3 = GPIO_readPin(HOME3);
+    OpSwitchStatus.limie0 = GPIO_readPin(LIMIT0);
+    OpSwitchStatus.limie1 = GPIO_readPin(LIMIT1);
+    OpSwitchStatus.limie2 = GPIO_readPin(LIMIT2);
+    OpSwitchStatus.limie3 = GPIO_readPin(LIMIT3);
+
+    OpSwitchStatus.home0 = GPIO_readPin(HOME0);
+    OpSwitchStatus.home1 = GPIO_readPin(HOME1);
+    OpSwitchStatus.home2 = GPIO_readPin(HOME2);
+    OpSwitchStatus.home3 = GPIO_readPin(HOME3);
 
     OpSwitchStatus.button0 = GPIO_readPin(BUTTON0);
     OpSwitchStatus.button1 = GPIO_readPin(BUTTON1);

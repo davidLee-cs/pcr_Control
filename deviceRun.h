@@ -22,5 +22,4 @@ void fan_AllOff(void);
 void fan_AllOn(void);
 void switchRead(void);
 
-
 #endif /* DEVICERUN_H_ */
