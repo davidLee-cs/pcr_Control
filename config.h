@@ -61,6 +61,7 @@ enum {
 };
 
 
+void power_home_mode(void);
 void hostCmd(void);
 extern void (*Can_State_Ptr)(void);        // 다음 수행될 모드를 가르키는 함수 포인터
 //extern struct HostCmdMsg HostCmdMsg;
@@ -72,5 +73,8 @@ extern uint64_t pulseCount[4];     // 현재까지 발생한 펄스 수
 extern int16_t home_enable;
 extern int16_t enablecheck[4];
 extern int16_t pumpStop;
+//extern int16_t gBoot_Rx_cnt;
+
+
 
 #endif /* CONFIG_H_ */

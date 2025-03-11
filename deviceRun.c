@@ -255,6 +255,7 @@ void motor_mode(void)
 
                 HostCmdMsg[ch].motorProfile.motorSpeed = HostCmdMsg[ch].motorProfile.homeSpeed;
                 HostCmdMsg[ch].motorProfile.set_PulseCnt = HostCmdMsg[ch].motorProfile.home_PulseCnt;
+                HostCmdMsg[ch].motorProfile.nowSumPulseCnt = 0;
 
                 SetMotorDirection(ch, RUN_IN);
 
@@ -279,9 +280,20 @@ void motor_mode(void)
         for(ch = 0; ch<4; ch++)
         {
 
+            int64_t sum = HostCmdMsg[ch].motorProfile.nowSumPulseCnt + HostCmdMsg[ch].motorProfile.set_PulseCnt;
+            if(sum >= HostCmdMsg[ch].motorProfile.set_MaxPulseCnt)
+            {
+                if(HostCmdMsg[ch].oprationSetBit.motorDirection == RUN_OUT)
+                {
+                    HostCmdMsg[ch].motorProfile.set_PulseCnt = HostCmdMsg[ch].motorProfile.set_MaxPulseCnt -  HostCmdMsg[ch].motorProfile.nowSumPulseCnt;
+                }
+            }
+
             // 초기화 후 구동 시 동작 안하도록 함.
             if(HostCmdMsg[ch].motorProfile.set_PulseCnt == 0) {
                 HostCmdMsg[ch].oprationSetBit.motorRun = 0;
+                HostCmdMsg[0].motorProfile.set_PulseCnt = HostCmdMsg[0].motorProfile.set_PulseCnt_byHost;
+
             }
 
             if(HostCmdMsg[ch].oprationSetBit.motorRun == 1)
@@ -356,7 +368,7 @@ void motor_Parameterset(int16_t channel)
 //    epwmEnableSet(STEP_23);
     stepperEpwmSet(channel, HostCmdMsg[channel].motorProfile.motorSpeed);
     stepperPulseSet(channel, HostCmdMsg[channel].motorProfile.set_PulseCnt);
-
+//    stepperPulseSet(channel, OpCmdMsg[channel].stepperPulseCnt);
 }
 
 void pump_Parameterset(int16_t channel)
@@ -420,6 +432,9 @@ void prameterInit(void)
         HostCmdMsg[channel].motorProfile.set_PulseCnt = 0;
         HostCmdMsg[channel].motorProfile.homeSpeed = 80; // rpm
         HostCmdMsg[channel].motorProfile.home_PulseCnt = 17066L * 10; // 20 회전
+        HostCmdMsg[channel].motorProfile.nowSumPulseCnt = 0;
+        HostCmdMsg[channel].motorProfile.set_MaxPulseCnt = 0;
+
 
         HostCmdMsg[channel].oprationSetBit.motorDirection = 0;
         HostCmdMsg[channel].oprationSetBit.motorRun = 0;
@@ -447,6 +462,12 @@ void prameterInit(void)
 
         pulseCount[channel] = 0;     // 현재까지 발생한 펄스 수
         enablecheck[channel] = 0;
+
+        OpSwitchStatus.lasthome0 = 1;
+        OpSwitchStatus.lasthome1 = 1;
+        OpSwitchStatus.lasthome2 = 1;
+        OpSwitchStatus.lasthome3 = 1;
+
 
     }
 }

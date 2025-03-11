@@ -79,6 +79,7 @@ struct OpCmdMsg {
     struct opDacSet             opDacSet;
     struct opFanSet             opFanSet;
 
+
     uint16_t nowTempStatus;     // 1 : 온도 제어 모드
     uint64_t stepperPulseCnt;
     int16_t  lastTargetTemp;   // 이전 설정 온도
@@ -101,6 +102,11 @@ struct OpSwitchStatus{
     uint16_t home1;
     uint16_t home2;
     uint16_t home3;
+
+    uint16_t lasthome0;
+    uint16_t lasthome1;
+    uint16_t lasthome2;
+    uint16_t lasthome3;
 
     uint16_t button0;
     uint16_t button1;

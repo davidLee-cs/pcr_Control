@@ -30,7 +30,7 @@ void timerSet(void)
 
     initCPUTimers();
 
-    configCPUTimer(CPUTIMER0_BASE, DEVICE_SYSCLK_FREQ, 20000);  // 20mS
+    configCPUTimer(CPUTIMER0_BASE, DEVICE_SYSCLK_FREQ, 5000);  // 5mS
     configCPUTimer(CPUTIMER1_BASE, DEVICE_SYSCLK_FREQ, 1000000);           // 1000ms
 //    configCPUTimer(CPUTIMER2_BASE, DEVICE_SYSCLK_FREQ, 20);
 

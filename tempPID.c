@@ -37,7 +37,8 @@ unsigned int clampactive;
 float32_t clamp_flag[6];
 float32_t pid_output[6];
 
-
+float targetTemp = DAC_MAX_VOLTAGE;
+float32_t alpha = EMA_FILTER_ALPHA;
 
 void init_pid(void)
 {
@@ -76,9 +77,9 @@ void SetDACOutput(float32_t pid_output, int16_t ch) {
     // (0.0 ~ 1.0) PID 출력을 (0V ~ 3.3V)로 매핑
     float32_t dac_voltage = pid_output * DAC_VREF;  // 0.0 ~ 3.3V
 
-    if(dac_voltage > DAC_MAX_VOLTAGE)       // 테스트로 1V 설정했음.
+    if(dac_voltage > targetTemp)       // 테스트로 1V 설정했음.
     {
-        dac_voltage = DAC_MAX_VOLTAGE;
+        dac_voltage = targetTemp;
     }
 
     // DAC 값을 12비트 정수(0 ~ 4095)로 변환
@@ -124,11 +125,11 @@ void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch) {
         else
         {
             OpCmdMsg[ch].nowTempStatus = 1;     // 온도 유지 모드 set
-//            OpCmdMsg[ch].control_mode = ONE_SHOT_MODE;
+            OpCmdMsg[ch].control_mode = ONE_SHOT_MODE;
         }
 
         // 테스트용 무조건 가열 모드로.
-        OpCmdMsg[ch].control_mode = HEAT_MODE;
+//        OpCmdMsg[ch].control_mode = HEAT_MODE;
 
         break;
     case ONE_SHOT_MODE :
@@ -241,12 +242,12 @@ void tempPidControl(int16_t runCh, int16_t targetTemp)
 
 
     //ema filter
-    OpCmdMsg[runCh].tempSensor.tempSensorEma_Peltier  = ((1.0f - EMA_FILTER_ALPHA) * OpCmdMsg[runCh].tempSensor.nowTemp_S1) +
-                                                     (EMA_FILTER_ALPHA * OpCmdMsg[runCh].tempSensor.tempSensorEma_Peltier);
+    OpCmdMsg[runCh].tempSensor.tempSensorEma_Peltier  = ((1.0f - alpha) * OpCmdMsg[runCh].tempSensor.nowTemp_S1) +
+                                                     (alpha * OpCmdMsg[runCh].tempSensor.tempSensorEma_Peltier);
 
 
-    OpCmdMsg[runCh].tempSensor.tempSensorEma_Block  = ((1.0f - EMA_FILTER_ALPHA) * OpCmdMsg[runCh].tempSensor.nowTemp_S2) +
-                                                     (EMA_FILTER_ALPHA * OpCmdMsg[runCh].tempSensor.tempSensorEma_Block);
+    OpCmdMsg[runCh].tempSensor.tempSensorEma_Block  = ((1.0f - alpha) * OpCmdMsg[runCh].tempSensor.nowTemp_S2) +
+                                                     (alpha * OpCmdMsg[runCh].tempSensor.tempSensorEma_Block);
 
 //        OpCmdMsg[runCh].tempSensor.tempSensor_Metal = read_pr100(runCh);
 

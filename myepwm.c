@@ -284,8 +284,21 @@ __interrupt void epwm3ISR(void)
         }
 
         if((pulseCount[2] > HostCmdMsg[2].motorProfile.set_PulseCnt) || (stopFalg2 == 1))
-
         {
+
+            if(HostCmdMsg[2].oprationSetBit.motorDirection == RUN_OUT)  // 1
+            {
+                HostCmdMsg[2].motorProfile.nowSumPulseCnt +=  pulseCount[2];
+            }
+            else
+            {
+                HostCmdMsg[2].motorProfile.nowSumPulseCnt -=  pulseCount[2];
+                if(HostCmdMsg[2].motorProfile.nowSumPulseCnt == 0)
+                {
+                    HostCmdMsg[2].motorProfile.nowSumPulseCnt = 0;
+                }
+            }
+
             enablecheck[2] = 1;
             HostCmdMsg[2].oprationSetBit.motorRun = 0;
             // 모터 멈추기
@@ -344,6 +357,20 @@ __interrupt void epwm3ISR(void)
 
         if((pulseCount[3] > HostCmdMsg[3].motorProfile.set_PulseCnt) || (stopFalg3 == 1))
         {
+
+            if(HostCmdMsg[3].oprationSetBit.motorDirection == RUN_OUT)  // 1
+            {
+                HostCmdMsg[3].motorProfile.nowSumPulseCnt +=  pulseCount[3];
+            }
+            else
+            {
+                HostCmdMsg[3].motorProfile.nowSumPulseCnt -=  pulseCount[3];
+                if(HostCmdMsg[3].motorProfile.nowSumPulseCnt == 0)
+                {
+                    HostCmdMsg[3].motorProfile.nowSumPulseCnt = 0;
+                }
+            }
+
 
             enablecheck[3] = 1;
             HostCmdMsg[3].oprationSetBit.motorRun = 0;
@@ -424,30 +451,72 @@ __interrupt void epwm4ISR(void)
         pulseCount[1] = 0;
     }
 
+
     if(HostCmdMsg[0].oprationSetBit.motorRun == 1)
     {
 
-        if(HostCmdMsg[0].oprationSetBit.motorDirection == RUN_OUT)  // 1
+//        if(HostCmdMsg[0].oprationSetBit.motorDirection == RUN_OUT)  // 1
+//        {
+//            if(OpSwitchStatus.home0 == 0)
+//            {
+//                OpSwitchStatus.lasthome0 = OpSwitchStatus.home0;
+//                stopFalg0 = 1;
+//            }
+//        }
+//        else
+//        {
+//            if((OpSwitchStatus.limie0 == 1) && (OpSwitchStatus.home0 == 0))
+//            {
+//                stopFalg0 = 1;
+//            }
+//        }
+
+        if(OpSwitchStatus.home0 == 0)
         {
-            if((OpSwitchStatus.limie0 == 0) && (OpSwitchStatus.home0 == 1))
-            {
+            if(OpSwitchStatus.lasthome0 != OpSwitchStatus.home0)
+             {
                 stopFalg0 = 1;
-            }
+             }
+//             OpSwitchStatus.lasthome0 = OpSwitchStatus.home0;
         }
-        else
+//        else
+//        {
+//            OpSwitchStatus.lasthome0 = OpSwitchStatus.home0;
+//        }
+
+        OpSwitchStatus.lasthome0 = OpSwitchStatus.home0;
+
+        if((pulseCount[0] >= HostCmdMsg[0].motorProfile.set_PulseCnt) || (stopFalg0 == 1))
         {
-            if((OpSwitchStatus.limie0 == 1) && (OpSwitchStatus.home0 == 0))
+
+            if(HostCmdMsg[0].oprationSetBit.motorDirection == RUN_OUT)  // 1
             {
-                stopFalg0 = 1;
+                HostCmdMsg[0].motorProfile.nowSumPulseCnt += HostCmdMsg[0].motorProfile.set_PulseCnt;
             }
-        }
+            else
+            {
+                HostCmdMsg[0].motorProfile.nowSumPulseCnt -=  HostCmdMsg[0].motorProfile.set_PulseCnt;
+                if(HostCmdMsg[0].motorProfile.nowSumPulseCnt <= 0)
+                {
+                    HostCmdMsg[0].motorProfile.nowSumPulseCnt = 0;
+                }
+            }
 
+            if(HostCmdMsg[0].oprationSetBit.stepperHome == 1)
+            {
+                HostCmdMsg[0].oprationSetBit.stepperHome = 0;
+                HostCmdMsg[0].motorProfile.nowSumPulseCnt = 0;
+            }
 
-        if((pulseCount[0] > HostCmdMsg[0].motorProfile.set_PulseCnt) || (stopFalg0 == 1))
-        {
+            if(stopFalg0 == 1)
+            {
+                HostCmdMsg[0].motorProfile.nowSumPulseCnt = 0;
+            }
 
+//            OpSwitchStatus.lasthome0 = 0;
             enablecheck[0] = 1;
             HostCmdMsg[0].oprationSetBit.motorRun = 0;
+            HostCmdMsg[0].motorProfile.set_PulseCnt = HostCmdMsg[0].motorProfile.set_PulseCnt_byHost;
             // 모터 멈추기
             drv8452_outDisable(0);
 //            EPWM_disableCounterCompareShadowLoadMode(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_B);
@@ -463,29 +532,16 @@ __interrupt void epwm4ISR(void)
 
         }
     }
-#if 0
+#if 1
     else if(HostCmdMsg[0].oprationSetBit.stepperHome == 1)
     {
-        if(pulseCount[0] > HostCmdMsg[0].motorProfile.home_PulseCnt)
-        {
-           HostCmdMsg[0].oprationSetBit.stepperHome = 0;
+
            HostCmdMsg[0].oprationSetBit.motorRun = 1;
-           HostCmdMsg[0].motorProfile.set_PulseCnt = 1706667L;
-           SetMotorDirection(0, RUN_IN);
-           DEVICE_DELAY_US(200000);
-
            pulseCount[0] = 0;
-
-        }
-        else
-        {
-            pulseCount[0]++;  // 펄스 카운트 증가
-
-        }
-
-
+           OpSwitchStatus.lasthome0 = 1;
     }
 #endif
+
 
     if(HostCmdMsg[1].oprationSetBit.motorRun == 1)
     {
@@ -504,10 +560,32 @@ __interrupt void epwm4ISR(void)
             }
         }
 
-        if((pulseCount[1] > HostCmdMsg[1].motorProfile.set_PulseCnt)  || (stopFalg1 == 1))
+        if((pulseCount[1] > HostCmdMsg[0].motorProfile.set_PulseCnt)  || (stopFalg1 == 1))
         {
+
+            if(HostCmdMsg[1].oprationSetBit.motorDirection == RUN_OUT)  // 1
+            {
+                HostCmdMsg[1].motorProfile.nowSumPulseCnt +=  pulseCount[1];
+            }
+            else
+            {
+                HostCmdMsg[1].motorProfile.nowSumPulseCnt -=  pulseCount[1];
+                if(HostCmdMsg[1].motorProfile.nowSumPulseCnt == 0)
+                {
+                    HostCmdMsg[1].motorProfile.nowSumPulseCnt = 0;
+                }
+            }
+
+            if(HostCmdMsg[1].oprationSetBit.stepperHome == 1)
+            {
+                HostCmdMsg[1].oprationSetBit.stepperHome = 0;
+                HostCmdMsg[1].motorProfile.nowSumPulseCnt = 0;
+            }
+
             enablecheck[1] = 1;
             HostCmdMsg[1].oprationSetBit.motorRun = 0;
+            HostCmdMsg[1].motorProfile.set_PulseCnt = HostCmdMsg[1].motorProfile.set_PulseCnt_byHost;
+
             // 모터 멈추기
             drv8452_outDisable(1);
 //            EPWM_disableCounterCompareShadowLoadMode(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_A);
@@ -523,27 +601,11 @@ __interrupt void epwm4ISR(void)
 
         }
     }
-#if 0
+#if 1
     else if(HostCmdMsg[1].oprationSetBit.stepperHome == 1)
     {
-        if(pulseCount[1] > HostCmdMsg[1].motorProfile.home_PulseCnt)
-        {
-           HostCmdMsg[1].oprationSetBit.stepperHome = 0;
-           HostCmdMsg[1].oprationSetBit.motorRun = 1;
-           HostCmdMsg[1].motorProfile.set_PulseCnt = 1706667L;
-           SetMotorDirection(1, RUN_IN);
-           DEVICE_DELAY_US(500000);
-
-           pulseCount[1] = 0;
-
-        }
-        else
-        {
-            pulseCount[1]++;  // 펄스 카운트 증가
-
-        }
-
-
+        HostCmdMsg[1].oprationSetBit.motorRun = 1;
+        pulseCount[1] = 0;
     }
 #endif
 

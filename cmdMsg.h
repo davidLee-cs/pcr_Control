@@ -32,8 +32,11 @@ struct TempProfile {
 
 struct motorProfile {
 
-    uint64_t set_PulseCnt;               // set pulse count
-    uint16_t motorSpeed;                // ¼Óµµ 55 % ~ 150%
+    int64_t set_PulseCnt;               // set pulse count
+    int64_t set_PulseCnt_byHost;
+    int64_t set_MaxPulseCnt;
+    int64_t nowSumPulseCnt;
+    uint16_t motorSpeed;                //
     uint16_t homeSpeed;
     uint64_t home_PulseCnt;               // set pulse count
 

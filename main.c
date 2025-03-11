@@ -105,6 +105,8 @@ void main(void)
 
     Can_State_Ptr = &hostCmd;
 
+//    power_home_mode();
+
     while(1)
     {
 
@@ -121,28 +123,28 @@ void main(void)
         {
             (*Can_State_Ptr)();
 
-            if(gloopCnt++ > 20) // 1 초
+            if(gloopCnt++ > 1) // 1 초
             {
                 if(gSendTemp_en == 1)
                 {
                     fan_AllOn();
 
                     ch0 = read_pr100(0,PT100_CH0) * 10;
-                    ch1 = read_pr100(0,PT100_CH1) * 10;
+//                    ch1 = read_pr100(0,PT100_CH1) * 10;
                     ch2 = read_pr100(0,PT100_CH2) * 10;
                     ch3 = read_pr100(0,PT100_CH3) * 10;
                     ch4 = read_pr100(1,PT100_CH0) * 10;
-                    ch5 = read_pr100(1,PT100_CH1) * 10;
+//                    ch5 = read_pr100(1,PT100_CH1) * 10;
                     ch6 = read_pr100(1,PT100_CH2) * 10;
                     ch7 = read_pr100(1,PT100_CH3) * 10;
 
 //                    ch0 = OpCmdMsg[0].tempSensor.nowTemp_S1 * 10;
-//                    ch1 = OpCmdMsg[1].tempSensor.nowTemp_S1 * 10;
+                    ch1 = OpCmdMsg[1].tempSensor.tempSensorEma_Peltier * 10;
 //                    ch2 = OpCmdMsg[2].tempSensor.nowTemp_S1 * 10;
 //                    ch3 = OpCmdMsg[3].tempSensor.nowTemp_S1 * 10;
 //
 //                    ch4 = OpCmdMsg[0].tempSensor.nowTemp_S2 * 10;
-//                    ch5 = OpCmdMsg[1].tempSensor.nowTemp_S2 * 10;
+                    ch5 = OpCmdMsg[1].tempSensor.tempSensorEma_Block * 10;
 //                    ch6 = OpCmdMsg[2].tempSensor.nowTemp_S2 * 10;
 //                    ch7 = OpCmdMsg[3].tempSensor.nowTemp_S2 * 10;
 

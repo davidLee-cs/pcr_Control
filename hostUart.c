@@ -71,6 +71,15 @@ void hostCmd(void)
             SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
         }
 
+        //command : $TSTOP\r
+        if(strncmp(rBootData_Rx, tempStopCmd, 6) == 0)
+        {
+            gSendTemp_en = 0;
+
+            sprintf(msg,"$TSTOP\r\n");
+            SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+        }
+
         //command : $TEMP,x,100,10,101,11,102,12,103,13,104,14,5\r\n
         if(strncmp(rBootData_Rx, tempSetCmd, 5) == 0)
         {
@@ -85,7 +94,7 @@ void hostCmd(void)
 //            Example_Done();
         }
 
-        //command : $MOTOR,ch,70, 6000000\r\n
+        //command : $MOTOR,ch,70, 17066,17066000\r
         if(strncmp(rBootData_Rx, motorSetCmd, 6) == 0)
         {
             motorSet();
@@ -135,7 +144,13 @@ void hostCmd(void)
 //            Example_Done();
         }
 
-
+#if 1
+        if(strncmp(rBootData_Rx, maxPulseCmd, 5) == 0)
+        {
+            motor_max_pulseSet();
+//            Example_Done();
+        }
+#endif
         //command : $RPARA\r
         if(strncmp(rBootData_Rx, readparaCmd, 6) == 0)
         {
@@ -149,8 +164,6 @@ void hostCmd(void)
             tempOffset();
 //            Example_Done();
         }
-
-
 
         gBoot_Rx_done = 0;
         gBoot_Rx_cnt = 0;
@@ -237,7 +250,6 @@ static void tempStartSet(void)
             Can_State_Ptr = &temp_mode;
         }
     }
-
 }
 
 
@@ -254,6 +266,9 @@ static int16_t motorStartSet(void)
 
     if( motorset != NULL)
     {
+
+        epwmDisableSet(STEP_23); // 설정 시 한번만 설정할것.
+        epwmDisableSet(STEP_01); // 설정 시 한번만 설정할것.
 
         HostCmdMsg[0].oprationSetBit.motorRun = atoi(motorset);
         motorset = strtok(NULL, comma);
@@ -281,6 +296,7 @@ static int16_t motorStartSet(void)
 
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
+
 
 //        if((nowChannel == 0) || (nowChannel == 1))
 //        {
@@ -395,6 +411,7 @@ static void parameter_read_mode(void)
                 channel,
                 HostCmdMsg[channel].motorProfile.motorSpeed,
                 HostCmdMsg[channel].motorProfile.homeSpeed
+
         );
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
         DEVICE_DELAY_US(100000);
@@ -403,7 +420,15 @@ static void parameter_read_mode(void)
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
         DEVICE_DELAY_US(100000);
 
-        sprintf(msg, "%" PRIu64 "\r\n", HostCmdMsg[channel].motorProfile.home_PulseCnt);
+        sprintf(msg, "%" PRIu64 ",", HostCmdMsg[channel].motorProfile.home_PulseCnt);
+        SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+        DEVICE_DELAY_US(100000);
+
+        sprintf(msg, "%" PRIu64 ",", HostCmdMsg[channel].motorProfile.set_MaxPulseCnt);
+        SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+        DEVICE_DELAY_US(100000);
+
+        sprintf(msg, "%" PRIu64 "\r\n", HostCmdMsg[channel].motorProfile.nowSumPulseCnt);
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
         DEVICE_DELAY_US(100000);
 
@@ -463,26 +488,94 @@ static void parameter_read_mode(void)
 
 }
 
+static void motor_max_pulseSet(void)
+{
+    const char* comma = ",";
+    const char end[] = {'\r', '\n'};
+
+    char buffer[100] = {0,};
+
+    memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
+
+    char* set = strtok(&rBootData_Rx[5],comma); //$PMAX,10000,0
+
+    if( set != NULL)
+    {
+
+        HostCmdMsg[0].motorProfile.set_MaxPulseCnt = atoll(set) ;
+        set = strtok(NULL, comma);
+
+        HostCmdMsg[1].motorProfile.set_MaxPulseCnt = atoll(set) ;
+        set = strtok(NULL, comma);
+
+        HostCmdMsg[2].motorProfile.set_MaxPulseCnt = atoll(set) ;
+        set = strtok(NULL, comma);
+
+        HostCmdMsg[3].motorProfile.set_MaxPulseCnt = atoll(set) ;
+
+        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
+        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
+
+        home_enable = 1;
+    }
+
+    Can_State_Ptr = &motor_mode;
+}
+
 
 static void home_mode(void)
 {
+    const char* comma = ",";
     const char end[] = {'\r', '\n'};
+
     char buffer[100] = {0,};
 
-    HostCmdMsg[0].oprationSetBit.stepperHome = 1;
-    HostCmdMsg[1].oprationSetBit.stepperHome = 1;
-    HostCmdMsg[2].oprationSetBit.stepperHome = 1;
-    HostCmdMsg[3].oprationSetBit.stepperHome = 1;
+    memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
 
-    home_enable = 1;
+    char* homeset = strtok(&rBootData_Rx[5],comma);
 
-    SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
-    SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
+    if( homeset != NULL)
+    {
+
+        HostCmdMsg[0].oprationSetBit.stepperHome = atoi(homeset) ;
+        homeset = strtok(NULL, comma);
+
+        HostCmdMsg[1].oprationSetBit.stepperHome = atoi(homeset) ;
+        homeset = strtok(NULL, comma);
+
+        HostCmdMsg[2].oprationSetBit.stepperHome = atoi(homeset) ;
+        homeset = strtok(NULL, comma);
+
+        HostCmdMsg[3].oprationSetBit.stepperHome = atoi(homeset) ;
+
+
+        HostCmdMsg[0].motorProfile.set_PulseCnt = 17706;
+        HostCmdMsg[1].motorProfile.set_PulseCnt = 17706;
+        HostCmdMsg[2].motorProfile.set_PulseCnt = 17706;
+        HostCmdMsg[3].motorProfile.set_PulseCnt = 17706;
+
+
+        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
+        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
+
+        home_enable = 1;
+    }
 
     Can_State_Ptr = &motor_mode;
-
 }
 
+
+void power_home_mode(void)
+{
+
+    HostCmdMsg[0].oprationSetBit.stepperHome = 1 ;
+    HostCmdMsg[1].oprationSetBit.stepperHome = 1 ;
+    HostCmdMsg[2].oprationSetBit.stepperHome = 1 ;
+    HostCmdMsg[3].oprationSetBit.stepperHome = 1 ;
+    home_enable = 1;
+
+    Can_State_Ptr = &motor_mode;
+}
 
 static int16_t motorSet(void)
 {
@@ -507,11 +600,24 @@ static int16_t motorSet(void)
 
         int16_t speed = atoi(motorset);
         HostCmdMsg[channel].motorProfile.motorSpeed = speed;
-
         motorset = strtok(NULL, comma);
 
         int64_t pulse = atoll(motorset);
         HostCmdMsg[channel].motorProfile.set_PulseCnt = pulse;
+        motorset = strtok(NULL, comma);
+
+//        int64_t max = atoll(motorset);
+//        HostCmdMsg[channel].motorProfile.set_MaxPulseCnt = max;
+//
+//
+        HostCmdMsg[channel].motorProfile.set_PulseCnt_byHost = HostCmdMsg[channel].motorProfile.set_PulseCnt;
+
+        //        int64_t sum = HostCmdMsg[channel].motorProfile.nowSumPulseCnt + HostCmdMsg[channel].motorProfile.set_PulseCnt;
+//        if(sum >= HostCmdMsg[channel].motorProfile.set_MaxPulseCnt)
+//        {
+//            HostCmdMsg[channel].motorProfile.set_PulseCnt = HostCmdMsg[channel].motorProfile.set_MaxPulseCnt -  HostCmdMsg[channel].motorProfile.nowSumPulseCnt;
+//        }
+
 
 //        motor_Parameterset(channel);
 
@@ -538,7 +644,7 @@ static void pumpSet(int16_t stop)
 
     memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
 
-    char* pumpset = strtok(&rBootData_Rx[5],comma);
+    char* pumpset = strtok(&rBootData_Rx[5],comma);  // $PUMP,50,1,1,1,1\r\n
 
     if(stop == 1)
     {
@@ -624,7 +730,7 @@ static int16_t tempSet(void)
 
     memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
 
-    char* tempset = strtok(&rBootData_Rx[6],comma);
+    char* tempset = strtok(&rBootData_Rx[6],comma); // $TEMP,x,100,10,101,11,102,12,103,13,104,14,5\r\n
 
     if( tempset != NULL)
     {
@@ -709,7 +815,6 @@ static int16_t tempSingleSet(void)
 
         HostCmdMsg[channel].TempProfile.tempCycle = atoi(tempset) ;
 
-
         if(HostCmdMsg[channel].TempProfile.singleTargetTemp >=  HostCmdMsg[channel].TempProfile.lastSingleTargetTemp){
 
             OpCmdMsg[channel].control_mode = HEAT_MODE;
@@ -732,9 +837,9 @@ static int16_t tempSingleSet(void)
             }
 
             DEVICE_DELAY_US(500000);
-            DEVICE_DELAY_US(500000);
-            DEVICE_DELAY_US(500000);
-            DEVICE_DELAY_US(500000);
+//            DEVICE_DELAY_US(500000);
+//            DEVICE_DELAY_US(500000);
+//            DEVICE_DELAY_US(500000);
         }
 
         HostCmdMsg[channel].TempProfile.lastSingleTargetTemp = HostCmdMsg[channel].TempProfile.singleTargetTemp;
