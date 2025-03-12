@@ -20,9 +20,18 @@ static int16_t motorStartSet(void);
 static void dacSet(void);
 static void fanSet(void);
 static void home_mode(void);
-static void parameter_read_mode(void);
+//static void parameter_read_mode(void);
 static void motor_max_pulseSet(void);
 //void power_home_mode(void);
+static void button_status(void);
+static void homing(void);
+static void limite(void);
+static void ppara(void);
+static void mpara1(void);
+static void mpapa0(void);
+static void tpara1(void);
+static void tpara(void);
+
 
 
 
@@ -40,6 +49,15 @@ const char *fanSetCmd =             "$FAN";
 const char *homeCmd =               "$HOME";
 const char *readparaCmd =           "$RPARA";
 const char *maxPulseCmd =           "$PMAX";
+
+const char *tparaCmd =              "$TPARA0";
+const char *tpara1Cmd =             "$TPARA1";
+const char *mpara0Cmd =             "$MPARA0";
+const char *mpara1Cmd =             "$MPARA1";
+const char *pparaCmd =              "$PPARA";
+const char *limiteCmd =             "$LIMITE";
+const char *homeSwitchCmd =         "$HSWT";
+const char *buttonCmd =             "$BUTTON";
 
 
 #endif /* HOSTUART_H_ */

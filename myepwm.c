@@ -5,7 +5,8 @@
  *      Author: alllite
  */
 
-
+#include <stdint.h>
+#include <inttypes.h>
 #include "driverlib.h"
 #include "device.h"
 #include "config.h"
@@ -436,7 +437,7 @@ __interrupt void epwm3ISR(void)
 //
 __interrupt void epwm4ISR(void)
 {
-
+    char *msg = NULL;
     int16_t stopFalg0 = 0, stopFalg1 = 0;
 
     OpSwitchStatus.limie0 = GPIO_readPin(LIMIT0);
@@ -455,47 +456,26 @@ __interrupt void epwm4ISR(void)
     if(HostCmdMsg[0].oprationSetBit.motorRun == 1)
     {
 
-//        if(HostCmdMsg[0].oprationSetBit.motorDirection == RUN_OUT)  // 1
-//        {
-//            if(OpSwitchStatus.home0 == 0)
-//            {
-//                OpSwitchStatus.lasthome0 = OpSwitchStatus.home0;
-//                stopFalg0 = 1;
-//            }
-//        }
-//        else
-//        {
-//            if((OpSwitchStatus.limie0 == 1) && (OpSwitchStatus.home0 == 0))
-//            {
-//                stopFalg0 = 1;
-//            }
-//        }
-
         if(OpSwitchStatus.home0 == 0)
         {
             if(OpSwitchStatus.lasthome0 != OpSwitchStatus.home0)
              {
                 stopFalg0 = 1;
              }
-//             OpSwitchStatus.lasthome0 = OpSwitchStatus.home0;
         }
-//        else
-//        {
-//            OpSwitchStatus.lasthome0 = OpSwitchStatus.home0;
-//        }
 
         OpSwitchStatus.lasthome0 = OpSwitchStatus.home0;
 
         if((pulseCount[0] >= HostCmdMsg[0].motorProfile.set_PulseCnt) || (stopFalg0 == 1))
         {
 
-            if(HostCmdMsg[0].oprationSetBit.motorDirection == RUN_OUT)  // 1
+            if(HostCmdMsg[0].oprationSetBit.motorDirection == RUN_OUT)  // 0
             {
-                HostCmdMsg[0].motorProfile.nowSumPulseCnt += HostCmdMsg[0].motorProfile.set_PulseCnt;
+                HostCmdMsg[0].motorProfile.nowSumPulseCnt += pulseCount[0];
             }
             else
             {
-                HostCmdMsg[0].motorProfile.nowSumPulseCnt -=  HostCmdMsg[0].motorProfile.set_PulseCnt;
+                HostCmdMsg[0].motorProfile.nowSumPulseCnt -=  pulseCount[0];
                 if(HostCmdMsg[0].motorProfile.nowSumPulseCnt <= 0)
                 {
                     HostCmdMsg[0].motorProfile.nowSumPulseCnt = 0;
@@ -524,6 +504,14 @@ __interrupt void epwm4ISR(void)
             EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_B, targetSpeed+1); // 하드웨어 방법
             EnableMotor(1);  // 모터 활성화
             pulseCount[0] = 0;
+
+
+            sprintf(msg,"$MDONE,%d,", 1);
+            SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+
+            sprintf(msg, "%" PRIu64 "\r\n", HostCmdMsg[0].motorProfile.nowSumPulseCnt);
+            SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+            DEVICE_DELAY_US(1000);
 
         }
         else

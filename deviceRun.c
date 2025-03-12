@@ -5,6 +5,8 @@
  *      Author: alllite
  */
 
+#include <stdint.h>
+#include <inttypes.h>
 #include "config.h"
 
 #define PROFILE_0           0
@@ -234,6 +236,7 @@ void temp_mode(void)
 
 void motor_mode(void)
 {
+    char *msg = NULL;
     int16_t ch=0;
 
     if(home_enable == 1)
@@ -257,7 +260,7 @@ void motor_mode(void)
                 HostCmdMsg[ch].motorProfile.set_PulseCnt = HostCmdMsg[ch].motorProfile.home_PulseCnt;
                 HostCmdMsg[ch].motorProfile.nowSumPulseCnt = 0;
 
-                SetMotorDirection(ch, RUN_IN);
+                SetMotorDirection(ch, RUN_IN); // home -> 1
 
                 motor_Parameterset(ch);
 
@@ -299,13 +302,13 @@ void motor_mode(void)
             if(HostCmdMsg[ch].oprationSetBit.motorRun == 1)
             {
 
-                if(HostCmdMsg[ch].oprationSetBit.motorDirection == RUN_OUT)
+                if(HostCmdMsg[ch].oprationSetBit.motorDirection == CW)
                 {
-                    SetMotorDirection(ch, RUN_OUT);
+                    SetMotorDirection(ch, RUN_IN);  // home -> 1
                 }
                 else
                 {
-                    SetMotorDirection(ch, RUN_IN);
+                    SetMotorDirection(ch, RUN_OUT);
                 }
 
                 drv8452_outEnable(ch);
@@ -338,6 +341,17 @@ void motor_mode(void)
                 drv8452_outDisable(ch);
         //        EnableMotor(0);
 
+                if(HostCmdMsg[ch].oprationSetBit.lastmotorRun == 1)
+                {
+                    sprintf(msg,"$MDONE,%d,", ch);
+                    SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+
+                    HostCmdMsg[0].motorProfile.nowSumPulseCnt += pulseCount[ch];
+                    sprintf(msg, "%" PRIu64 "\r\n", HostCmdMsg[0].motorProfile.nowSumPulseCnt);
+                    SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+                    DEVICE_DELAY_US(1000);
+                }
+
                 pulseCount[ch] = 0;     // 현재까지 발생한 펄스 수
                 pulseCount[ch] = 0;     // 현재까지 발생한 펄스 수
                 enablecheck[ch] = 0;
@@ -354,6 +368,7 @@ void motor_mode(void)
         //        epwmDisableSet(STEP_23);
             }
 
+            HostCmdMsg[ch].oprationSetBit.lastmotorRun = HostCmdMsg[ch].oprationSetBit.motorRun;
             uint16_t data = drv8452_read(nowChannel);  //
         }
     }
@@ -433,7 +448,7 @@ void prameterInit(void)
         HostCmdMsg[channel].motorProfile.homeSpeed = 80; // rpm
         HostCmdMsg[channel].motorProfile.home_PulseCnt = 17066L * 10; // 20 회전
         HostCmdMsg[channel].motorProfile.nowSumPulseCnt = 0;
-        HostCmdMsg[channel].motorProfile.set_MaxPulseCnt = 0;
+//        HostCmdMsg[channel].motorProfile.set_MaxPulseCnt = 0;
 
 
         HostCmdMsg[channel].oprationSetBit.motorDirection = 0;

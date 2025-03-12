@@ -49,6 +49,7 @@ struct oprationSetBit {
 
     uint16_t temperatureRun;
     uint16_t motorRun;
+    uint16_t lastmotorRun;
     uint16_t motorDirection;
     uint16_t pumpRun;
     uint16_t stepperHome;

@@ -151,12 +151,6 @@ void hostCmd(void)
 //            Example_Done();
         }
 #endif
-        //command : $RPARA\r
-        if(strncmp(rBootData_Rx, readparaCmd, 6) == 0)
-        {
-            parameter_read_mode();
-//            Example_Done();
-        }
 
         //command : $TOSET,100,10,101,11\r\n
         if(strncmp(rBootData_Rx, tempSetCmd, 6) == 0)
@@ -168,6 +162,47 @@ void hostCmd(void)
         gBoot_Rx_done = 0;
         gBoot_Rx_cnt = 0;
         memset(rBootData_Rx, 0, 100);
+    }
+
+    //command : $RPARA\r
+    if(strncmp(rBootData_Rx, tparaCmd, 7) == 0)
+    {
+        tpara();
+    }
+
+    if(strncmp(rBootData_Rx, tpara1Cmd, 7) == 0)
+    {
+        tpara1();
+    }
+
+    if(strncmp(rBootData_Rx, mpara0Cmd, 7) == 0)
+    {
+        mpapa0();
+    }
+
+    if(strncmp(rBootData_Rx, mpara1Cmd, 7) == 0)
+    {
+        mpara1();
+    }
+
+    if(strncmp(rBootData_Rx, pparaCmd, 7) == 0)
+    {
+        ppara();
+    }
+
+    if(strncmp(rBootData_Rx, limiteCmd, 7) == 0)
+    {
+        limite();
+    }
+
+    if(strncmp(rBootData_Rx, homeSwitchCmd, 5) == 0)
+    {
+        homing();
+    }
+
+    if(strncmp(rBootData_Rx, buttonCmd, 7) == 0)
+    {
+        button_status();
     }
 
 }
@@ -365,7 +400,7 @@ static int16_t motorStartSet(void)
 #endif
 
 
-static void parameter_read_mode(void)
+static void tpara(void)
 {
     char *msg= NULL;
 
@@ -374,7 +409,7 @@ static void parameter_read_mode(void)
     for(channel=0; channel<4; channel++)
     {
         // Temp read
-        sprintf(msg,"$TPARA0,%d,%d,%d,%d,%d,%d\r\n",
+        sprintf(msg,"$TPARA0,%d,%d,%d,%d,%d,%d,",
                 channel,
                 HostCmdMsg[channel].TempProfile.targetTemp[0],
                 HostCmdMsg[channel].TempProfile.targetTemp[1],
@@ -385,25 +420,46 @@ static void parameter_read_mode(void)
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
         DEVICE_DELAY_US(100000);
 
-        sprintf(msg,"$TPARA1,%d,%d,%d,%d,%d,%d\r\n",
+        sprintf(msg,"%d,%d,%d,%d,%d,%d,%d\r\n",
                 channel,
                 HostCmdMsg[channel].TempProfile.timeTemp[0],
                 HostCmdMsg[channel].TempProfile.timeTemp[1],
                 HostCmdMsg[channel].TempProfile.timeTemp[2],
                 HostCmdMsg[channel].TempProfile.timeTemp[3],
-                HostCmdMsg[channel].TempProfile.timeTemp[4]
+                HostCmdMsg[channel].TempProfile.timeTemp[4],
+                HostCmdMsg[channel].TempProfile.tempCycle
          );
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
         DEVICE_DELAY_US(100000);
 
+        Can_State_Ptr = &hostCmd;
+    }
 
+}
+
+static void tpara1(void)
+{
+    char *msg= NULL;
+    char channel;
+
+    for(channel=0; channel<4; channel++)
+    {
         sprintf(msg,"$TPARA2,%d,%d\r\n",
                 channel,
                 HostCmdMsg[channel].TempProfile.tempCycle
         );
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
         DEVICE_DELAY_US(100000);
+
+        Can_State_Ptr = &hostCmd;
     }
+}
+
+
+static void mpapa0(void)
+{
+    char *msg= NULL;
+    char channel;
 
     for(channel=0; channel<4; channel++)
     {
@@ -420,9 +476,9 @@ static void parameter_read_mode(void)
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
         DEVICE_DELAY_US(100000);
 
-        sprintf(msg, "%" PRIu64 ",", HostCmdMsg[channel].motorProfile.home_PulseCnt);
-        SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
-        DEVICE_DELAY_US(100000);
+//        sprintf(msg, "%" PRIu64 ",", HostCmdMsg[channel].motorProfile.home_PulseCnt);
+//        SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+//        DEVICE_DELAY_US(100000);
 
         sprintf(msg, "%" PRIu64 ",", HostCmdMsg[channel].motorProfile.set_MaxPulseCnt);
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
@@ -432,7 +488,17 @@ static void parameter_read_mode(void)
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
         DEVICE_DELAY_US(100000);
 
-        sprintf(msg,"$MPARA1,%d,%d,%d,%d\r\n",
+    }
+        Can_State_Ptr = &hostCmd;
+}
+
+static void mpara1(void)
+{
+    char *msg= NULL;
+    char channel;
+
+    for(channel=0; channel<4; channel++)
+    {        sprintf(msg,"$MPARA1,%d,%d,%d,%d\r\n",
                 channel,
                 HostCmdMsg[channel].oprationSetBit.motorDirection,
                 HostCmdMsg[channel].oprationSetBit.motorRun,
@@ -440,49 +506,93 @@ static void parameter_read_mode(void)
         );
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
         DEVICE_DELAY_US(100000);
-
     }
 
-    sprintf(msg,"$PPARA,%d,%d,%d,%d\r\n",
-            HostCmdMsg[0].motorProfile.pumpDuty,
-            HostCmdMsg[1].motorProfile.pumpDuty,
-            HostCmdMsg[2].motorProfile.pumpDuty,
-            HostCmdMsg[3].motorProfile.pumpDuty
-    );
-    SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
-    DEVICE_DELAY_US(100000);
+    Can_State_Ptr = &hostCmd;
 
-    sprintf(msg,"$LIMITE,%d,%d,%d,%d\r\n",
-            OpSwitchStatus.limie0,
-            OpSwitchStatus.limie1,
-            OpSwitchStatus.limie2,
-            OpSwitchStatus.limie3
+}
 
-    );
-    SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
-    DEVICE_DELAY_US(100000);
+static void ppara(void)
+{
+    char *msg= NULL;
+    char channel;
 
+//    for(channel=0; channel<4; channel++)
+    {
+        sprintf(msg,"$PPARA,%d,%d,%d,%d\r\n",
+                HostCmdMsg[0].motorProfile.pumpDuty,
+                HostCmdMsg[1].motorProfile.pumpDuty,
+                HostCmdMsg[2].motorProfile.pumpDuty,
+                HostCmdMsg[3].motorProfile.pumpDuty
+        );
+        SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+        DEVICE_DELAY_US(100000);
+    }
 
-    sprintf(msg,"$HOME,%d,%d,%d,%d\r\n",
-            OpSwitchStatus.home0,
-            OpSwitchStatus.home1,
-            OpSwitchStatus.home2,
-            OpSwitchStatus.home3
+    Can_State_Ptr = &hostCmd;
 
-    );
-    SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
-    DEVICE_DELAY_US(100000);
+}
 
-    sprintf(msg,"$BUTTON,%d,%d,%d,%d\r\n",
-            OpSwitchStatus.button0,
-            OpSwitchStatus.button1,
-            OpSwitchStatus.button2,
-            OpSwitchStatus.button3
+static void limite(void)
+{
+    char *msg= NULL;
+    char channel;
 
-    );
-    SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
-    DEVICE_DELAY_US(100000);
+//    for(channel=0; channel<4; channel++)
+    {
+            sprintf(msg,"$LIMITE,%d,%d,%d,%d\r\n",
+                OpSwitchStatus.limie0,
+                OpSwitchStatus.limie1,
+                OpSwitchStatus.limie2,
+                OpSwitchStatus.limie3
 
+        );
+        SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+        DEVICE_DELAY_US(100000);
+    }
+
+    Can_State_Ptr = &hostCmd;
+
+}
+
+static void homing(void)
+{
+    char *msg= NULL;
+    char channel;
+
+//    for(channel=0; channel<4; channel++)
+    {
+        sprintf(msg,"$HSWT,%d,%d,%d,%d\r\n",
+                OpSwitchStatus.home0,
+                OpSwitchStatus.home1,
+                OpSwitchStatus.home2,
+                OpSwitchStatus.home3
+
+        );
+        SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+        DEVICE_DELAY_US(100000);
+    }
+
+    Can_State_Ptr = &hostCmd;
+}
+
+static void button_status(void)
+{
+    char *msg= NULL;
+    char channel;
+
+//    for(channel=0; channel<4; channel++)
+    {
+        sprintf(msg,"$BUTTON,%d,%d,%d,%d\r\n",
+                OpSwitchStatus.button0,
+                OpSwitchStatus.button1,
+                OpSwitchStatus.button2,
+                OpSwitchStatus.button3
+
+        );
+        SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+        DEVICE_DELAY_US(100000);
+    }
 
     Can_State_Ptr = &hostCmd;
 

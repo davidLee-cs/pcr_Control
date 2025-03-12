@@ -41,8 +41,10 @@
 #define SET_MODE    3
 
 
-#define RUN_OUT     (1)
-#define RUN_IN      (0)
+#define RUN_OUT     (0) //(1) // out.
+#define RUN_IN      (1) //(0) // home
+#define CW          (0)
+#define CCW         (1)
 
 
 #define RELAY_ON_COOLING     (1)
