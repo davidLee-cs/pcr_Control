@@ -59,6 +59,7 @@ enum {
     HEAT_MODE,
     ONE_SHOT_MODE,
     COOLING_MODE,
+    ONE_SHOT_OFF_MODE,
     HEAT_INDEX_MAX
 };
 

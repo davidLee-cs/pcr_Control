@@ -169,9 +169,8 @@ void temp_Profilemode(void)
         else
         {
             dac53508_write(0, ch);
+            OpCmdMsg[ch].gCycleDone = 0;
         }
-
-//        DEVICE_DELAY_US(2000);
     }
 
 }
@@ -193,10 +192,22 @@ void temp_mode(void)
             // 시간만큼 도달 전에는 nowTempStatus 상태 그대로 1로 유지
             if(OpCmdMsg[ch].nowTempStatus == 1)     // 목표 온도에 도달했다. 온도 유지 모드
             {
+
+                if(OpCmdMsg[ch].gCycleDone == 1)
+                {
+                    tempProfileCnt[ch] = 0;
+                }
+
                 if(tempProfileCnt[ch] >= HostCmdMsg[ch].TempProfile.singleTimeTemp)
                 {
+                    sprintf(msg,"$TCYCLE,%d,%d,%d\r\n", ch, tempProfileCnt[ch], tempCycleCnt[ch]);
+                    SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+
+                    OpCmdMsg[ch].gCycleDone = 1;
+
 //                    sprintf(msg,"$ATEMP,%d,%d\r\n", ch, tempCycleCnt[ch] );
 //                    SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+#if 0
                     if(++tempCycleCnt[ch] >= HostCmdMsg[ch].TempProfile.tempCycle)
                     {
 //                        sprintf(msg,"$CYCLE,%d, %d\r\n", ch, tempCycleCnt[ch] );
@@ -211,9 +222,9 @@ void temp_mode(void)
 //                        stop_mode();
                     }
 
-
-                    DEVICE_DELAY_US(20000);
+//                    DEVICE_DELAY_US(20000);
                     tempProfileCnt[ch] = 0;
+#endif
                 }
             }
             else
@@ -225,12 +236,9 @@ void temp_mode(void)
         else
         {
             dac53508_write(0, ch);
-
+            OpCmdMsg[ch].gCycleDone = 0;
         }
-
-        DEVICE_DELAY_US(2000);
     }
-
 }
 
 

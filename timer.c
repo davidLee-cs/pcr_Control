@@ -9,6 +9,7 @@
 #include "config.h"
 
 uint16_t cpuTimer0IntCount;
+uint16_t cpuTimer1_OneShotCnt = 0;
 uint16_t tempProfileCnt[4] = {0,};
 uint16_t tempCycleCnt[4] = {0,};
 uint16_t cpuTimer2IntCount;
@@ -30,7 +31,7 @@ void timerSet(void)
 
     initCPUTimers();
 
-    configCPUTimer(CPUTIMER0_BASE, DEVICE_SYSCLK_FREQ, 5000);  // 5mS
+    configCPUTimer(CPUTIMER0_BASE, DEVICE_SYSCLK_FREQ, 10000);  // 10mS
     configCPUTimer(CPUTIMER1_BASE, DEVICE_SYSCLK_FREQ, 1000000);           // 1000ms
 //    configCPUTimer(CPUTIMER2_BASE, DEVICE_SYSCLK_FREQ, 20);
 
@@ -190,7 +191,7 @@ cpuTimer1ISR(void)
     tempProfileCnt[1]++;
     tempProfileCnt[2]++;
     tempProfileCnt[3]++;
-
+    cpuTimer1_OneShotCnt++;
 }
 
 //
