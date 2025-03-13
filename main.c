@@ -103,7 +103,9 @@ void main(void)
 
     DEVICE_DELAY_US(200000);
 
-    Can_State_Ptr = &hostCmd;
+//        Can_State_Ptr = &hostCmd;
+    Can_State_Ptr = &idle_mode;
+//    hostCmd 명령어 대신 검증 필요. 속도 개선
 
 //    power_home_mode();
 
@@ -118,25 +120,37 @@ void main(void)
 //        else                            Can_State_Ptr = &idle_mode;
 #endif
 
-        hostCmd();
-        if(cputimer0Flag == TRUE)//50ms Timer flag
+//        (void)hostCmd();
+        if(cputimer0Flag == TRUE)//10ms Timer flag
         {
+
+            cputimer0Flag = FALSE;
+
             (*Can_State_Ptr)();
 
-            if(gloopCnt++ > 1) // 1 초
+
+            if(gloopCnt++ > 2) // 1 초
             {
                 if(gSendTemp_en == 1)
                 {
                     fan_AllOn();
 
+                    select_Channel(0, PT100_CH0);
                     ch0 = read_pr100(0,PT100_CH0) * 10;
-//                    ch1 = read_pr100(0,PT100_CH1) * 10;
-                    ch2 = read_pr100(0,PT100_CH2) * 10;
-                    ch3 = read_pr100(0,PT100_CH3) * 10;
                     ch4 = read_pr100(1,PT100_CH0) * 10;
+
+//                    select_Channel(0, PT100_CH1);
+//                    ch1 = read_pr100(0,PT100_CH1) * 10;
 //                    ch5 = read_pr100(1,PT100_CH1) * 10;
+
+                    select_Channel(0, PT100_CH2);
+                    ch2 = read_pr100(0,PT100_CH2) * 10;
                     ch6 = read_pr100(1,PT100_CH2) * 10;
+
+                    select_Channel(0, PT100_CH3);
+                    ch3 = read_pr100(0,PT100_CH3) * 10;
                     ch7 = read_pr100(1,PT100_CH3) * 10;
+
 
 //                    ch0 = OpCmdMsg[0].tempSensor.nowTemp_S1 * 10;
                     ch1 = OpCmdMsg[1].tempSensor.tempSensorEma_Peltier * 10;
@@ -163,7 +177,6 @@ void main(void)
 
             switchRead();
 
-            cputimer0Flag = FALSE;
         }
 //        DEVICE_DELAY_US(10000);
     }

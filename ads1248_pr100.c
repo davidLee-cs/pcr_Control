@@ -204,6 +204,102 @@ settings through SPI bus.
 For ADC, to process AIN0 as positive and AIN1 as negative, MUX0 register is chosen as 0x01.*/
 void select_Channel(int16_t adcModuleCh, uint16_t ChnNum)
 {
+
+#if 1
+
+    GPIO_writePin(ADC_CS_1, 0);
+//    DEVICE_DELAY_US(10);
+    switch (ChnNum)
+    {
+        case 0:
+            GPIO_writePin(RTD_Sel0, 0);
+            GPIO_writePin(RTD_Sel1, 0);         // 0  JP49
+            //first take default readings for AIN0+ and AIN1- channel1
+            Spi_write_data[0] = (WREG | MUX0) << 8;
+            Spi_write_data[1] = ONE_REGISTER_READ_WRITE << 8;
+            Spi_write_data[2] = 0x01U << 8;//AIN0 positive and AIN1 negative
+            Spi_Read_write_8bit(Spi_write_data, 3, SPIC_BASE);
+            break;
+        case 3:
+            GPIO_writePin(RTD_Sel0, 1);
+            GPIO_writePin(RTD_Sel1, 1);         // 3 JP52
+            //second channel
+            Spi_write_data[0] = (WREG | MUX0) << 8;
+            Spi_write_data[1] = ONE_REGISTER_READ_WRITE << 8;
+            Spi_write_data[2] = 0x13U << 8;//AIN2 positive and AIN3 negative
+            Spi_Read_write_8bit(Spi_write_data, 3, SPIC_BASE);
+            break;
+        case 1:
+            GPIO_writePin(RTD_Sel0, 1);
+            GPIO_writePin(RTD_Sel1, 0);         // 1 JP50
+            //third channel
+            Spi_write_data[0] = (WREG | MUX0) << 8;
+            Spi_write_data[1] = ONE_REGISTER_READ_WRITE << 8;
+            Spi_write_data[2] = 0x25U << 8;//AIN4 positive and AIN5 negative
+            Spi_Read_write_8bit(Spi_write_data, 3, SPIC_BASE);
+            break;
+        case 2:
+            GPIO_writePin(RTD_Sel0, 0);
+            GPIO_writePin(RTD_Sel1, 1);         // 2 JP51
+            //fourth channel
+            Spi_write_data[0] = (WREG | MUX0) << 8;
+            Spi_write_data[1] = ONE_REGISTER_READ_WRITE << 8;
+            Spi_write_data[2] = 0x37U << 8;//AIN6 positive and AIN7 negative
+            Spi_Read_write_8bit(Spi_write_data, 3, SPIC_BASE);
+        break;
+    }
+
+//    DEVICE_DELAY_US(10);
+    GPIO_writePin(ADC_CS_1, 1);
+
+    GPIO_writePin(ADC_CS_2, 0);
+//    DEVICE_DELAY_US(10);
+    switch (ChnNum)
+    {
+        case 0:
+            GPIO_writePin(RTD_Sel0_2, 0);
+            GPIO_writePin(RTD_Sel1_2, 0);         // 0 JP43
+            //first take default readings for AIN0+ and AIN1- channel1
+            Spi_write_data[0] = (WREG | MUX0) << 8;
+            Spi_write_data[1] = ONE_REGISTER_READ_WRITE << 8;
+            Spi_write_data[2] = 0x01U << 8;//AIN0 positive and AIN1 negative
+            Spi_Read_write_8bit(Spi_write_data, 3, SPIC_BASE);
+            break;
+        case 3:
+            GPIO_writePin(RTD_Sel0_2, 1);
+            GPIO_writePin(RTD_Sel1_2, 1);         // 3 JP46
+            //second channel
+            Spi_write_data[0] = (WREG | MUX0) << 8;
+            Spi_write_data[1] = ONE_REGISTER_READ_WRITE << 8;
+            Spi_write_data[2] = 0x13U << 8;//AIN2 positive and AIN3 negative
+            Spi_Read_write_8bit(Spi_write_data, 3, SPIC_BASE);
+            break;
+        case 1:
+            GPIO_writePin(RTD_Sel0_2, 1);
+            GPIO_writePin(RTD_Sel1_2, 0);         // 1 JP44
+            //third channel
+            Spi_write_data[0] = (WREG | MUX0) << 8;
+            Spi_write_data[1] = ONE_REGISTER_READ_WRITE << 8;
+            Spi_write_data[2] = 0x25U << 8;//AIN4 positive and AIN5 negative
+            Spi_Read_write_8bit(Spi_write_data, 3, SPIC_BASE);
+            break;
+        case 2:
+            GPIO_writePin(RTD_Sel0_2, 0);
+            GPIO_writePin(RTD_Sel1_2, 1);         // 2  JP45
+            //fourth channel
+            Spi_write_data[0] = (WREG | MUX0) << 8;
+            Spi_write_data[1] = ONE_REGISTER_READ_WRITE << 8;
+            Spi_write_data[2] = 0x37U << 8;//AIN6 positive and AIN7 negative
+            Spi_Read_write_8bit(Spi_write_data, 3, SPIC_BASE);
+        break;
+    }
+
+//    DEVICE_DELAY_US(10);
+    GPIO_writePin(ADC_CS_2, 1);
+
+#endif
+
+#if 0
     if(adcModuleCh == 0)
     {
         GPIO_writePin(ADC_CS_1, 0);
@@ -298,7 +394,7 @@ void select_Channel(int16_t adcModuleCh, uint16_t ChnNum)
         DEVICE_DELAY_US(10);
         GPIO_writePin(ADC_CS_2, 1);
     }
-
+#endif
 }
 
 
@@ -380,8 +476,9 @@ float read_pr100(int16_t tmepCh, uint16_t ChnNum)
     DEVICE_DELAY_US(3);
     GPIO_writePin(ADC_Start_1, 0);
 
-    select_Channel(tmepCh, ChnNum);
-    DEVICE_DELAY_US(14000);
+//    select_Channel(tmepCh, ChnNum);
+//    DEVICE_DELAY_US(14000);
+//    DEVICE_DELAY_US(140);
     temp2= read_temperature(tmepCh, ChnNum);
     nowTemp = calc_Temp_rtd(temp2);
 

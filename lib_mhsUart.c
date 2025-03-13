@@ -55,6 +55,8 @@ __interrupt void Boot_Rx_ISR(void)
         gBoot_Rx_done = TRUE;
         gBoot_Rx_cnt = -1;
 
+        (void)hostCmd();
+        memset(rBootData_Rx, 0, 40);
     }
     else
     {

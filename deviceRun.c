@@ -294,7 +294,7 @@ void motor_mode(void)
             int64_t sum = HostCmdMsg[ch].motorProfile.nowSumPulseCnt + HostCmdMsg[ch].motorProfile.set_PulseCnt;
             if(sum >= HostCmdMsg[ch].motorProfile.set_MaxPulseCnt)
             {
-                if(HostCmdMsg[ch].oprationSetBit.motorDirection == RUN_OUT)
+                if(HostCmdMsg[ch].oprationSetBit.motorDirection == CCW) // out
                 {
                     HostCmdMsg[ch].motorProfile.set_PulseCnt = HostCmdMsg[ch].motorProfile.set_MaxPulseCnt -  HostCmdMsg[ch].motorProfile.nowSumPulseCnt;
                 }
@@ -303,7 +303,7 @@ void motor_mode(void)
             // 초기화 후 구동 시 동작 안하도록 함.
             if(HostCmdMsg[ch].motorProfile.set_PulseCnt == 0) {
                 HostCmdMsg[ch].oprationSetBit.motorRun = 0;
-                HostCmdMsg[0].motorProfile.set_PulseCnt = HostCmdMsg[0].motorProfile.set_PulseCnt_byHost;
+                HostCmdMsg[ch].motorProfile.set_PulseCnt = HostCmdMsg[ch].motorProfile.set_PulseCnt_byHost;
 
             }
 
@@ -382,7 +382,9 @@ void motor_mode(void)
     }
 
 
-    Can_State_Ptr = &hostCmd;///normal mode
+    //        Can_State_Ptr = &hostCmd;
+            Can_State_Ptr = &idle_mode;
+
 }
 
 void motor_Parameterset(int16_t channel)
@@ -526,7 +528,9 @@ void stop_mode(void)
     prameterInit();
     fan_AllOff();
 
-    Can_State_Ptr = &hostCmd;///normal mode
+    //        Can_State_Ptr = &hostCmd;
+            Can_State_Ptr = &idle_mode;
+
 
 }
 

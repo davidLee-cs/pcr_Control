@@ -277,7 +277,18 @@ void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch) {
 void tempPidControl(int16_t runCh, int16_t targetTemp)
 {
 
+#if 0
 //    float32_t nowTemp = read_pr100(0, runCh);
+    select_Channel(-1, runCh);
+    OpCmdMsg[runCh].tempSensor.nowTemp_S1 = read_pr100(0, runCh);
+    OpCmdMsg[runCh].tempSensor.nowTemp_S2 = read_pr100(1, runCh);
+           // 온도 차이가 임계값 이하이면 온/오프 제어, 그렇지 않으면 PID 제어
+    SetOnOffControl( OpCmdMsg[runCh].tempSensor.nowTemp_S1, (float32_t)targetTemp, runCh);
+
+#else
+
+//    float32_t nowTemp = read_pr100(0, runCh);
+    select_Channel(-1, runCh);
     OpCmdMsg[runCh].tempSensor.nowTemp_S1 = read_pr100(0, runCh);
     OpCmdMsg[runCh].tempSensor.nowTemp_S2 = read_pr100(1, runCh);
 
@@ -294,6 +305,9 @@ void tempPidControl(int16_t runCh, int16_t targetTemp)
 
            // 온도 차이가 임계값 이하이면 온/오프 제어, 그렇지 않으면 PID 제어
     SetOnOffControl(OpCmdMsg[runCh].tempSensor.tempSensorEma_Peltier, (float32_t)targetTemp, runCh);
+
+#endif
+
 }
 
 

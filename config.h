@@ -65,7 +65,7 @@ enum {
 
 
 void power_home_mode(void);
-void hostCmd(void);
+int16_t hostCmd(void);
 extern void (*Can_State_Ptr)(void);        // 다음 수행될 모드를 가르키는 함수 포인터
 //extern struct HostCmdMsg HostCmdMsg;
 

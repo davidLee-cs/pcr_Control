@@ -12,7 +12,7 @@ int16_t nowChannel;
 int16_t home_enable = 0;
 int16_t gTempProfileModeEnable = 0;
 
-void hostCmd(void)
+int16_t hostCmd(void)
 {
 
     char *msg = NULL;
@@ -45,15 +45,130 @@ void hostCmd(void)
     if(gBoot_Rx_done == TRUE)
     {
 
+        gBoot_Rx_done = 0;
+        gBoot_Rx_cnt =-1;
+//        memset(rBootData_Rx, 0, 100);
+
+        if(strncmp(rBootData_Rx, mpara0Cmd, 7) == 0)
+        {
+            mpapa0();
+            return 1;
+        }
+
+        if(strncmp(rBootData_Rx, mpara1Cmd, 7) == 0)
+        {
+            mpara1();
+            return 1;
+        }
+
+        //command : $TOSET,100,10,101,11\r\n
+        if(strncmp(rBootData_Rx, tempSetCmd, 6) == 0)
+        {
+            tempOffset();
+//            Example_Done();
+            return 1;
+        }
+
+        //command : $RPARA\r
+        if(strncmp(rBootData_Rx, tparaCmd, 7) == 0)
+        {
+            tpara();
+            return 1;
+        }
+
+        if(strncmp(rBootData_Rx, tpara1Cmd, 7) == 0)
+        {
+            tpara1();
+            return 1;
+        }
+
+        if(strncmp(rBootData_Rx, pparaCmd, 7) == 0)
+        {
+            ppara();
+            return 1;
+        }
+
+        //command : $TEMP,x,100,10,101,11,102,12,103,13,104,14,5\r\n
+        if(strncmp(rBootData_Rx, tempSetCmd, 5) == 0)
+        {
+            tempSet();
+//            Example_Done();
+            return 1;
+        }
+
+        //command : $STEMP,x,100,10,5\r\n  $STEMP,0,95,5000,5\r  $STEMP,0,30,5000,5\r
+        if(strncmp(rBootData_Rx, tempSingleSetCmd, 6) == 0)
+        {
+            (void)tempSingleSet();
+//            Example_Done();
+            return 1;
+        }
+
+        //command : $TSTART,1,1,0,1\r\n $TSTART,1,0,0,0\r  $TSTART,0,0,0,0\r
+        if(strncmp(rBootData_Rx, tempStartCmd, 6) == 0)
+        {
+            fan_AllOn();
+            tempStartSet();
+//            Example_Done();
+            return 1;
+        }
+
+        //command : $MOTOR,ch,70, 17066,17066000\r
+        if(strncmp(rBootData_Rx, motorSetCmd, 6) == 0)
+        {
+            motorSet();
+//            Example_Done();
+            return 1;
+        }
+
+        //command : $PUMP,50,1,1,1,1\r\n
+        if(strncmp(rBootData_Rx, pumpSetCmd, 5) == 0)
+        {
+            pumpSet(0);
+//            Example_Done();
+            return 1;
+        }
+
+        //command : $MSTART,1,1,1,1,1,1,1,1\r
+        if(strncmp(rBootData_Rx, motorStartCmd, 6) == 0)
+        {
+            motorStartSet();
+//            Example_Done();
+            return 1;
+        }
+
+        //command : $FAN,1,1,1,1,1\r\n  (-> fan 1,2,3,4, heatFan)
+        if(strncmp(rBootData_Rx, fanSetCmd, 4) == 0)
+        {
+            fanSet();
+//            Example_Done();
+            return 1;
+        }
+
+        //command : $HOME,1,1,1,1,1\r\n  (-> fan 1,2,3,4, heatFan)
+        if(strncmp(rBootData_Rx, homeCmd, 5) == 0)
+        {
+            home_mode();
+//            Example_Done();
+            return 1;
+        }
+
+        if(strncmp(rBootData_Rx, maxPulseCmd, 5) == 0)
+        {
+            motor_max_pulseSet();
+//            Example_Done();
+            return 1;
+        }
+
         //command :  $START\r\n
         if(strncmp(rBootData_Rx, startCmd, 6) == 0)
         {
-
-//            HostCmdMsg.oprationSetBit.temperatureRun = true;
+    //            HostCmdMsg.oprationSetBit.temperatureRun = true;
             gSendTemp_en = 1;
 
             sprintf(msg,"$START\r\n");
             SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+            return 1;
         }
 
         //command : $STOP\r
@@ -64,11 +179,12 @@ void hostCmd(void)
             DEVICE_DELAY_US(500000);
             stop_mode();
 
-//            HostCmdMsg.oprationSetBit.temperatureRun = false;
+    //            HostCmdMsg.oprationSetBit.temperatureRun = false;
             gSendTemp_en = 0;
 
             sprintf(msg,"$STOP\r\n");
             SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+            return 1;
         }
 
         //command : $TSTOP\r
@@ -78,133 +194,36 @@ void hostCmd(void)
 
             sprintf(msg,"$TSTOP\r\n");
             SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
+            return 1;
         }
 
-        //command : $TEMP,x,100,10,101,11,102,12,103,13,104,14,5\r\n
-        if(strncmp(rBootData_Rx, tempSetCmd, 5) == 0)
+        if(strncmp(rBootData_Rx, limiteCmd, 7) == 0)
         {
-            tempSet();
-//            Example_Done();
+            limite();
+            return 1;
         }
 
-        //command : $STEMP,x,100,10,5\r\n  $STEMP,0,95,5000,5\r  $STEMP,0,30,5000,5\r
-        if(strncmp(rBootData_Rx, tempSingleSetCmd, 6) == 0)
+        if(strncmp(rBootData_Rx, homeSwitchCmd, 5) == 0)
         {
-            (void)tempSingleSet();
-//            Example_Done();
+            homing();
+            return 1;
         }
 
-        //command : $MOTOR,ch,70, 17066,17066000\r
-        if(strncmp(rBootData_Rx, motorSetCmd, 6) == 0)
+        if(strncmp(rBootData_Rx, buttonCmd, 7) == 0)
         {
-            motorSet();
-//            Example_Done();
+            button_status();
+            return 1;
         }
-
-        //command : $PUMP,50,1,1,1,1\r\n
-        if(strncmp(rBootData_Rx, pumpSetCmd, 5) == 0)
-        {
-            pumpSet(0);
-//            Example_Done();
-        }
-
-        //command : $MSTART,1,1,1,1,1,1,1,1\r
-        if(strncmp(rBootData_Rx, motorStartCmd, 6) == 0)
-        {
-            motorStartSet();
-//            Example_Done();
-        }
-
-        //command : $TSTART,1,1,0,1\r\n $TSTART,1,0,0,0\r  $TSTART,0,0,0,0\r
-        if(strncmp(rBootData_Rx, tempStartCmd, 6) == 0)
-        {
-            fan_AllOn();
-            tempStartSet();
-//            Example_Done();
-        }
-
         //command : $DAC,1000,2000,3000,4000,0,0\r\n
-        if(strncmp(rBootData_Rx, dacSetCmd, 4) == 0)
-        {
-            dacSet();
-//            Example_Done();
-        }
+//        if(strncmp(rBootData_Rx, dacSetCmd, 4) == 0)
+//        {
+//            dacSet();
+////            Example_Done();
+//        }
+//
+    }// gBoot_Rx_done
 
-        //command : $FAN,1,1,1,1,1\r\n  (-> fan 1,2,3,4, heatFan)
-        if(strncmp(rBootData_Rx, fanSetCmd, 4) == 0)
-        {
-            fanSet();
-//            Example_Done();
-        }
-
-        //command : $HOME,1,1,1,1,1\r\n  (-> fan 1,2,3,4, heatFan)
-        if(strncmp(rBootData_Rx, homeCmd, 5) == 0)
-        {
-            home_mode();
-//            Example_Done();
-        }
-
-#if 1
-        if(strncmp(rBootData_Rx, maxPulseCmd, 5) == 0)
-        {
-            motor_max_pulseSet();
-//            Example_Done();
-        }
-#endif
-
-        //command : $TOSET,100,10,101,11\r\n
-        if(strncmp(rBootData_Rx, tempSetCmd, 6) == 0)
-        {
-            tempOffset();
-//            Example_Done();
-        }
-
-        gBoot_Rx_done = 0;
-        gBoot_Rx_cnt = 0;
-        memset(rBootData_Rx, 0, 100);
-    }
-
-    //command : $RPARA\r
-    if(strncmp(rBootData_Rx, tparaCmd, 7) == 0)
-    {
-        tpara();
-    }
-
-    if(strncmp(rBootData_Rx, tpara1Cmd, 7) == 0)
-    {
-        tpara1();
-    }
-
-    if(strncmp(rBootData_Rx, mpara0Cmd, 7) == 0)
-    {
-        mpapa0();
-    }
-
-    if(strncmp(rBootData_Rx, mpara1Cmd, 7) == 0)
-    {
-        mpara1();
-    }
-
-    if(strncmp(rBootData_Rx, pparaCmd, 7) == 0)
-    {
-        ppara();
-    }
-
-    if(strncmp(rBootData_Rx, limiteCmd, 7) == 0)
-    {
-        limite();
-    }
-
-    if(strncmp(rBootData_Rx, homeSwitchCmd, 5) == 0)
-    {
-        homing();
-    }
-
-    if(strncmp(rBootData_Rx, buttonCmd, 7) == 0)
-    {
-        button_status();
-    }
-
+    return 0;
 }
 
 void Example_Done(void)
@@ -241,7 +260,8 @@ static void tempOffset(void)
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
 
-        Can_State_Ptr = &hostCmd;
+//        Can_State_Ptr = &hostCmd;
+        Can_State_Ptr = &idle_mode;
     }
 
 }
@@ -418,7 +438,7 @@ static void tpara(void)
                 HostCmdMsg[channel].TempProfile.targetTemp[4]
           );
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
-        DEVICE_DELAY_US(100000);
+//        DEVICE_DELAY_US(100000);
 
         sprintf(msg,"%d,%d,%d,%d,%d,%d,%d\r\n",
                 channel,
@@ -430,9 +450,10 @@ static void tpara(void)
                 HostCmdMsg[channel].TempProfile.tempCycle
          );
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
-        DEVICE_DELAY_US(100000);
+//        DEVICE_DELAY_US(100000);
 
-        Can_State_Ptr = &hostCmd;
+//        Can_State_Ptr = &hostCmd;
+        Can_State_Ptr = &idle_mode;
     }
 
 }
@@ -449,9 +470,10 @@ static void tpara1(void)
                 HostCmdMsg[channel].TempProfile.tempCycle
         );
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
-        DEVICE_DELAY_US(100000);
+//        DEVICE_DELAY_US(100000);
 
-        Can_State_Ptr = &hostCmd;
+//        Can_State_Ptr = &hostCmd;
+        Can_State_Ptr = &idle_mode;
     }
 }
 
@@ -470,26 +492,24 @@ static void mpapa0(void)
 
         );
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
-        DEVICE_DELAY_US(100000);
+//        DEVICE_DELAY_US(100000);
 
         sprintf(msg, "%" PRIu64 ",", HostCmdMsg[channel].motorProfile.set_PulseCnt);
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
-        DEVICE_DELAY_US(100000);
-
-//        sprintf(msg, "%" PRIu64 ",", HostCmdMsg[channel].motorProfile.home_PulseCnt);
-//        SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
 //        DEVICE_DELAY_US(100000);
 
         sprintf(msg, "%" PRIu64 ",", HostCmdMsg[channel].motorProfile.set_MaxPulseCnt);
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
-        DEVICE_DELAY_US(100000);
+//        DEVICE_DELAY_US(100000);
 
         sprintf(msg, "%" PRIu64 "\r\n", HostCmdMsg[channel].motorProfile.nowSumPulseCnt);
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
-        DEVICE_DELAY_US(100000);
+//        DEVICE_DELAY_US(100000);
 
     }
-        Can_State_Ptr = &hostCmd;
+    //        Can_State_Ptr = &hostCmd;
+            Can_State_Ptr = &idle_mode;
+
 }
 
 static void mpara1(void)
@@ -505,10 +525,12 @@ static void mpara1(void)
                 HostCmdMsg[channel].oprationSetBit.temperatureRun
         );
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
-        DEVICE_DELAY_US(100000);
+//        DEVICE_DELAY_US(100000);
     }
 
-    Can_State_Ptr = &hostCmd;
+    //        Can_State_Ptr = &hostCmd;
+            Can_State_Ptr = &idle_mode;
+
 
 }
 
@@ -526,10 +548,12 @@ static void ppara(void)
                 HostCmdMsg[3].motorProfile.pumpDuty
         );
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
-        DEVICE_DELAY_US(100000);
+//        DEVICE_DELAY_US(100000);
     }
 
-    Can_State_Ptr = &hostCmd;
+    //        Can_State_Ptr = &hostCmd;
+            Can_State_Ptr = &idle_mode;
+
 
 }
 
@@ -548,10 +572,12 @@ static void limite(void)
 
         );
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
-        DEVICE_DELAY_US(100000);
+//        DEVICE_DELAY_US(100000);
     }
 
-    Can_State_Ptr = &hostCmd;
+    //        Can_State_Ptr = &hostCmd;
+            Can_State_Ptr = &idle_mode;
+
 
 }
 
@@ -570,10 +596,12 @@ static void homing(void)
 
         );
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
-        DEVICE_DELAY_US(100000);
+//        DEVICE_DELAY_US(100000);
     }
 
-    Can_State_Ptr = &hostCmd;
+    //        Can_State_Ptr = &hostCmd;
+            Can_State_Ptr = &idle_mode;
+
 }
 
 static void button_status(void)
@@ -591,10 +619,12 @@ static void button_status(void)
 
         );
         SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
-        DEVICE_DELAY_US(100000);
+//        DEVICE_DELAY_US(100000);
     }
 
-    Can_State_Ptr = &hostCmd;
+    //        Can_State_Ptr = &hostCmd;
+            Can_State_Ptr = &idle_mode;
+
 
 }
 
@@ -716,18 +746,7 @@ static int16_t motorSet(void)
         HostCmdMsg[channel].motorProfile.set_PulseCnt = pulse;
         motorset = strtok(NULL, comma);
 
-//        int64_t max = atoll(motorset);
-//        HostCmdMsg[channel].motorProfile.set_MaxPulseCnt = max;
-//
-//
         HostCmdMsg[channel].motorProfile.set_PulseCnt_byHost = HostCmdMsg[channel].motorProfile.set_PulseCnt;
-
-        //        int64_t sum = HostCmdMsg[channel].motorProfile.nowSumPulseCnt + HostCmdMsg[channel].motorProfile.set_PulseCnt;
-//        if(sum >= HostCmdMsg[channel].motorProfile.set_MaxPulseCnt)
-//        {
-//            HostCmdMsg[channel].motorProfile.set_PulseCnt = HostCmdMsg[channel].motorProfile.set_MaxPulseCnt -  HostCmdMsg[channel].motorProfile.nowSumPulseCnt;
-//        }
-
 
 //        motor_Parameterset(channel);
 
@@ -735,7 +754,9 @@ static int16_t motorSet(void)
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
     }
 
-    Can_State_Ptr = &hostCmd;///normal mode
+    //        Can_State_Ptr = &hostCmd;
+            Can_State_Ptr = &idle_mode;
+
 
     return 0;
 }
@@ -820,7 +841,9 @@ static void pumpSet(int16_t stop)
     }
 
 
-    Can_State_Ptr = &hostCmd;///normal mode
+    //        Can_State_Ptr = &hostCmd;
+            Can_State_Ptr = &idle_mode;
+
 
 }
 
@@ -891,7 +914,9 @@ static int16_t tempSet(void)
         gTempProfileModeEnable = 1;
     }
 
-    Can_State_Ptr = &hostCmd;///normal mode
+    //        Can_State_Ptr = &hostCmd;
+            Can_State_Ptr = &idle_mode;
+
 
     return 0;
 }
@@ -933,7 +958,7 @@ static int16_t tempSingleSet(void)
         {
 
             dac53508_write(0, channel);
-            DEVICE_DELAY_US(500000);
+            DEVICE_DELAY_US(500);
 
             OpCmdMsg[channel].control_mode = COOLING_MODE;
 
@@ -943,10 +968,10 @@ static int16_t tempSingleSet(void)
             else if(channel == 3)       GPIO_writePin(DAC_REVERS_3, RELAY_ON_COOLING);  // Àü·ù Äð¸µ
             else
             {
-                DEVICE_DELAY_US(500000);
+                DEVICE_DELAY_US(500);
             }
 
-            DEVICE_DELAY_US(500000);
+            DEVICE_DELAY_US(500);
 //            DEVICE_DELAY_US(500000);
 //            DEVICE_DELAY_US(500000);
 //            DEVICE_DELAY_US(500000);
@@ -961,7 +986,9 @@ static int16_t tempSingleSet(void)
         gTempProfileModeEnable = 0;
     }
 
-    Can_State_Ptr = &hostCmd;///normal mode
+    //        Can_State_Ptr = &hostCmd;
+            Can_State_Ptr = &idle_mode;
+
 
     return 0;
 }
@@ -1007,7 +1034,9 @@ static void dacSet(void)
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
     }
 
-    Can_State_Ptr = &hostCmd;///normal mode
+    //        Can_State_Ptr = &hostCmd;
+            Can_State_Ptr = &idle_mode;
+
 
 }
 
@@ -1053,6 +1082,8 @@ static void fanSet(void)
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
     }
 
-    Can_State_Ptr = &hostCmd;///normal mode
+    //        Can_State_Ptr = &hostCmd;
+            Can_State_Ptr = &idle_mode;
+
 
 }
