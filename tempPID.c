@@ -47,6 +47,11 @@ uint16_t offMode_flag = 0;
 uint16_t oneShoeOfftTime = 5;   //seconds
 uint16_t oneShotTime = 2;   // seconds
 
+float32_t level[4] = {1.0f, 0.9f, 0.8f,0.2f};
+uint16_t heatLevel = 0;
+
+float32_t temperature_error;
+float32_t temperature_level;
 
 void init_pid(void)
 {
@@ -80,6 +85,7 @@ void init_pid(void)
 }
 
 
+
 void SetDACOutput(float32_t pid_output, int16_t ch, float32_t tempError)
 {
 
@@ -87,20 +93,41 @@ void SetDACOutput(float32_t pid_output, int16_t ch, float32_t tempError)
 
     if(tempError >= 0.9f)
     {
-        dacOut = targetVolt * 1.0f;
+        dacOut = targetVolt * level[3];
+        heatLevel = 4;
     }
     else if((0.9f > tempError) && (tempError >= 0.8f))
     {
-        dacOut = targetVolt * 0.75f;
+        dacOut = targetVolt * level[2];
+        heatLevel = 3;
     }
     else if((0.8f > tempError) && (tempError >= 0.7f))
     {
-        dacOut = targetVolt * 0.35f;
+        dacOut = targetVolt * level[1];
+        heatLevel = 2;
     }
     else if(0.7f > tempError)
     {
-        dacOut = targetVolt * 0.1f;
+        dacOut = targetVolt * level[0];
+        heatLevel = 1;
     }
+
+//    if(tempError >= 0.9f)
+//    {
+//        dacOut = targetVolt * 1.0f;
+//    }
+//    else if((0.9f > tempError) && (tempError >= 0.8f))
+//    {
+//        dacOut = targetVolt * 0.75f;
+//    }
+//    else if((0.8f > tempError) && (tempError >= 0.7f))
+//    {
+//        dacOut = targetVolt * 0.35f;
+//    }
+//    else if(0.7f > tempError)
+//    {
+//        dacOut = targetVolt * 0.1f;
+//    }
 
     // (0.0 ~ 1.0) PID 출력을 (0V ~ 3.3V)로 매핑
     float32_t dac_voltage = pid_output * dacOut;  // 0.0 ~
@@ -114,21 +141,22 @@ void SetDACOutput(float32_t pid_output, int16_t ch, float32_t tempError)
 
 }
 
+
 void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch) {
 
     char *msg = NULL;
     float32_t error=0.0;
-    float32_t temperature_error = targetTemp - readNowTemp;  // 목표 온도와 현재 온도의 차이
-    float32_t temperature_level = readNowTemp / targetTemp;  // 목표 온도와 현재 온도의 차이
+    temperature_error = targetTemp - readNowTemp;  // 목표 온도와 현재 온도의 차이
+    temperature_level = readNowTemp / targetTemp;  // 목표 온도와 현재 온도의 차이
 
-//    if(temperature_error < 0.0f)
-//    {
-//        error = (-temperature_error);
-//    }
-//    else
-//    {
-//        error = temperature_error;
-//    }
+    if(temperature_error < 0.0f)
+    {
+        error = (-temperature_error);
+    }
+    else
+    {
+        error = temperature_error;
+    }
 
     switch(OpCmdMsg[ch].control_mode){
 
@@ -149,7 +177,7 @@ void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch) {
         else
         {
             OpCmdMsg[ch].nowTempStatus = 1;     // 온도 유지 모드 set
-#if 0 // 모드 제어 1
+#if 1 // 모드 제어 1
             OpCmdMsg[ch].control_mode = ONE_SHOT_MODE;
 #else // 모드 제어2
             OpCmdMsg[ch].control_mode = ONE_SHOT_OFF_MODE;
@@ -166,7 +194,7 @@ void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch) {
 
         OpCmdMsg[ch].nowTempStatus = 1;     // 온도 유지 모드 set
 
-#if 0 // 모드 제어 1
+#if 1 // 모드 제어 1
         // 목표 온도와 차이가 작은 경우 온/오프 방식으로 제어
         if (temperature_error < temp_threshold) {
             // 목표 온도보다 온도가 더 높으면 냉각
@@ -244,27 +272,35 @@ void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch) {
         }
         else
         {
-
-            dac53508_write(0, ch);
-            DEVICE_DELAY_US(100000);
-
-            OpCmdMsg[ch].control_mode = HEAT_MODE;
-//            OpCmdMsg[ch].control_mode = STOP_MODE;
-
-            if(ch == 0)            GPIO_writePin(DAC_REVERS_0, RELAY_OFF_HEATING);  // 가열
-            else if(ch == 1)       GPIO_writePin(DAC_REVERS_1, RELAY_OFF_HEATING);  // 가열
-            else if(ch == 2)       GPIO_writePin(DAC_REVERS_2, RELAY_OFF_HEATING);  // 가열
-            else if(ch == 3)       GPIO_writePin(DAC_REVERS_3, RELAY_OFF_HEATING);  // 가열
-            else
-            {
-                DEVICE_DELAY_US(10000);
-            }
-
-            DEVICE_DELAY_US(10000);
-//            DEVICE_DELAY_US(500000);
-//            DEVICE_DELAY_US(500000);
-//            DEVICE_DELAY_US(500000);
+//            OpCmdMsg[ch].nowTempStatus = 1;     // 온도 유지 모드 set
+            OpCmdMsg[ch].control_mode = ONE_SHOT_MODE;
+            offMode_flag = 0;
+            cpuTimer1_OneShotCnt = 0;  // one shot 초기화
         }
+
+//        else
+//        {
+//
+//            dac53508_write(0, ch);
+//            DEVICE_DELAY_US(100000);
+//
+//            OpCmdMsg[ch].control_mode = HEAT_MODE;
+////            OpCmdMsg[ch].control_mode = STOP_MODE;
+//
+//            if(ch == 0)            GPIO_writePin(DAC_REVERS_0, RELAY_OFF_HEATING);  // 가열
+//            else if(ch == 1)       GPIO_writePin(DAC_REVERS_1, RELAY_OFF_HEATING);  // 가열
+//            else if(ch == 2)       GPIO_writePin(DAC_REVERS_2, RELAY_OFF_HEATING);  // 가열
+//            else if(ch == 3)       GPIO_writePin(DAC_REVERS_3, RELAY_OFF_HEATING);  // 가열
+//            else
+//            {
+//                DEVICE_DELAY_US(10000);
+//            }
+//
+//            DEVICE_DELAY_US(10000);
+////            DEVICE_DELAY_US(500000);
+////            DEVICE_DELAY_US(500000);
+////            DEVICE_DELAY_US(500000);
+//        }
 
         break;
     default:
@@ -288,7 +324,7 @@ void tempPidControl(int16_t runCh, int16_t targetTemp)
 #else
 
 //    float32_t nowTemp = read_pr100(0, runCh);
-    select_Channel(-1, runCh);
+//    select_Channel(-1, runCh);
     OpCmdMsg[runCh].tempSensor.nowTemp_S1 = read_pr100(0, runCh);
     OpCmdMsg[runCh].tempSensor.nowTemp_S2 = read_pr100(1, runCh);
 

@@ -135,30 +135,30 @@ void main(void)
                 {
                     fan_AllOn();
 
-                    select_Channel(0, PT100_CH0);
-                    ch0 = read_pr100(0,PT100_CH0) * 10;
-                    ch4 = read_pr100(1,PT100_CH0) * 10;
+//                    select_Channel(0, PT100_CH0);
 
 //                    select_Channel(0, PT100_CH1);
-//                    ch1 = read_pr100(0,PT100_CH1) * 10;
-//                    ch5 = read_pr100(1,PT100_CH1) * 10;
 
-                    select_Channel(0, PT100_CH2);
+//                    select_Channel(0, PT100_CH2);
+                    ch0 = read_pr100(0,PT100_CH0) * 10;
+                    ch1 = read_pr100(0,PT100_CH1) * 10;
                     ch2 = read_pr100(0,PT100_CH2) * 10;
-                    ch6 = read_pr100(1,PT100_CH2) * 10;
-
-                    select_Channel(0, PT100_CH3);
                     ch3 = read_pr100(0,PT100_CH3) * 10;
+
+//                    select_Channel(0, PT100_CH3);
+                    ch4 = read_pr100(1,PT100_CH0) * 10;
+                    ch5 = read_pr100(1,PT100_CH1) * 10;
+                    ch6 = read_pr100(1,PT100_CH2) * 10;
                     ch7 = read_pr100(1,PT100_CH3) * 10;
 
 
 //                    ch0 = OpCmdMsg[0].tempSensor.nowTemp_S1 * 10;
-                    ch1 = OpCmdMsg[1].tempSensor.tempSensorEma_Peltier * 10;
+//                    ch1 = OpCmdMsg[1].tempSensor.tempSensorEma_Peltier * 10;
 //                    ch2 = OpCmdMsg[2].tempSensor.nowTemp_S1 * 10;
 //                    ch3 = OpCmdMsg[3].tempSensor.nowTemp_S1 * 10;
 //
 //                    ch4 = OpCmdMsg[0].tempSensor.nowTemp_S2 * 10;
-                    ch5 = OpCmdMsg[1].tempSensor.tempSensorEma_Block * 10;
+//                    ch5 = OpCmdMsg[1].tempSensor.tempSensorEma_Block * 10;
 //                    ch6 = OpCmdMsg[2].tempSensor.nowTemp_S2 * 10;
 //                    ch7 = OpCmdMsg[3].tempSensor.nowTemp_S2 * 10;
 

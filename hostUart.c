@@ -76,11 +76,11 @@ int16_t hostCmd(void)
             return 1;
         }
 
-        if(strncmp(rBootData_Rx, tpara1Cmd, 7) == 0)
-        {
-            tpara1();
-            return 1;
-        }
+//        if(strncmp(rBootData_Rx, tpara1Cmd, 7) == 0)
+//        {
+//            tpara1();
+//            return 1;
+//        }
 
         if(strncmp(rBootData_Rx, pparaCmd, 7) == 0)
         {
@@ -308,7 +308,7 @@ static void tempStartSet(void)
 }
 
 
-static int16_t motorStartSet(void)
+void motorStartSet(void)
 {
     const char* comma = ",";
     const char end[] = {'\r', '\n'};
@@ -322,35 +322,70 @@ static int16_t motorStartSet(void)
     if( motorset != NULL)
     {
 
+        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
+        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
+
         epwmDisableSet(STEP_23); // 설정 시 한번만 설정할것.
         epwmDisableSet(STEP_01); // 설정 시 한번만 설정할것.
+
+//        epwmEnableSet(STEP_23);
+//        epwmEnableSet(STEP_01);
+//
+//        motor_Parameterset(0);
+//        motor_Parameterset(1);
+//        motor_Parameterset(2);
+//        motor_Parameterset(3);
+
+//        EPWM_setCounterCompareValue(myStepMotorEPWM3_BASE, EPWM_COUNTER_COMPARE_A, targetSpeed+1); // 하드웨어 방법
+//        EPWM_setCounterCompareValue(myStepMotorEPWM3_BASE, EPWM_COUNTER_COMPARE_B, targetSpeed+1); // 하드웨어 방법
+//        EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_A, targetSpeed+1); // 하드웨어 방법
+//        EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_B, targetSpeed+1); // 하드웨어 방법
+
 
         HostCmdMsg[0].oprationSetBit.motorRun = atoi(motorset);
         motorset = strtok(NULL, comma);
 
-        HostCmdMsg[0].oprationSetBit.motorDirection = atoi(motorset);
+//        if(HostCmdMsg[0].oprationSetBit.motorRun == 1) // 옴으로 이동중에 펄스값 감소가 안되어 사용
+        {
+            HostCmdMsg[0].oprationSetBit.motorDirection = atoi(motorset);
+        }
         motorset = strtok(NULL, comma);
+
 
         HostCmdMsg[1].oprationSetBit.motorRun = atoi(motorset);
         motorset = strtok(NULL, comma);
 
-        HostCmdMsg[1].oprationSetBit.motorDirection = atoi(motorset);
+//        if(HostCmdMsg[1].oprationSetBit.motorRun == 1)
+        {
+            HostCmdMsg[1].oprationSetBit.motorDirection = atoi(motorset);
+        }
         motorset = strtok(NULL, comma);
 
         HostCmdMsg[2].oprationSetBit.motorRun = atoi(motorset);
         motorset = strtok(NULL, comma);
 
-        HostCmdMsg[2].oprationSetBit.motorDirection = atoi(motorset);
+//        if(HostCmdMsg[2].oprationSetBit.motorRun == 1)
+        {
+            HostCmdMsg[2].oprationSetBit.motorDirection = atoi(motorset);
+        }
         motorset = strtok(NULL, comma);
 
         HostCmdMsg[3].oprationSetBit.motorRun = atoi(motorset);
         motorset = strtok(NULL, comma);
 
-        HostCmdMsg[3].oprationSetBit.motorDirection = atoi(motorset);
+//        if(HostCmdMsg[3].oprationSetBit.motorRun == 1)
+        {
+            HostCmdMsg[3].oprationSetBit.motorDirection = atoi(motorset);
+        }
         motorset = strtok(NULL, comma);
 
-        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
-        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
+
+        HostCmdMsg[0].motorProfile.homeCmdCnt = 0;
+        HostCmdMsg[1].motorProfile.homeCmdCnt = 0;
+        HostCmdMsg[2].motorProfile.homeCmdCnt = 0;
+        HostCmdMsg[3].motorProfile.homeCmdCnt = 0;
+
+
 
 
 //        if((nowChannel == 0) || (nowChannel == 1))
@@ -689,10 +724,10 @@ static void home_mode(void)
         HostCmdMsg[3].oprationSetBit.stepperHome = atoi(homeset) ;
 
 
-        HostCmdMsg[0].motorProfile.set_PulseCnt = 17706;
-        HostCmdMsg[1].motorProfile.set_PulseCnt = 17706;
-        HostCmdMsg[2].motorProfile.set_PulseCnt = 17706;
-        HostCmdMsg[3].motorProfile.set_PulseCnt = 17706;
+//        HostCmdMsg[0].motorProfile.set_PulseCnt = 17706;
+//        HostCmdMsg[1].motorProfile.set_PulseCnt = 17706;
+//        HostCmdMsg[2].motorProfile.set_PulseCnt = 17706;
+//        HostCmdMsg[3].motorProfile.set_PulseCnt = 17706;
 
 
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
@@ -745,6 +780,10 @@ static int16_t motorSet(void)
         int64_t pulse = atoll(motorset);
         HostCmdMsg[channel].motorProfile.set_PulseCnt = pulse;
         motorset = strtok(NULL, comma);
+
+        int64_t homespeed = atoll(motorset);
+        HostCmdMsg[channel].motorProfile.homeSpeed = homespeed;
+
 
         HostCmdMsg[channel].motorProfile.set_PulseCnt_byHost = HostCmdMsg[channel].motorProfile.set_PulseCnt;
 

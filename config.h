@@ -63,7 +63,7 @@ enum {
     HEAT_INDEX_MAX
 };
 
-
+void motorStartSet(void);
 void power_home_mode(void);
 int16_t hostCmd(void);
 extern void (*Can_State_Ptr)(void);        // 다음 수행될 모드를 가르키는 함수 포인터
@@ -76,6 +76,7 @@ extern uint64_t pulseCount[4];     // 현재까지 발생한 펄스 수
 extern int16_t home_enable;
 extern int16_t enablecheck[4];
 extern int16_t pumpStop;
+extern uint16_t targetSpeed;
 //extern int16_t gBoot_Rx_cnt;
 
 

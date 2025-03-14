@@ -40,6 +40,7 @@ struct motorProfile {
     uint16_t homeSpeed;
     uint64_t home_PulseCnt;               // set pulse count
 
+    uint16_t homeCmdCnt;
     uint16_t pumpDuty;
 };
 //struct TempProfile TempProfile;

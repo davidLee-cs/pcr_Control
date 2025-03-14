@@ -180,7 +180,8 @@ void temp_mode(void)
     char *msg = NULL;
     int16_t ch;
 
-    for(ch=0; ch< PELTIER_4EA; ch++)
+//    for(ch=0; ch< PELTIER_4EA; ch++)
+    for(ch=1; ch< 2; ch++)
     {
         // 채널별 run 실쟁과 동작 시간(단위 100ms)이 0 이상 설정 되었을 때만 동작 함.
         if((HostCmdMsg[ch].oprationSetBit.temperatureRun == 1) && (HostCmdMsg[ch].TempProfile.singleTimeTemp > 0))
@@ -267,22 +268,27 @@ void motor_mode(void)
                 HostCmdMsg[ch].motorProfile.motorSpeed = HostCmdMsg[ch].motorProfile.homeSpeed;
                 HostCmdMsg[ch].motorProfile.set_PulseCnt = HostCmdMsg[ch].motorProfile.home_PulseCnt;
                 HostCmdMsg[ch].motorProfile.nowSumPulseCnt = 0;
+                HostCmdMsg[ch].oprationSetBit.motorDirection = CW;
 
                 SetMotorDirection(ch, RUN_IN); // home -> 1
 
                 motor_Parameterset(ch);
 
+                pulseCount[ch] = 0;     // 현재까지 발생한 펄스 수
+                enablecheck[ch] = 0;
+
                 if((ch == 0) || (ch == 1))
                 {
+                    epwmEnableSet(STEP_23); // 설정 시 한번만 설정할것.
                     epwmEnableSet(STEP_23); // 설정 시 한번만 설정할것.
                 }
                 else if((ch == 2) || (ch == 3))
                 {
                     epwmEnableSet(STEP_01); // 설정 시 한번만 설정할것.
+                    epwmEnableSet(STEP_01); // 설정 시 한번만 설정할것.
                 }
 
-                pulseCount[ch] = 0;     // 현재까지 발생한 펄스 수
-                enablecheck[ch] = 0;
+
             }
         }
     }
@@ -329,6 +335,13 @@ void motor_mode(void)
                 EnableMotor(1);
 
                 motor_Parameterset(ch);
+                switchRead();
+
+                OpSwitchStatus.lasthome0 = OpSwitchStatus.home0;
+                OpSwitchStatus.lasthome1 = OpSwitchStatus.home1;
+                OpSwitchStatus.lasthome2 = OpSwitchStatus.home2;
+                OpSwitchStatus.lasthome3 = OpSwitchStatus.home3;
+
 
                 if((ch == 0) || (ch == 1))
                 {
@@ -351,11 +364,25 @@ void motor_mode(void)
 
                 if(HostCmdMsg[ch].oprationSetBit.lastmotorRun == 1)
                 {
+                    HostCmdMsg[ch].oprationSetBit.lastmotorRun = 0;
+
                     sprintf(msg,"$MDONE,%d,", ch);
                     SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
 
-                    HostCmdMsg[0].motorProfile.nowSumPulseCnt += pulseCount[ch];
-                    sprintf(msg, "%" PRIu64 "\r\n", HostCmdMsg[0].motorProfile.nowSumPulseCnt);
+                    if(HostCmdMsg[ch].oprationSetBit.motorDirection == CW)  // 0
+                    {
+                        HostCmdMsg[ch].motorProfile.nowSumPulseCnt -= pulseCount[ch];
+                        if(HostCmdMsg[ch].motorProfile.nowSumPulseCnt <= 0)
+                        {
+                            HostCmdMsg[ch].motorProfile.nowSumPulseCnt = 0;
+                        }
+                    }
+                    else
+                    {
+                        HostCmdMsg[ch].motorProfile.nowSumPulseCnt +=  pulseCount[ch];
+                    }
+
+                    sprintf(msg, "%" PRIu64 "\r\n", HostCmdMsg[ch].motorProfile.nowSumPulseCnt);
                     SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
                     DEVICE_DELAY_US(1000);
                 }
@@ -374,15 +401,17 @@ void motor_mode(void)
                 }
 
         //        epwmDisableSet(STEP_23);
+                HostCmdMsg[ch].oprationSetBit.lastmotorRun = HostCmdMsg[ch].oprationSetBit.motorRun;
             }
 
-            HostCmdMsg[ch].oprationSetBit.lastmotorRun = HostCmdMsg[ch].oprationSetBit.motorRun;
+
             uint16_t data = drv8452_read(nowChannel);  //
         }
     }
 
 
-    //        Can_State_Ptr = &hostCmd;
+
+//    Can_State_Ptr = &motorStartSet;
             Can_State_Ptr = &idle_mode;
 
 }
@@ -459,7 +488,7 @@ void prameterInit(void)
         HostCmdMsg[channel].motorProfile.home_PulseCnt = 17066L * 10; // 20 회전
         HostCmdMsg[channel].motorProfile.nowSumPulseCnt = 0;
 //        HostCmdMsg[channel].motorProfile.set_MaxPulseCnt = 0;
-
+        HostCmdMsg[channel].motorProfile.homeCmdCnt = 0;
 
         HostCmdMsg[channel].oprationSetBit.motorDirection = 0;
         HostCmdMsg[channel].oprationSetBit.motorRun = 0;
