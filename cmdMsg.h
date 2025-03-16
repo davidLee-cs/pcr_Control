@@ -18,12 +18,12 @@
 /***** Type declarations *****/
 struct TempProfile {
 
-    int16_t targetTemp[6];
+    float32_t targetTemp[6];
     uint16_t timeTemp[6];
-    int16_t singleTargetTemp;
-    int16_t lastSingleTargetTemp;   // 이전 설정 온도
+    float32_t singleTargetTemp;
+    float32_t lastSingleTargetTemp;   // 이전 설정 온도
     uint16_t singleTimeTemp;        // 단위: 100 mS
-    int16_t tempOffset;
+    float32_t tempOffset;
 
     uint16_t tempCycle;
 

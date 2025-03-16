@@ -37,6 +37,8 @@ struct tempSensor{
 
     float32_t tempSensorEma_Peltier;      //paltier
     float32_t tempSensorEma_Block;
+    float32_t lasttempSensorEma_Block;
+
     float32_t tempSensor_Metal;      //case
     float32_t nowTemp_S1;
     float32_t nowTemp_S2;
@@ -84,6 +86,7 @@ struct OpCmdMsg {
     uint64_t stepperPulseCnt;
     int16_t  lastTargetTemp;   // 이전 설정 온도
     uint16_t control_mode;
+    uint16_t nowcontrol_mode;
     int16_t  profileLevel;
     uint16_t gCycleDone;
 };

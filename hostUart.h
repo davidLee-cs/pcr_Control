@@ -16,11 +16,12 @@ static void pumpSet(int16_t stop);
 int16_t hostCmd(void);
 static void tempStartSet(void);
 static void tempOffset(void);
-//int16_t motorStartSet(void);
-static void dacSet(void);
+static int16_t motorStartSet(void);
 static void fanSet(void);
 static void home_mode(void);
+//static void parameter_read_mode(void);
 static void motor_max_pulseSet(void);
+//void power_home_mode(void);
 static void button_status(void);
 static void homing(void);
 static void limite(void);
@@ -34,6 +35,7 @@ static void tpara(void);
 
 
 const char *tempSetCmd =            "$TEMP";  // 프로파일 온도 설정, 시간 설정
+const char *tempOffsetCmd =         "TOSET";
 const char *tempSingleSetCmd =      "$STEMP";  // 싱글 온도 설정, 시간 설정
 const char *stopCmd =               "$STOP";
 const char *startCmd =              "$START";

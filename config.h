@@ -28,7 +28,7 @@
 #include "deviceRun.h"
 #include "DCLF32.h"
 #include "tempPID.h"
-
+#include "xint_gpio.h"
 
 
 #define PT100_CH0       0
@@ -60,13 +60,16 @@ enum {
     ONE_SHOT_MODE,
     COOLING_MODE,
     ONE_SHOT_OFF_MODE,
+    COLLING_ONE_SHOT,
     HEAT_INDEX_MAX
 };
 
-void motorStartSet(void);
+
 void power_home_mode(void);
 int16_t hostCmd(void);
 extern void (*Can_State_Ptr)(void);        // 다음 수행될 모드를 가르키는 함수 포인터
+extern void (*last_Can_State_Ptr)(void);        // 다음 수행될 모드를 가르키는 함수 포인터
+
 //extern struct HostCmdMsg HostCmdMsg;
 
 extern uint16_t jump;
@@ -76,9 +79,8 @@ extern uint64_t pulseCount[4];     // 현재까지 발생한 펄스 수
 extern int16_t home_enable;
 extern int16_t enablecheck[4];
 extern int16_t pumpStop;
-extern uint16_t targetSpeed;
 //extern int16_t gBoot_Rx_cnt;
-
+extern DCL_PID pidTemp[6];
 
 
 #endif /* CONFIG_H_ */

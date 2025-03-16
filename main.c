@@ -20,6 +20,7 @@ uint16_t jump=0;
 uint16_t gSendTemp_en=0;
 
 void (*Can_State_Ptr)(void);        // 다음 수행될 모드를 가르키는 함수 포인터
+void (*last_Can_State_Ptr)(void);        // 다음 수행될 모드를 가르키는 함수 포인터
 struct HostCmdMsg HostCmdMsg[6];
 struct OpCmdMsg OpCmdMsg[6];
 struct OpSwitchStatus OpSwitchStatus;
@@ -45,6 +46,7 @@ void main(void)
 
     Board_init();
 
+    xint_init();
     sci_set();
     epwmSet();
     epwmDisableSet(PUMP_01);
@@ -104,10 +106,12 @@ void main(void)
     DEVICE_DELAY_US(200000);
 
 //        Can_State_Ptr = &hostCmd;
-    Can_State_Ptr = &idle_mode;
+//    Can_State_Ptr = &idle_mode;
 //    hostCmd 명령어 대신 검증 필요. 속도 개선
+    Can_State_Ptr = &temp_mode;
 
-//    power_home_mode();
+    //todo 초기화 후에 호밍 진행? 일대    Can_State_Ptr = &temp_mode; 재검토
+    //    power_home_mode();
 
     while(1)
     {
@@ -121,7 +125,7 @@ void main(void)
 #endif
 
 //        (void)hostCmd();
-        if(cputimer0Flag == TRUE)//10ms Timer flag
+//        if(cputimer0Flag == TRUE)//10ms Timer flag
         {
 
             cputimer0Flag = FALSE;
@@ -142,8 +146,8 @@ void main(void)
 //                    select_Channel(0, PT100_CH2);
                     ch0 = read_pr100(0,PT100_CH0) * 10;
                     ch1 = read_pr100(0,PT100_CH1) * 10;
-                    ch2 = read_pr100(0,PT100_CH2) * 10;
-                    ch3 = read_pr100(0,PT100_CH3) * 10;
+                    ch2 = read_pr100(0,PT100_CH2) * 10;    // 컨테터 3번이 fet 4번
+                    ch3 = read_pr100(0,PT100_CH3) * 10;    // 커넥터 4번이 fet 3번
 
 //                    select_Channel(0, PT100_CH3);
                     ch4 = read_pr100(1,PT100_CH0) * 10;

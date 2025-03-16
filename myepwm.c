@@ -148,31 +148,31 @@ __interrupt void epwm1ISR(void)
 
     int16_t enablecheck1=0, enablecheck2=0;
 
-    if(OpSwitchStatus.button1 == 1)
-    {
-        if(HostCmdMsg[0].oprationSetBit.pumpRun == 0)
-        {
-
-                enablecheck1 = 1;
-                EPWM_disableCounterCompareShadowLoadMode(myStepMotorEPWM1_BASE, EPWM_COUNTER_COMPARE_B);
-        //        EPWM_setActionQualifierSWAction(myStepMotorEPWM1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_OUTPUT_LOW);
-                EPWM_setCounterCompareValue(myStepMotorEPWM1_BASE, EPWM_COUNTER_COMPARE_B, 2001); // 하드웨어 방법
-
-        }
-    }
-
-    if(OpSwitchStatus.button0 == 1)
-    {
-        if(HostCmdMsg[1].oprationSetBit.pumpRun == 0)
-        {
-
-                enablecheck2 = 1;
-                EPWM_disableCounterCompareShadowLoadMode(myStepMotorEPWM1_BASE, EPWM_COUNTER_COMPARE_A);
-        //        EPWM_setActionQualifierSWAction(myStepMotorEPWM1_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_OUTPUT_LOW);
-                 EPWM_setCounterCompareValue(myStepMotorEPWM1_BASE, EPWM_COUNTER_COMPARE_A, 2001); // 하드웨어 방법
-
-         }
-    }
+//    if(OpSwitchStatus.button1 == 1)
+//    {
+//        if(HostCmdMsg[0].oprationSetBit.pumpRun == 0)
+//        {
+//
+//                enablecheck1 = 1;
+//                EPWM_disableCounterCompareShadowLoadMode(myStepMotorEPWM1_BASE, EPWM_COUNTER_COMPARE_B);
+//        //        EPWM_setActionQualifierSWAction(myStepMotorEPWM1_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_OUTPUT_LOW);
+//                EPWM_setCounterCompareValue(myStepMotorEPWM1_BASE, EPWM_COUNTER_COMPARE_B, 2001); // 하드웨어 방법
+//
+//        }
+//    }
+//
+//    if(OpSwitchStatus.button0 == 1)
+//    {
+//        if(HostCmdMsg[1].oprationSetBit.pumpRun == 0)
+//        {
+//
+//                enablecheck2 = 1;
+//                EPWM_disableCounterCompareShadowLoadMode(myStepMotorEPWM1_BASE, EPWM_COUNTER_COMPARE_A);
+//        //        EPWM_setActionQualifierSWAction(myStepMotorEPWM1_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_OUTPUT_LOW);
+//                 EPWM_setCounterCompareValue(myStepMotorEPWM1_BASE, EPWM_COUNTER_COMPARE_A, 2001); // 하드웨어 방법
+//
+//         }
+//    }
 
     if((enablecheck1 == 1) && (enablecheck2 == 1))
     {
@@ -201,31 +201,31 @@ __interrupt void epwm2ISR(void)
 
 
     int16_t enablecheck1=0, enablecheck2=0;
-    if(OpSwitchStatus.button3 == 1)
-    {
-        if(HostCmdMsg[2].oprationSetBit.pumpRun == 0)
-        {
-
-                enablecheck1 = 1;
-                EPWM_disableCounterCompareShadowLoadMode(myStepMotorEPWM2_BASE, EPWM_COUNTER_COMPARE_B);
-        //        EPWM_setActionQualifierSWAction(myStepMotorEPWM2_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_OUTPUT_LOW);
-                EPWM_setCounterCompareValue(myStepMotorEPWM2_BASE, EPWM_COUNTER_COMPARE_B, 2001); // 하드웨어 방법
-
-        }
-    }
-
-    if(OpSwitchStatus.button2 == 1)
-    {
-        if(HostCmdMsg[3].oprationSetBit.pumpRun == 0)
-        {
-
-                enablecheck2 = 1;
-                EPWM_disableCounterCompareShadowLoadMode(myStepMotorEPWM2_BASE, EPWM_COUNTER_COMPARE_A);
-        //        EPWM_setActionQualifierSWAction(myStepMotorEPWM2_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_OUTPUT_LOW);
-                EPWM_setCounterCompareValue(myStepMotorEPWM2_BASE, EPWM_COUNTER_COMPARE_A, 2001); // 하드웨어 방법
-
-        }
-    }
+//    if(OpSwitchStatus.button3 == 1)
+//    {
+//        if(HostCmdMsg[2].oprationSetBit.pumpRun == 0)
+//        {
+//
+//                enablecheck1 = 1;
+//                EPWM_disableCounterCompareShadowLoadMode(myStepMotorEPWM2_BASE, EPWM_COUNTER_COMPARE_B);
+//        //        EPWM_setActionQualifierSWAction(myStepMotorEPWM2_BASE, EPWM_AQ_OUTPUT_B, EPWM_AQ_OUTPUT_LOW);
+//                EPWM_setCounterCompareValue(myStepMotorEPWM2_BASE, EPWM_COUNTER_COMPARE_B, 2001); // 하드웨어 방법
+//
+//        }
+//    }
+//
+//    if(OpSwitchStatus.button2 == 1)
+//    {
+//        if(HostCmdMsg[3].oprationSetBit.pumpRun == 0)
+//        {
+//
+//                enablecheck2 = 1;
+//                EPWM_disableCounterCompareShadowLoadMode(myStepMotorEPWM2_BASE, EPWM_COUNTER_COMPARE_A);
+//        //        EPWM_setActionQualifierSWAction(myStepMotorEPWM2_BASE, EPWM_AQ_OUTPUT_A, EPWM_AQ_OUTPUT_LOW);
+//                EPWM_setCounterCompareValue(myStepMotorEPWM2_BASE, EPWM_COUNTER_COMPARE_A, 2001); // 하드웨어 방법
+//
+//        }
+//    }
 
     if((enablecheck1 == 1) && (enablecheck2 == 1))
     {
@@ -1175,6 +1175,7 @@ void pumpEpwmSet(int16_t channel, uint16_t duty)
 {
 
     uint16_t targetSpeed = 2000;
+    uint16_t realduty = duty;
 
     if(duty >= 99)
     {
@@ -1189,6 +1190,10 @@ void pumpEpwmSet(int16_t channel, uint16_t duty)
     uint16_t realDuty = 100 - duty;
     uint16_t compare = targetSpeed * (float)(realDuty * 0.01);
 
+    if(realduty == 0)
+    {
+        compare = 2001;
+    }
 
 #if 1
     if(channel == 3)

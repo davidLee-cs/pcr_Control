@@ -180,8 +180,7 @@ void temp_mode(void)
     char *msg = NULL;
     int16_t ch;
 
-//    for(ch=0; ch< PELTIER_4EA; ch++)
-    for(ch=1; ch< 2; ch++)
+    for(ch=0; ch< PELTIER_4EA; ch++)
     {
         // 채널별 run 실쟁과 동작 시간(단위 100ms)이 0 이상 설정 되었을 때만 동작 함.
         if((HostCmdMsg[ch].oprationSetBit.temperatureRun == 1) && (HostCmdMsg[ch].TempProfile.singleTimeTemp > 0))
@@ -274,21 +273,17 @@ void motor_mode(void)
 
                 motor_Parameterset(ch);
 
-                pulseCount[ch] = 0;     // 현재까지 발생한 펄스 수
-                enablecheck[ch] = 0;
-
                 if((ch == 0) || (ch == 1))
                 {
-                    epwmEnableSet(STEP_23); // 설정 시 한번만 설정할것.
                     epwmEnableSet(STEP_23); // 설정 시 한번만 설정할것.
                 }
                 else if((ch == 2) || (ch == 3))
                 {
                     epwmEnableSet(STEP_01); // 설정 시 한번만 설정할것.
-                    epwmEnableSet(STEP_01); // 설정 시 한번만 설정할것.
                 }
 
-
+                pulseCount[ch] = 0;     // 현재까지 발생한 펄스 수
+                enablecheck[ch] = 0;
             }
         }
     }
@@ -364,8 +359,6 @@ void motor_mode(void)
 
                 if(HostCmdMsg[ch].oprationSetBit.lastmotorRun == 1)
                 {
-                    HostCmdMsg[ch].oprationSetBit.lastmotorRun = 0;
-
                     sprintf(msg,"$MDONE,%d,", ch);
                     SCI_writeCharArray(BOOT_SCI_BASE, (uint16_t*)msg, strlen(msg));
 
@@ -401,18 +394,16 @@ void motor_mode(void)
                 }
 
         //        epwmDisableSet(STEP_23);
-                HostCmdMsg[ch].oprationSetBit.lastmotorRun = HostCmdMsg[ch].oprationSetBit.motorRun;
             }
 
-
+            HostCmdMsg[ch].oprationSetBit.lastmotorRun = HostCmdMsg[ch].oprationSetBit.motorRun;
             uint16_t data = drv8452_read(nowChannel);  //
         }
     }
 
 
-
-//    Can_State_Ptr = &motorStartSet;
-            Can_State_Ptr = &idle_mode;
+    //        Can_State_Ptr = &hostCmd;
+//            Can_State_Ptr = &idle_mode;
 
 }
 
@@ -536,8 +527,8 @@ void stop_mode(void)
     drv8452_outDisable(2);
     drv8452_outDisable(3);
 
-//    epwmDisableSet(PUMP_01);
-//    epwmDisableSet(PUMP_23);
+    epwmDisableSet(PUMP_01);
+    epwmDisableSet(PUMP_23);
     epwmDisableSet(STEP_23);
     epwmDisableSet(STEP_01);
 
@@ -558,7 +549,7 @@ void stop_mode(void)
     fan_AllOff();
 
     //        Can_State_Ptr = &hostCmd;
-            Can_State_Ptr = &idle_mode;
+//            Can_State_Ptr = &idle_mode;
 
 
 }
@@ -636,15 +627,15 @@ void fan_control(int16_t heatFan)
 void switchRead(void)
 {
 
-    OpSwitchStatus.limie0 = GPIO_readPin(LIMIT0);
-    OpSwitchStatus.limie1 = GPIO_readPin(LIMIT1);
-    OpSwitchStatus.limie2 = GPIO_readPin(LIMIT2);
-    OpSwitchStatus.limie3 = GPIO_readPin(LIMIT3);
-
-    OpSwitchStatus.home0 = GPIO_readPin(HOME0);
-    OpSwitchStatus.home1 = GPIO_readPin(HOME1);
-    OpSwitchStatus.home2 = GPIO_readPin(HOME2);
-    OpSwitchStatus.home3 = GPIO_readPin(HOME3);
+//    OpSwitchStatus.limie0 = GPIO_readPin(LIMIT0);
+//    OpSwitchStatus.limie1 = GPIO_readPin(LIMIT1);
+//    OpSwitchStatus.limie2 = GPIO_readPin(LIMIT2);
+//    OpSwitchStatus.limie3 = GPIO_readPin(LIMIT3);
+//
+//    OpSwitchStatus.home0 = GPIO_readPin(HOME0);
+//    OpSwitchStatus.home1 = GPIO_readPin(HOME1);
+//    OpSwitchStatus.home2 = GPIO_readPin(HOME2);
+//    OpSwitchStatus.home3 = GPIO_readPin(HOME3);
 
     OpSwitchStatus.button0 = GPIO_readPin(BUTTON0);
     OpSwitchStatus.button1 = GPIO_readPin(BUTTON1);
@@ -666,9 +657,8 @@ void switchRead(void)
         epwmEnableSet(PUMP_23); // 설정 시 한번만 설정할것.
     }
 
-
-
 }
+
 
 void idle_mode(void)
 {

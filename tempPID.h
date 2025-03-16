@@ -14,7 +14,7 @@
 #define DAC_VREF 3.3f         // DAC 기준 전압 (0~3.3V)
 
 
-extern void tempPidControl(int16_t runCh, int16_t targetTemp);
+extern void tempPidControl(int16_t runCh, float32_t targetTemp);
 extern void init_pid(void);
 extern void SetOnOffControl(float32_t readNowTemp, float32_t targetTemp, int16_t ch);
 

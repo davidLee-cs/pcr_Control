@@ -62,7 +62,7 @@ int16_t hostCmd(void)
         }
 
         //command : $TOSET,100,10,101,11\r\n
-        if(strncmp(rBootData_Rx, tempSetCmd, 6) == 0)
+        if(strncmp(rBootData_Rx, tempOffsetCmd, 6) == 0)
         {
             tempOffset();
 //            Example_Done();
@@ -246,22 +246,22 @@ static void tempOffset(void)
     if( tempset != NULL)
     {
 
-        HostCmdMsg[0].TempProfile.tempOffset = atoi(tempset) ;
+        HostCmdMsg[0].TempProfile.tempOffset = (float)atoi(tempset) * 0.1f;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg[1].TempProfile.tempOffset = atoi(tempset) ;
+        HostCmdMsg[1].TempProfile.tempOffset = (float)atoi(tempset) * 0.1f;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg[2].TempProfile.tempOffset = atoi(tempset) ;
+        HostCmdMsg[2].TempProfile.tempOffset = (float)atoi(tempset) * 0.1f;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg[3].TempProfile.tempOffset = atoi(tempset) ;
+        HostCmdMsg[3].TempProfile.tempOffset = (float)atoi(tempset) * 0.1f;
 
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
 
 //        Can_State_Ptr = &hostCmd;
-        Can_State_Ptr = &idle_mode;
+//        Can_State_Ptr = &idle_mode;
     }
 
 }
@@ -308,7 +308,7 @@ static void tempStartSet(void)
 }
 
 
-void motorStartSet(void)
+static int16_t motorStartSet(void)
 {
     const char* comma = ",";
     const char end[] = {'\r', '\n'};
@@ -322,30 +322,13 @@ void motorStartSet(void)
     if( motorset != NULL)
     {
 
-        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
-        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
-
         epwmDisableSet(STEP_23); // 설정 시 한번만 설정할것.
         epwmDisableSet(STEP_01); // 설정 시 한번만 설정할것.
-
-//        epwmEnableSet(STEP_23);
-//        epwmEnableSet(STEP_01);
-//
-//        motor_Parameterset(0);
-//        motor_Parameterset(1);
-//        motor_Parameterset(2);
-//        motor_Parameterset(3);
-
-//        EPWM_setCounterCompareValue(myStepMotorEPWM3_BASE, EPWM_COUNTER_COMPARE_A, targetSpeed+1); // 하드웨어 방법
-//        EPWM_setCounterCompareValue(myStepMotorEPWM3_BASE, EPWM_COUNTER_COMPARE_B, targetSpeed+1); // 하드웨어 방법
-//        EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_A, targetSpeed+1); // 하드웨어 방법
-//        EPWM_setCounterCompareValue(myStepMotorEPWM4_BASE, EPWM_COUNTER_COMPARE_B, targetSpeed+1); // 하드웨어 방법
-
 
         HostCmdMsg[0].oprationSetBit.motorRun = atoi(motorset);
         motorset = strtok(NULL, comma);
 
-//        if(HostCmdMsg[0].oprationSetBit.motorRun == 1) // 옴으로 이동중에 펄스값 감소가 안되어 사용
+        if(HostCmdMsg[0].oprationSetBit.motorRun == 1)
         {
             HostCmdMsg[0].oprationSetBit.motorDirection = atoi(motorset);
         }
@@ -355,7 +338,7 @@ void motorStartSet(void)
         HostCmdMsg[1].oprationSetBit.motorRun = atoi(motorset);
         motorset = strtok(NULL, comma);
 
-//        if(HostCmdMsg[1].oprationSetBit.motorRun == 1)
+        if(HostCmdMsg[1].oprationSetBit.motorRun == 1)
         {
             HostCmdMsg[1].oprationSetBit.motorDirection = atoi(motorset);
         }
@@ -364,7 +347,7 @@ void motorStartSet(void)
         HostCmdMsg[2].oprationSetBit.motorRun = atoi(motorset);
         motorset = strtok(NULL, comma);
 
-//        if(HostCmdMsg[2].oprationSetBit.motorRun == 1)
+        if(HostCmdMsg[2].oprationSetBit.motorRun == 1)
         {
             HostCmdMsg[2].oprationSetBit.motorDirection = atoi(motorset);
         }
@@ -373,7 +356,7 @@ void motorStartSet(void)
         HostCmdMsg[3].oprationSetBit.motorRun = atoi(motorset);
         motorset = strtok(NULL, comma);
 
-//        if(HostCmdMsg[3].oprationSetBit.motorRun == 1)
+        if(HostCmdMsg[3].oprationSetBit.motorRun == 1)
         {
             HostCmdMsg[3].oprationSetBit.motorDirection = atoi(motorset);
         }
@@ -386,18 +369,15 @@ void motorStartSet(void)
         HostCmdMsg[3].motorProfile.homeCmdCnt = 0;
 
 
+        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
+        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
 
 
-//        if((nowChannel == 0) || (nowChannel == 1))
-//        {
-//            epwmEnableSet(STEP_23); // 설정 시 한번만 설정할것.
-//        }
-//        else if((nowChannel == 2) || (nowChannel == 3))
-//        {
-//            epwmEnableSet(STEP_01); // 설정 시 한번만 설정할것.
-//        }
-//        jump = MOTOR_RUN;
-        Can_State_Ptr = &motor_mode;
+
+        //        jump = MOTOR_RUN;
+//        Can_State_Ptr = &motor_mode;
+
+        motor_mode();
 
     }
 
@@ -488,7 +468,7 @@ static void tpara(void)
 //        DEVICE_DELAY_US(100000);
 
 //        Can_State_Ptr = &hostCmd;
-        Can_State_Ptr = &idle_mode;
+//        Can_State_Ptr = &idle_mode;
     }
 
 }
@@ -508,7 +488,7 @@ static void tpara1(void)
 //        DEVICE_DELAY_US(100000);
 
 //        Can_State_Ptr = &hostCmd;
-        Can_State_Ptr = &idle_mode;
+//        Can_State_Ptr = &idle_mode;
     }
 }
 
@@ -543,7 +523,7 @@ static void mpapa0(void)
 
     }
     //        Can_State_Ptr = &hostCmd;
-            Can_State_Ptr = &idle_mode;
+//            Can_State_Ptr = &idle_mode;
 
 }
 
@@ -564,7 +544,7 @@ static void mpara1(void)
     }
 
     //        Can_State_Ptr = &hostCmd;
-            Can_State_Ptr = &idle_mode;
+//            Can_State_Ptr = &idle_mode;
 
 
 }
@@ -587,7 +567,7 @@ static void ppara(void)
     }
 
     //        Can_State_Ptr = &hostCmd;
-            Can_State_Ptr = &idle_mode;
+//            Can_State_Ptr = &idle_mode;
 
 
 }
@@ -611,7 +591,7 @@ static void limite(void)
     }
 
     //        Can_State_Ptr = &hostCmd;
-            Can_State_Ptr = &idle_mode;
+//            Can_State_Ptr = &idle_mode;
 
 
 }
@@ -635,7 +615,7 @@ static void homing(void)
     }
 
     //        Can_State_Ptr = &hostCmd;
-            Can_State_Ptr = &idle_mode;
+//            Can_State_Ptr = &idle_mode;
 
 }
 
@@ -658,7 +638,7 @@ static void button_status(void)
     }
 
     //        Can_State_Ptr = &hostCmd;
-            Can_State_Ptr = &idle_mode;
+//            Can_State_Ptr = &idle_mode;
 
 
 }
@@ -694,7 +674,7 @@ static void motor_max_pulseSet(void)
         home_enable = 1;
     }
 
-    Can_State_Ptr = &motor_mode;
+//    Can_State_Ptr = &motor_mode;
 }
 
 
@@ -724,11 +704,34 @@ static void home_mode(void)
         HostCmdMsg[3].oprationSetBit.stepperHome = atoi(homeset) ;
 
 
-//        HostCmdMsg[0].motorProfile.set_PulseCnt = 17706;
-//        HostCmdMsg[1].motorProfile.set_PulseCnt = 17706;
-//        HostCmdMsg[2].motorProfile.set_PulseCnt = 17706;
-//        HostCmdMsg[3].motorProfile.set_PulseCnt = 17706;
+        HostCmdMsg[0].motorProfile.set_PulseCnt = 17706;
+        HostCmdMsg[1].motorProfile.set_PulseCnt = 17706;
+        HostCmdMsg[2].motorProfile.set_PulseCnt = 17706;
+        HostCmdMsg[3].motorProfile.set_PulseCnt = 17706;
 
+//        if(HostCmdMsg[0].motorProfile.homeCmdCnt++ > 1)
+//        {
+////            HostCmdMsg[0].oprationSetBit.stepperHome = 0;
+//            HostCmdMsg[0].oprationSetBit.motorRun = 0;
+//        }
+//
+//        if(HostCmdMsg[1].motorProfile.homeCmdCnt++ > 1)
+//        {
+////            HostCmdMsg[1].oprationSetBit.stepperHome = 0;
+//            HostCmdMsg[1].oprationSetBit.motorRun = 0;
+//        }
+//
+//        if(HostCmdMsg[2].motorProfile.homeCmdCnt++ > 1)
+//        {
+////            HostCmdMsg[2].oprationSetBit.stepperHome = 0;
+//            HostCmdMsg[2].oprationSetBit.motorRun = 0;
+//        }
+//
+//        if(HostCmdMsg[3].motorProfile.homeCmdCnt++ > 1)
+//        {
+////            HostCmdMsg[3].oprationSetBit.stepperHome = 0;
+//            HostCmdMsg[3].oprationSetBit.motorRun = 0;
+//        }
 
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
@@ -736,7 +739,8 @@ static void home_mode(void)
         home_enable = 1;
     }
 
-    Can_State_Ptr = &motor_mode;
+//    Can_State_Ptr = &motor_mode;
+    motor_mode();
 }
 
 
@@ -749,7 +753,8 @@ void power_home_mode(void)
     HostCmdMsg[3].oprationSetBit.stepperHome = 1 ;
     home_enable = 1;
 
-    Can_State_Ptr = &motor_mode;
+//    Can_State_Ptr = &motor_mode;
+    motor_mode();
 }
 
 static int16_t motorSet(void)
@@ -794,7 +799,7 @@ static int16_t motorSet(void)
     }
 
     //        Can_State_Ptr = &hostCmd;
-            Can_State_Ptr = &idle_mode;
+//            Can_State_Ptr = &idle_mode;
 
 
     return 0;
@@ -818,15 +823,17 @@ static void pumpSet(int16_t stop)
 
     if(stop == 1)
     {
-//        HostCmdMsg[0].motorProfile.pumpDuty = 5;
-//        HostCmdMsg[1].motorProfile.pumpDuty = 5;
-//        HostCmdMsg[2].motorProfile.pumpDuty = 5;
-//        HostCmdMsg[3].motorProfile.pumpDuty = 5;
+        HostCmdMsg[0].motorProfile.pumpDuty = 0;
+        HostCmdMsg[1].motorProfile.pumpDuty = 0;
+        HostCmdMsg[2].motorProfile.pumpDuty = 0;
+        HostCmdMsg[3].motorProfile.pumpDuty = 0;
 
-        HostCmdMsg[1].oprationSetBit.pumpRun = 0;
-        HostCmdMsg[0].oprationSetBit.pumpRun = 0;
-        HostCmdMsg[3].oprationSetBit.pumpRun = 0;
-        HostCmdMsg[2].oprationSetBit.pumpRun = 0;
+        pump_Parameterset(0);
+        pump_Parameterset(1);
+        pump_Parameterset(2);
+        pump_Parameterset(3);
+//        DEVICE_DELAY_US(10000);
+
     }
     else
     {
@@ -841,20 +848,40 @@ static void pumpSet(int16_t stop)
             HostCmdMsg[3].motorProfile.pumpDuty = duty;
 
             run0 = atoi(pumpset);
-            HostCmdMsg[1].oprationSetBit.pumpRun = run0;
+            HostCmdMsg[2].oprationSetBit.pumpRun = run0;
             pumpset = strtok(NULL, comma);
 
             run1 = atoi(pumpset);
-            HostCmdMsg[0].oprationSetBit.pumpRun = run1;
+            HostCmdMsg[3].oprationSetBit.pumpRun = run1;
             pumpset = strtok(NULL, comma);
 
             run2 = atoi(pumpset);
-            HostCmdMsg[3].oprationSetBit.pumpRun = run2;
+            HostCmdMsg[0].oprationSetBit.pumpRun = run2;
             pumpset = strtok(NULL, comma);
 
             run3 = atoi(pumpset);
-            HostCmdMsg[2].oprationSetBit.pumpRun = run3;
+            HostCmdMsg[1].oprationSetBit.pumpRun = run3;
 
+
+            if(run0 == 0){
+                HostCmdMsg[2].motorProfile.pumpDuty = 0;
+//                pump_Parameterset(0);
+            }
+
+            if(run1 == 0){
+                HostCmdMsg[3].motorProfile.pumpDuty = 0;
+//                pump_Parameterset(1);
+            }
+
+            if(run2 == 0){
+                HostCmdMsg[0].motorProfile.pumpDuty = 0;
+//                pump_Parameterset(2);
+            }
+
+            if(run3 == 0){
+                HostCmdMsg[1].motorProfile.pumpDuty = 0;
+//                pump_Parameterset(3);
+            }
 
             pump_Parameterset(0);
             pump_Parameterset(1);
@@ -864,12 +891,13 @@ static void pumpSet(int16_t stop)
 
             if((run0 == 1) || (run1 == 1))
             {
-                epwmEnableSet(PUMP_01); // 설정 시 한번만 설정할것.
+                epwmEnableSet(PUMP_23); // 설정 시 한번만 설정할것.
+
             }
 
             if((run2 == 1) || (run3 == 1))
             {
-                epwmEnableSet(PUMP_23); // 설정 시 한번만 설정할것.
+                epwmEnableSet(PUMP_01); // 설정 시 한번만 설정할것.
             }
 
 
@@ -881,7 +909,7 @@ static void pumpSet(int16_t stop)
 
 
     //        Can_State_Ptr = &hostCmd;
-            Can_State_Ptr = &idle_mode;
+//            Can_State_Ptr = &idle_mode;
 
 
 }
@@ -893,7 +921,7 @@ static int16_t tempSet(void)
     const char end[] = {'\r', '\n'};
 
     char buffer[100] = {0,};
-
+    float32_t setTemp;
 //    int16_t i;
 //    for(i=0; i<100; i++)
 //    {
@@ -914,31 +942,36 @@ static int16_t tempSet(void)
             return 1;
         }
 
-        HostCmdMsg[channel].TempProfile.targetTemp[0] = atoi(tempset) ;
+        setTemp = (float32_t)atoi(tempset) * 0.1f;
+        HostCmdMsg[channel].TempProfile.targetTemp[0] = setTemp + HostCmdMsg[channel].TempProfile.tempOffset;
         tempset = strtok(NULL, comma);
 
         HostCmdMsg[channel].TempProfile.timeTemp[0] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg[channel].TempProfile.targetTemp[1] = atoi(tempset) ;
+        setTemp = (float32_t)atoi(tempset) * 0.1f;
+        HostCmdMsg[channel].TempProfile.targetTemp[1] = setTemp + HostCmdMsg[channel].TempProfile.tempOffset;
         tempset = strtok(NULL, comma);
 
         HostCmdMsg[channel].TempProfile.timeTemp[1] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg[channel].TempProfile.targetTemp[2] = atoi(tempset) ;
+        setTemp = (float32_t)atoi(tempset) * 0.1f;
+        HostCmdMsg[channel].TempProfile.targetTemp[2] = setTemp + HostCmdMsg[channel].TempProfile.tempOffset;
         tempset = strtok(NULL, comma);
 
         HostCmdMsg[channel].TempProfile.timeTemp[2] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg[channel].TempProfile.targetTemp[3] = atoi(tempset) ;
+        setTemp = (float32_t)atoi(tempset) * 0.1f;
+        HostCmdMsg[channel].TempProfile.targetTemp[3] = setTemp + HostCmdMsg[channel].TempProfile.tempOffset;
         tempset = strtok(NULL, comma);
 
         HostCmdMsg[channel].TempProfile.timeTemp[3] = atoi(tempset) ;
         tempset = strtok(NULL, comma);
 
-        HostCmdMsg[channel].TempProfile.targetTemp[4] = atoi(tempset) ;
+        setTemp = (float32_t)atoi(tempset) * 0.1f;
+        HostCmdMsg[channel].TempProfile.targetTemp[4] = setTemp + HostCmdMsg[channel].TempProfile.tempOffset;
         tempset = strtok(NULL, comma);
 
         HostCmdMsg[channel].TempProfile.timeTemp[4] = atoi(tempset) ;
@@ -946,6 +979,7 @@ static int16_t tempSet(void)
 
         HostCmdMsg[channel].TempProfile.tempCycle = atoi(tempset) ;
 
+        pidTemp[channel].Kp = 20.0f;
 
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
@@ -954,7 +988,7 @@ static int16_t tempSet(void)
     }
 
     //        Can_State_Ptr = &hostCmd;
-            Can_State_Ptr = &idle_mode;
+//            Can_State_Ptr = &idle_mode;
 
 
     return 0;
@@ -981,7 +1015,8 @@ static int16_t tempSingleSet(void)
             return 1;
         }
 
-        HostCmdMsg[channel].TempProfile.singleTargetTemp = atoi(tempset) + HostCmdMsg[channel].TempProfile.tempOffset;
+        float32_t setTemp = (float32_t)atoi(tempset) * 0.1f;
+        HostCmdMsg[channel].TempProfile.singleTargetTemp = setTemp + HostCmdMsg[channel].TempProfile.tempOffset;
         tempset = strtok(NULL, comma);
 
         HostCmdMsg[channel].TempProfile.singleTimeTemp = atoi(tempset) ;
@@ -989,9 +1024,25 @@ static int16_t tempSingleSet(void)
 
         HostCmdMsg[channel].TempProfile.tempCycle = atoi(tempset) ;
 
-        if(HostCmdMsg[channel].TempProfile.singleTargetTemp >=  HostCmdMsg[channel].TempProfile.lastSingleTargetTemp){
+        if(HostCmdMsg[channel].TempProfile.singleTargetTemp >=  HostCmdMsg[channel].TempProfile.lastSingleTargetTemp)
+        {
 
+            dac53508_write(0, channel);
+            DEVICE_DELAY_US(500);
+
+            if(channel == 0)            GPIO_writePin(DAC_REVERS_0, RELAY_OFF_HEATING);  // 전류 쿨링
+            else if(channel == 1)       GPIO_writePin(DAC_REVERS_1, RELAY_OFF_HEATING);  // 전류 쿨링
+            else if(channel == 2)       GPIO_writePin(DAC_REVERS_2, RELAY_OFF_HEATING);  // 전류 쿨링
+            else if(channel == 3)       GPIO_writePin(DAC_REVERS_3, RELAY_OFF_HEATING);  // 전류 쿨링
+            else
+            {
+                DEVICE_DELAY_US(500);
+            }
+
+            DEVICE_DELAY_US(500);
             OpCmdMsg[channel].control_mode = HEAT_MODE;
+            OpCmdMsg[channel].nowcontrol_mode =  HEAT_MODE;
+
         }
         else
         {
@@ -999,7 +1050,6 @@ static int16_t tempSingleSet(void)
             dac53508_write(0, channel);
             DEVICE_DELAY_US(500);
 
-            OpCmdMsg[channel].control_mode = COOLING_MODE;
 
             if(channel == 0)            GPIO_writePin(DAC_REVERS_0, RELAY_ON_COOLING);  // 전류 쿨링
             else if(channel == 1)       GPIO_writePin(DAC_REVERS_1, RELAY_ON_COOLING);  // 전류 쿨링
@@ -1011,13 +1061,12 @@ static int16_t tempSingleSet(void)
             }
 
             DEVICE_DELAY_US(500);
-//            DEVICE_DELAY_US(500000);
-//            DEVICE_DELAY_US(500000);
-//            DEVICE_DELAY_US(500000);
+            OpCmdMsg[channel].control_mode = COOLING_MODE;
+            OpCmdMsg[channel].nowcontrol_mode =  COOLING_MODE;
+
         }
 
         HostCmdMsg[channel].TempProfile.lastSingleTargetTemp = HostCmdMsg[channel].TempProfile.singleTargetTemp;
-
 
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
         SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
@@ -1026,57 +1075,10 @@ static int16_t tempSingleSet(void)
     }
 
     //        Can_State_Ptr = &hostCmd;
-            Can_State_Ptr = &idle_mode;
+//    Can_State_Ptr = &idle_mode;
 
 
     return 0;
-}
-
-
-
-static void dacSet(void)
-{
-    const char* comma = ",";
-    const char end[] = {'\r', '\n'};
-
-    char buffer[100] = {0,};
-
-    memcpy(&buffer[0],&rBootData_Rx[0], strlen(&rBootData_Rx[0]));
-
-    char* tempset = strtok(&rBootData_Rx[5],comma);
-
-    if( tempset != NULL)
-    {
-        int16_t channel = atoi(tempset);
-        tempset = strtok(NULL, comma);
-
-        HostCmdMsg[channel].dacSet.dacValue = atoi(tempset) ;
-        tempset = strtok(NULL, comma);
-
-        HostCmdMsg[channel].dacSet.dacValue = atoi(tempset) ;
-        tempset = strtok(NULL, comma);
-
-        HostCmdMsg[channel].dacSet.dacValue = atoi(tempset) ;
-        tempset = strtok(NULL, comma);
-
-        HostCmdMsg[channel].dacSet.dacValue = atoi(tempset) ;
-        tempset = strtok(NULL, comma);
-
-        HostCmdMsg[channel].dacSet.dacValue = atoi(tempset) ;
-        tempset = strtok(NULL, comma);
-
-        HostCmdMsg[channel].dacSet.dacValue = atoi(tempset) ;
-
-        OpCmdMsg[channel].opDacSet.dacSet = HostCmdMsg[channel].dacSet.dacValue;
-
-        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)buffer, (uint16_t)strlen(buffer));
-        SCI_writeCharArray(BOOT_SCI_BASE, (const char*)end, 2U);
-    }
-
-    //        Can_State_Ptr = &hostCmd;
-            Can_State_Ptr = &idle_mode;
-
-
 }
 
 static void fanSet(void)
@@ -1122,7 +1124,7 @@ static void fanSet(void)
     }
 
     //        Can_State_Ptr = &hostCmd;
-            Can_State_Ptr = &idle_mode;
+//            Can_State_Ptr = &idle_mode;
 
 
 }

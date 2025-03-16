@@ -22,6 +22,7 @@ extern uint16_t tempProfileCnt[4];
 extern uint16_t tempCycleCnt[4];
 extern uint16_t cpuTimer2IntCount;
 extern uint16_t cpuTimer1_OneShotCnt;
+extern int16_t tempCheck10msCnt[4];
 
 
 #endif /* TIMER_H_ */

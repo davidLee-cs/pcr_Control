@@ -152,6 +152,10 @@ __interrupt void
 cpuTimer0ISR(void)
 {
     cpuTimer0IntCount++;
+    tempCheck10msCnt[0]++;
+    tempCheck10msCnt[1]++;
+    tempCheck10msCnt[2]++;
+    tempCheck10msCnt[3]++;
 
     cputimer0Flag = TRUE;
 
